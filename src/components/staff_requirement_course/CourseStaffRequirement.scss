@@ -1,0 +1,154 @@
+.section-form {
+  background-color: #002060;
+  color: white;
+  margin-bottom: 2rem;
+  text-align: start;
+  padding: 4px;
+}
+
+.bx--modal-container {
+  border-radius: 10px;
+  width: min-content;
+
+  .bx--modal-content{
+    padding-right: 10%;
+    padding-left: 10%;
+  }
+
+  .bx--modal-header__heading{
+    padding-right: 10%;
+    font-weight: bold;
+  } 
+
+  .bx--text-area{
+    border-radius: 6px;
+    border: 3px solid black;
+    resize: none;
+  }
+
+  .bx--btn--primary{
+    font-size: 25px;
+    //border: 2px solid green;
+    padding-block: 5px;
+    padding-left: 60px;
+   // margin-right: 20px;
+    background-color: #002060;
+    //padding-right: 20px;
+    //margin-right: 6px;
+    //margin-left: 6px;
+    color: white;
+    border-radius: 10px;
+  }
+  .bx--btn--secondary{
+    font-size: 25px;
+    //border: 2px solid green;
+    padding-block: 5px;
+    padding-left: 60px;
+    //margin-left: 20px;
+    background-color: #606266;
+    //padding-right: 20px;
+    //margin-right: 6px;
+    //margin-left: 6px;
+    color: white;
+    border-radius: 10px;
+  }
+}
+
+.bx--btn--tertiary.a_1 {
+  font-size: 16px;
+  border: 2px solid green;
+  padding-left: 16px;
+  padding-right: 16px;
+  margin-right: 6px;
+  margin-left: 6px;
+  color: green;
+  border-radius: 4px;
+}
+
+.bx--btn--tertiary.a_1:hover{
+  background: lightgreen;
+}
+
+.bx--btn--tertiary.a_1:focus{
+  border: 2px solid lightgreen; 
+  background: lightgreen;
+}
+
+.bx--btn--tertiary.b_1 {
+  font-size: 16px;
+  border: 2px solid #c00000;
+  padding-left: 16px;
+  padding-right: 16px;
+  margin-right: 6px;
+  margin-left: 6px;
+  color: #c00000;
+  border-radius: 4px;
+}
+
+.bx--btn--tertiary.b_1:hover{
+  background: lightcoral;
+}
+
+.bx--btn--tertiary.b_1:focus{
+  border: 2px solid lightcoral; 
+  background: lightcoral;
+}
+
+
+.bx--btn--tertiary.c_1 {
+  font-size: 16px;
+  border: 2px solid goldenrod;
+  padding-left: 16px;
+  padding-right: 16px;
+  margin-right: 6px;
+  margin-left: 6px;
+  color: goldenrod;
+  border-radius: 4px;
+}
+
+.bx--btn--tertiary.c_1:hover{
+  background: palegoldenrod;
+}
+
+.bx--btn--tertiary.c_1:focus{
+  border: 2px solid palegoldenrod; 
+  background: palegoldenrod;
+}
+
+.bx--btn--tertiary.d {
+  font-size: 16px;
+  border: 2px solid #002b81;
+  margin-right: 6px;
+  margin-left: 6px;
+  padding-left: 16px;
+  padding-right: 16px;
+  color: #002b81;
+  border-radius: 4px;
+}
+
+.bx--btn--tertiary.d:hover{
+  background: #7a8db3;
+}
+
+.bx--btn--tertiary.d:focus{
+  border: 2px solid #7a8db3; 
+  background: #7a8db3;
+}
+
+.bx--data-table tbody td{
+  background-color: white;
+}
+
+.bx--data-table-container.SolicitudesRP{
+
+  .bx--table-header-label{
+    text-align: center;
+  }
+  .bx--data-table thead th{
+    background-color: #d9d9d9;
+  }
+  .bx--data-table tbody td{    
+    border-bottom: 2px solid black;
+    text-align: center;
+  }
+}

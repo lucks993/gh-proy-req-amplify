@@ -1,0 +1,18 @@
+
+export const GET_TOKEN = 'GET_TOKEN';
+export const GET_TOKEN_SUCCESS = 'GET_TOKEN_SUCCESS';
+export const GET_TOKEN_ERROR = 'GET_TOKEN_ERROR';
+
+export const USER_LOAD = 'USER_LOAD';
+export const USER_LOAD_SUCCESS = 'USER_LOAD_SUCCESS'
+export const USER_LOAD_ERROR = 'USER_LOAD_ERROR';
+
+export const LOGOUT = 'LOGOUT';
+export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS';
+export const LOGOUT_ERROR = 'LOGOUT_ERROR';
+
+
+export const REFRESH_TOKEN ='REFRESH_TOKEN';
+export const REFRESH_TOKEN_SUCCESS ='REFRESH_TOKEN_SUCCESS';
+export const REFRESH_TOKEN_ERROR = 'REFRESH_TOKEN_ERROR';
+    

@@ -1,0 +1,96 @@
+.spacer {
+  margin: 20px;
+}
+.spacer-sm {
+  margin-right: 12px;
+}
+.no-spacer {
+  margin: 0px;
+}
+
+body,
+html {
+  font-family: "Helvetica";
+}
+h2 {
+  font-weight: bold;
+  color: #002060;
+}
+.bx--btn {
+  text-align: center;
+}
+.bx--btn--primary {
+  background-color: #002060;
+}
+.bx--btn--primary:hover {
+  background-color: #002060;
+}
+.btn--danger {
+  background-color: #cc0000;
+}
+.btn--danger:hover {
+  background-color: #cc0000;
+}
+
+.btn--approve {
+  background-color: #00b050;
+}
+.btn--approve:hover {
+  background-color: #00b050;
+}
+
+.bx--btn--sm {
+  cursor: pointer;
+  border-radius: 0.3rem;
+  margin-bottom: 0.5rem;
+}
+.bx--data-table th {
+  background-color: #d9d9d9;
+}
+.bx--table-column-checkbox {
+  background-color: #d9d9d9;
+}
+.bx--data-table thead {
+  background-color: #d9d9d9;
+  border-radius: 0.3rem;
+}
+.bx--data-table-content {
+  border-style: solid;
+  border-color: coral;
+}
+
+input,
+select,
+textarea {
+  border-style: solid;
+  border-color: #d9d9d9;
+  border-width: thin;
+}
+
+.bx--checkbox {
+  border-style: solid;
+  border-color: #d9d9d9;
+  border-width: thin;
+}
+span {
+  font-family: "Helvetica";
+  font-size: 0.8rem;
+}
+
+.b--checkbox {
+  border-style: solid;
+  border-color: black;
+  border-width: thin;
+}
+select {
+  font-family: "Helvetica";
+}
+.bx--select-input {
+  border: 0.5px solid #002060;
+  height: 24px;
+}
+
+.bx--select--inline .bx--select-input {
+  border-bottom: 0.5px solid #002060;
+  border-radius: 0.3rem;
+}

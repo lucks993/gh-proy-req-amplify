@@ -1,0 +1,28 @@
+.bx--cc--title text.title{
+    fill: #002060;
+    font-size: 1.2rem;
+    font-weight: bold;
+    
+}
+
+.bx--cc--axes g.axis g.tick text{
+    fill: black;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+g.bx--cc--legend g.legend-item text{
+    fill: black;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+svg.bx--cc--chart-svg text{
+    fill: black;
+    font-size: 14px;
+}
+
+.input.MonthClass{
+    margin-top: 1.2rem;
+    width: 160px;
+}

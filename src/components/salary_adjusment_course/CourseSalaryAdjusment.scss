@@ -1,0 +1,31 @@
+.section-form {
+  background-color: #002060;
+  color: white;
+  margin-bottom: 2rem;
+  text-align: start;
+  padding: 4px;
+}
+.cls {
+  color: #fff;
+  padding: 10px 0;
+  width: 30%;
+}
+
+.b-approved {
+  background-color: #00b050;
+  pointer-events: none;
+}
+
+.b-denied {
+  background-color: #cc0000;
+  pointer-events: none;
+}
+
+.b-proccess {
+  background-color: #ffc000;
+  pointer-events: none;
+}
+hr {
+  color: #c61a1a;
+  margin-top: 0px;
+}

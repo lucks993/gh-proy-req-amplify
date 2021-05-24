@@ -1,0 +1,32 @@
+p.username {
+  color: white;
+  margin-top: 10px;
+  font-size: 110%;
+}
+
+.bx--header__menu-toggle {
+  display: none;
+}
+.bx--header__global {
+  background-color: #002060;
+}
+a.bx--header__name {
+  background-color: #002060;
+}
+@media screen and (max-width: 500px) {
+  .bx--header__menu-toggle {
+    display: block;
+  }
+  p.username {
+    font-size: 80%;
+  }
+}
+
+@media screen and (max-width: 320px) {
+  .bx--header__menu-toggle {
+    display: block;
+  }
+  p.username {
+    font-size: 55%;
+  }
+}

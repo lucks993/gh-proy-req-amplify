@@ -1,0 +1,221 @@
+.center_titles {
+  text-align: center;
+}
+
+.large-bootstrap-select {
+  white-space: normal;
+  line-height: normal;
+}
+.row-action {
+  margin-top: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bx--btn--tertiary.a {
+  font-size: 16px;
+  border: 2px solid green;
+  margin-right: 6px;
+  margin-left: 6px;
+  color: green;
+  border-radius: 4px;
+}
+
+.bx--btn--tertiary.a:hover{
+  background: lightgreen;
+}
+
+.bx--btn--tertiary.a:focus{
+  border: 2px solid lightgreen; 
+  background: lightgreen;
+}
+
+.bx--btn--tertiary.b {
+  font-size: 16px;
+  border: 2px solid #c00000;
+  margin-right: 6px;
+  margin-left: 6px;
+  color: #c00000;
+  border-radius: 4px;
+}
+
+.bx--btn--tertiary.b:hover{
+  background: lightcoral;
+}
+
+.bx--btn--tertiary.b:focus{
+  border: 2px solid lightcoral; 
+  background: lightcoral;
+}
+
+
+.bx--btn--tertiary.c {
+  font-size: 16px;
+  border: 2px solid goldenrod;
+  margin-right: 6px;
+  margin-left: 6px;
+  color: goldenrod;
+  border-radius: 4px;
+}
+
+.bx--btn--tertiary.c:hover{
+  background: palegoldenrod;
+}
+
+.bx--btn--tertiary.c:focus{
+  border: 2px solid palegoldenrod; 
+  background: palegoldenrod;
+}
+
+.bx--btn--tertiary.f {
+  font-size: 16px;
+  border: 2px solid rgb(2, 65, 2);
+  margin-right: 6px;
+  margin-left: 6px;
+  // padding-left: 16px;
+  // padding-right: 16px;
+  color: rgb(2, 65, 2);
+  border-radius: 4px;
+}
+
+.bx--btn--tertiary.f:hover{
+  background: rgb(86, 131, 86);
+}
+
+.bx--btn--tertiary.f:focus{
+  border: 2px solid rgb(86, 131, 86); 
+  background: rgb(86, 131, 86);
+}
+
+span.a {
+  display: inline-block;
+  color: #002060;
+  font-size: 150%;
+  margin-block: 10px;
+  width: 100px;
+  height: 100px;
+  padding: 5px;
+  border: 4px solid #002060;
+}
+
+span.b {
+  display: inline-block;
+  color: black;
+  font-size: 100%;
+  margin-block: 10px;
+  margin-left: 4px;
+  margin-right: 4px;
+  width: 130px;
+  height: 60px;
+  padding: 5px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  border: 4px solid black;
+  position: relative;
+}
+
+span.c {
+  display: inline-block;
+  color: #c00000;
+  font-size: 100%;
+  margin-block: 10px;
+  margin-left: 4px;
+  margin-right: 4px;
+  width: 130px;
+  height: 60px;
+  padding: 5px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  border: 4px solid #c00000;
+  position: relative;  
+}
+
+span.d {
+  display: inline-block;
+  color: skyblue;
+  font-size: 100%;
+  margin-block: 10px;
+  margin-left: 4px;
+  margin-right: 4px;
+  width: 130px;
+  height: 60px;
+  padding: 5px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  border: 4px solid skyblue;
+  position: relative;
+}
+
+span.e {
+  display: inline-block;
+  color: goldenrod;
+  font-size: 100%;
+  margin-block: 10px;
+  margin-left: 4px;
+  margin-right: 4px;
+  width: 130px;
+  height: 60px;
+  padding: 5px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  border: 4px solid goldenrod;
+  position: relative;    
+}
+
+span.f {
+  display: inline-block;
+  color: purple;
+  font-size: 100%;
+  margin-block: 10px;
+  margin-left: 4px;
+  margin-right: 4px;
+  width: 130px;
+  height: 60px;
+  padding: 5px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  border: 4px solid purple;
+  position: relative;
+}
+
+span.g {
+  display: inline-block;
+  color: green;
+  font-size: 100%;
+  margin-block: 10px;
+  margin-left: 4px;
+  margin-right: 4px;
+  width: 130px;
+  height: 60px;
+  padding: 5px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  border: 4px solid green; 
+  position: relative;    
+}
+
+.textarea {
+  width: 120px;
+  height: 60px;
+  overflow: hidden;
+  resize: none;
+}
+
+.bx--data-table.bx--data-table--compact.bx--data-table--sort.bx--data-table--no-border thead{
+  background: #7a8db3;
+  .bx--table-header-label{
+    text-align: center;
+  }
+}
+
+.bx--data-table.bx--data-table--compact.bx--data-table--sort.bx--data-table--no-border td{
+  border-bottom: 1px solid black;
+  text-align: center;
+}
+
+.bx--date-picker.bx--date-picker--light.bx--date-picker--range{
+  .bx--label {
+    font-size: 1.12rem;
+  }
+}

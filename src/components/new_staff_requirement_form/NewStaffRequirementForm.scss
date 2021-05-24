@@ -1,0 +1,149 @@
+// .section-form {
+//     background-color: #002060;
+//     color: white;
+//     margin-bottom: 2rem;
+//     text-align: start;
+//     padding: 4px;
+//     margin-top: 2rem;
+//     font-size: 1.2rem;
+//   }
+
+// .label-group{
+//   font-weight: bold;
+//   font-size: 1.05rem;
+// }
+  
+.bx--radio-button__label{
+  font-weight: bold;
+  font-size: 1.05rem;
+}
+
+//  .label.a_3{
+//     font-weight: bold;
+//     font-size: 1.5rem;
+// }
+
+  .bx--label {
+    padding-top: 5px;
+    color: black;
+    font-weight: bold;
+    font-size: 1.12rem;
+    // background-color: #dadee9;
+  }
+  .row-action {
+    margin-top: 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .spacer {
+    margin: 20px;
+  }
+  
+  h2 {
+    text-align: center;
+    font-weight: bold;
+    color: #002060;
+  }
+  
+  .textarea {
+    width: 120px;
+    height: 60px;
+    overflow: hidden;
+    resize: none;
+  }
+
+  .bx--btn--primary.a_1 {
+    background-color: #002b81;
+    font-size: 16px;
+    margin-right: 6px;
+    margin-left: 6px;
+    padding-left: 30px;
+    padding-right: 30px;
+    border-radius: 4px;
+  }
+  
+  .bx--btn--primary.a_1:hover{
+    background: rgb(18, 39, 82);
+  }
+
+  .bx--btn--tertiary.a_1 {
+    font-size: 16px;
+    border: 2px solid green;
+    padding-left: 16px;
+    padding-right: 16px;
+    margin-right: 6px;
+    margin-left: 6px;
+    color: green;
+    border-radius: 4px;
+  }
+  
+  .bx--btn--tertiary.a_1:hover{
+    background: lightgreen;
+  }
+  
+  .bx--btn--tertiary.a_1:focus{
+    border: 2px solid lightgreen; 
+    background: lightgreen;
+  }
+  
+  .bx--btn--tertiary.b_1 {
+    font-size: 16px;
+    border: 2px solid #c00000;
+    padding-left: 16px;
+    padding-right: 16px;
+    margin-right: 6px;
+    margin-left: 6px;
+    color: #c00000;
+    border-radius: 4px;
+  }
+  
+  .bx--btn--tertiary.b_1:hover{
+    background: lightcoral;
+  }
+  
+  .bx--btn--tertiary.b_1:focus{
+    border: 2px solid lightcoral; 
+    background: lightcoral;
+  }
+  
+  
+  .bx--btn--tertiary.c_1 {
+    font-size: 16px;
+    border: 2px solid goldenrod;
+    padding-left: 16px;
+    padding-right: 16px;
+    margin-right: 6px;
+    margin-left: 6px;
+    color: goldenrod;
+    border-radius: 4px;
+  }
+  
+  .bx--btn--tertiary.c_1:hover{
+    background: palegoldenrod;
+  }
+  
+  .bx--btn--tertiary.c_1:focus{
+    border: 2px solid palegoldenrod; 
+    background: palegoldenrod;
+  }
+
+  .bx--btn--tertiary.d_1 {
+    font-size: 16px;
+    border: 2px solid #002b81;
+    margin-right: 6px;
+    margin-left: 6px;
+    padding-left: 16px;
+    padding-right: 16px;
+    color: #002b81;
+    border-radius: 4px;
+  }
+  
+  .bx--btn--tertiary.d_1:hover{
+    background: #7a8db3;
+  }
+  
+  .bx--btn--tertiary.d_1:focus{
+    border: 2px solid #7a8db3; 
+    background: #7a8db3;
+  }

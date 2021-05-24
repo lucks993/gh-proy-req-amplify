@@ -1,0 +1,24 @@
+.bx--row{
+    margin-top: 0rem;
+    margin-left: 0rem;
+    margin-right: 0rem;
+    margin-bottom: 1rem;
+}
+.bx--btn--ghost {
+    color: #1BC12C;
+}
+.label-group{
+    line-height: 32px;
+
+}
+.bx--text-input{
+    height: 2rem;
+}
+.row-data{
+    line-height: 32px;
+    margin-bottom: 0.8rem;
+}
+.row-header{
+    @extend .row-data;
+    background-color: #dadee9;
+}

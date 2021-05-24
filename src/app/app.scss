@@ -1,0 +1,22 @@
+//@import './components/header/AppHeader.scss';
+//@import './components/home/Home.scss';
+
+@media screen and (max-width: 500px) {
+  .bx--side-nav.bx--side-nav--expanded ~ .bx--content {
+    margin-left: 0rem;
+  }
+
+  .bx--side-nav {
+    width: 0;
+  }
+}
+
+.bx--side-nav--active {
+  width: 100%;
+  margin-left: 0rem;
+  border-style: ridge;
+}
+
+h2 {
+  font-weight: bold;
+}
