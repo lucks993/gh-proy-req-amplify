@@ -8,7 +8,8 @@ import {
 
 export default function SelectOrg ({
     orgType,
-    orgList
+    orgList,
+    selectOnChange
 }) {
 
     return(
@@ -16,7 +17,8 @@ export default function SelectOrg ({
             <Select 
               id={"select-" + orgType}
               labelText={orgType} 
-              light          
+              light   
+              onChange={(item) => {selectOnChange(item.currentTarget.value)}}       
             >
                 {orgList.map(org => {
                     return(

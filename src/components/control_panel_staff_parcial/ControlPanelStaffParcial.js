@@ -33,9 +33,9 @@ export default function ControlPanelStaffParcial() {
         typeOfVacant: req.type.description,
         codOfVacant: req.position.codePosition,
         replaceOf: req.listReplacement.name,
-        orgUnit: req.applicant.organizationalUnit.description,
-        centerOfCost: req.applicant.costCenter.description,
-        physicLocation: req.applicant.physicalLocation.description,
+        orgUnit: req.orgUnit.description,
+        centerOfCost: req.costCenter.description,
+        physicLocation: req.physLocation.description,
         category: req.search.description,
         typeOfContract: req.contract.description,
         timeOfContract: req.timeService,
@@ -65,9 +65,9 @@ export default function ControlPanelStaffParcial() {
             typeOfVacant: req.type.description,
             codOfVacant: req.position.codePosition,
             replaceOf: req.listReplacement.name,
-            orgUnit: req.applicant.organizationalUnit.description,
-            centerOfCost: req.applicant.costCenter.description,
-            physicLocation: req.applicant.physicalLocation.description,
+            orgUnit: req.orgUnit.description,
+            centerOfCost: req.costCenter.description,
+            physicLocation: req.physLocation.description,
             category: req.search.description,
             typeOfContract: req.contract.description,
             timeOfContract: req.timeService,
@@ -91,14 +91,10 @@ export default function ControlPanelStaffParcial() {
   };
 
   const handleCheck = (e) => {
-    if (!this.state.checkedStatus) {
-      this.setState({
-        checkedStatus: true,
-      });
+    if (!checkedStatus) {
+      setCheckedStatus(true)
     } else {
-      this.setState({
-        checkedStatus: false,
-      });
+      setCheckedStatus(false)
     }
   };
 

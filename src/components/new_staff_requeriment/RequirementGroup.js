@@ -1,21 +1,57 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useImperativeHandle, forwardRef } from "react";
 import { Button, TextInput } from "carbon-components-react";
 import "carbon-components/css/carbon-components.min.css";
 import { AddFilled32, TrashCan32 } from "@carbon/icons-react";
 import "./RequirementGroup.scss";
-export default function RequirementGroup({
+
+function RequirementGroup({
+  id,
   name,
   firstLabel,
   secondLabel,
   puestoInformation,
-  puestoInfCharac,
   type,
-}) {
-  const [dataContent, setDataContent] = useState([0]);
-  const [dataContent2, setDataContent2] = useState(null);
+}, ref) {
+  const [dataContent, setDataContent] = useState([{
+      description: "",
+      descriptionAdditional: ""
+  }]);
+
+  useEffect(() => {
+      if(!!puestoInformation){
+          const newDataContent = puestoInformation.information.filter( item => {
+              return item.charac.id === id
+          })
+          if(newDataContent.length === 0){
+            setDataContent([{
+              description: "",
+              descriptionAdditional: ""
+          }])
+          }
+          else{
+            setDataContent(newDataContent)
+          }
+      }
+      else{
+        setDataContent([{
+            description: "",
+            descriptionAdditional: ""
+        }])
+      }
+  }, [puestoInformation])
+
+  const getDataContent = () => {
+      return dataContent
+  }
+
+  useImperativeHandle(ref, () => {
+      return {
+        getDataContent
+      }
+  }, [dataContent])
 
   const addRow = () => {
-    setDataContent([...dataContent, dataContent.length]);
+    setDataContent([...dataContent, {description: "",descriptionAdditional: ""}]);
   };
   // const addRowUnique = () => {
   //     setDataContent([...dataContent, dataContent.length]);
@@ -29,92 +65,17 @@ export default function RequirementGroup({
   //     if (props.countFunc != null) { props.countFunc(dataContent.length-1) }
   // }
 
+  const onChangeText = (index, key) => {
+    return (event => {
+        const newRow = {...dataContent[index], [key]: event.target.value}
+        const newDataContent = dataContent.map( (item, itemIndex) => {
+            return itemIndex === index ? newRow : item
+        })
+        setDataContent(newDataContent)
+    })
+  }
+
   const showContent = () => {
-    if (puestoInfCharac) {
-      console.log("Entre en el if");
-      // setDataContent2(puestoInformation)
-      // console.log(dataContent2)
-      // console.log(puestoInfCharac)
-      console.log(puestoInformation.charac);
-      // puestoInformation.map((data, index) => {
-      //     console.log(data[index].description)
-      // })
-
-      // return puestoInformation.map((data, index) => {
-
-      //     return (<div className="bx--row row-data" key={index} id={index} style={{ height: "2rem" }}>
-      //         <div className="bx--col-lg-1" >
-      //             <span>{index + 1}</span>
-      //         </div>
-      //         {type === "1" &&
-      //             <div className="bx--col-lg-8">
-      //                 <TextInput placeholder="Añada información" light />
-      //             </div>
-      //         }
-      //         {type === "2" &&
-      //             <div className="bx--col-lg-4">
-      //                 <TextInput placeholder={data[index].description.toString()} light />
-      //             </div>
-
-      //         }
-      //         {type === "2" &&
-      //             <div className="bx--col-lg-4">
-      //                 <TextInput placeholder={data[index].descriptionAdditional}  light />
-      //             </div>
-      //         }
-      //         {type === "1" &&
-      //             <div className="bx--col-lg-3">
-      //                 {(dataContent.length === 1) ? (
-      //                     <Button
-      //                         hasIconOnly
-      //                         renderIcon={TrashCan32}
-      //                         tooltipAlignment="center"
-      //                         tooltipPosition="bottom"
-      //                         iconDescription="Eliminar función"
-      //                         kind='ghost'
-      //                         onClick={() => deleteRow(index)}
-      //                         disabled/>
-      //                  ) : (
-      //                     <Button
-      //                     hasIconOnly
-      //                     renderIcon={TrashCan32}
-      //                     tooltipAlignment="center"
-      //                     tooltipPosition="bottom"
-      //                     iconDescription="Eliminar función"
-      //                     kind='ghost'
-      //                     onClick={() => deleteRow(index)}/>
-      //                  )
-      //                 }
-      //             </div>}
-      //         {type === "2" &&
-      //             <div className="bx--col-lg-3">
-      //                 {(dataContent.length === 1) ? (
-      //                     <Button
-      //                         hasIconOnly
-      //                         renderIcon={TrashCan32}
-      //                         tooltipAlignment="center"
-      //                         tooltipPosition="bottom"
-      //                         iconDescription="Eliminar función"
-      //                         kind='ghost'
-      //                         onClick={() => deleteRow(index)}
-      //                         disabled/>
-      //                  ) : (
-      //                     <Button
-      //                     hasIconOnly
-      //                     renderIcon={TrashCan32}
-      //                     tooltipAlignment="center"
-      //                     tooltipPosition="bottom"
-      //                     iconDescription="Eliminar función"
-      //                     kind='ghost'
-      //                     onClick={() => deleteRow(index)}/>
-      //                  )
-      //                 }
-      //             </div>}
-
-      //     </div>);
-      // })
-    } else {
-      console.log("Entre en el else");
       return dataContent.map((data, index) => {
         return (
           <div
@@ -128,17 +89,17 @@ export default function RequirementGroup({
             </div>
             {type === "1" && (
               <div className="bx--col-lg-8">
-                <TextInput placeholder="Añada información" light />
+                <TextInput placeholder="Añada información" value={data.description} onChange={onChangeText(index, "description")} light />
               </div>
             )}
             {type === "2" && (
               <div className="bx--col-lg-4">
-                <TextInput placeholder="Añada información" light />
+                <TextInput placeholder="Añada información" value={data.description} onChange={onChangeText(index, "description")} light />
               </div>
             )}
             {type === "2" && (
               <div className="bx--col-lg-4">
-                <TextInput placeholder="Añada información" light />
+                <TextInput placeholder="Añada información" value={data.descriptionAdditional} onChange={onChangeText(index, "descriptionAdditional")} light />
               </div>
             )}
             {/* {type === "3" &&
@@ -236,7 +197,6 @@ export default function RequirementGroup({
           </div>
         );
       });
-    }
   };
   const renderButton = () => {
     var buttonNuevoType2;
@@ -338,7 +298,7 @@ export default function RequirementGroup({
     </div>
   );
 }
-// export default RequirementGroup;
+export default forwardRef(RequirementGroup);
 /*
 {{ __html: "<!-- section for rows -->" }}
  */

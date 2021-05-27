@@ -48,13 +48,13 @@ export default function CourseStaffRequirement() {
     listRequest.forEach((req) => {
       dataReq[req.id-1] = {id: req.id.toString(), 
                           index: req.id, 
-                          society: req.applicant.society.description, 
+                          society: req.society.description, 
                           position: req.position.description,
                           new: req.type.description,
                           nameNew: req.listApprovers,
-                          unity_org: req.applicant.organizationalUnit.description,
-                          cost_center: req.applicant.costCenter.description,
-                          location: req.applicant.physicalLocation.description,
+                          unity_org: req.orgUnit.description,
+                          cost_center: req.costCenter.description,
+                          location: req.physLocation.description,
                           date: req.requestDate}
     });
     return dataReq;
@@ -70,13 +70,13 @@ export default function CourseStaffRequirement() {
         requestFromServer.map((req) => {
           dataReq[req.id-1] = {id: req.id.toString(), 
                              index: req.id, 
-                             society: req.applicant.society.description, 
+                             society: req.society.description, 
                              position: req.position.description,
                              new: req.type.description,
                              nameNew: req.listApprovers,
-                             unity_org: req.applicant.organizationalUnit.description,
-                             cost_center: req.applicant.costCenter.description,
-                             location: req.applicant.physicalLocation.description,
+                             unity_org: req.orgUnit.description,
+                             cost_center: req.costCenter.description,
+                             location: req.physLocation.description,
                              date: req.requestDate}
         });
         return dataReq;

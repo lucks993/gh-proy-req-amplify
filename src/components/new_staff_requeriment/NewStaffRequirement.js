@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./NewStaffRequirement.scss";
 import "carbon-components/css/carbon-components.min.css";
 import {
   Form,
   TextInput,
   TextArea,
-  Select,
-  SelectItem,
   Button,
   DatePicker,
   DatePickerInput,
@@ -18,9 +16,10 @@ import {
 } from "carbon-components-react";
 import RequirementGroup from "./RequirementGroup";
 import SelectOrg from "./SelectOrg";
-import { fetchOrgAsignation, fetchPosition, fetchPerson } from "../../services/api/servicies";
+import { fetchOrgAsignation, fetchPosition, fetchPerson, sendRequest } from "../../services/api/servicies";
 
 export default function NewStaffRequirement() {
+  //Listas
   const [listOrgAsign, setListOrgAsign] = useState({
     listSociety: [],
     listDivision: [],
@@ -29,32 +28,49 @@ export default function NewStaffRequirement() {
     listUnit: [],
     listCenter: [],
   });
-  const [listPuestos, setListPuestos] = useState([])
-  const [puestoSelect, setPuestoSelect] = useState(null)
-  const [puestoTiempoExpSelect, setPuestoTiempoExpSelect] = useState(null)
-  const [puestoCivilStatusSelect, setPuestoCivilStatusSelect] = useState(null)
-  const [puestoRangoEdadSelect, setPuestoRangoEdadSelect] = useState(null)
-  const [puestoSexoSelect, setPuestoSexoSelect] = useState(null)
-  const [puestoDetalle, setPuestoDetalle] = useState(() => {
-    const information = {};
-    listPuestos.forEach((puesto) => {
-      information[puesto.id] = puesto.information;
-    });
-    return information;
+  const [societySelect, setSocietySelect] = useState(1)   //Sociedad
+  const [divisionSelect, setDivisionSelect] = useState(1) //Division
+  const [physicalSelect, setPhysicalSelect] = useState(1) //U Fisica
+  const [vpSelect, setVPSelect] = useState(1)             //VP
+  const [unitSelect, setUnitSelect] = useState(1)         //Unidad
+  const [centerSelect, setCenterSelect] = useState(1)     //Centro
+  const [listPuestos, setListPuestos] = useState([])      //Lista Puestos
+  const [puestoSelect, setPuestoSelect] = useState(null)  //Puesto Selec
+  const [reqTipo, setReqTipo] = useState(1)               //Tipo Req
+  const [busqTipo, setBusqTipo] = useState(0)             //Tipo busq
+  const [contratoTipo, setContratoTipo] = useState(0)     //Tipo Contrato
+  const [vacanteTipo, setVacanteTipo] = useState("")      //Tipo Vacante
+  const [estimDate, setEstimDate] = useState("")          //Fecha estimada
+  const [tiempoServ, setTiempoServ] = useState("")        //Tiempo servicio
+  const [justifServ, setJustifServ] = useState("")        //Justificacion
+  const [puestoTiempoExpSelect, setPuestoTiempoExpSelect] = useState(null)      //Tiempo Exp Selec
+  const [puestoCivilStatusSelect, setPuestoCivilStatusSelect] = useState(null)  //Estado Civil Selec
+  const [puestoRangoEdadSelect, setPuestoRangoEdadSelect] = useState(null)      //Rango Edad Selec
+  const [puestoSexoSelect, setPuestoSexoSelect] = useState(null)                //Sexo
+  const [listTrabajador, setListTrabajador] = useState([])                      //Lista Trabajador
+  const [listPersonaSelect, setListPersonaSelect] = useState([])
+  const [listPersonaSelectNombre, setListPersonaSelectNombre] = useState([])
+  const [personaSelect, setPersonaSelect] = useState(null)  //Persona Select
+  //Usuario
+  const [userReq, setUserReq] = useState({
+    position: "",
+    name: "",
+    apPaterno: "",
+    apMaterno: "",
   })
-  const [checkPuesto, setCheckPuesto] = useState(() => {
-    const statusInf = {};
-    listPuestos.forEach((puesto) => {
-      statusInf[puesto.id] = 0;
-    });
-    return statusInf;
-  })
-  const [posPuestoSelect, setPosPuestoSelect] = useState(0)
-  const [listTrabajador, setListTrabajador] = useState([])
-  const [minReq, setMinReq] = useState(1);
-  const [maxReq, setMaxReq] = useState(200);
-  const [checkCount, setCheckCount] = useState(false);
-  const [checkReemp, setCheckReemp] = useState(false);
+  const [maxDoc, setMaxDoc] = useState(0);
+  const minReq = 1;                                     //Cant min
+  const maxReq = 200;                                   //Cant max
+  const [checkCount, setCheckCount] = useState(false);  //Verificar Cant
+  const [cantReq, setCantReq] = useState(1)             //Cant req
+  const [checkReemp, setCheckReemp] = useState(false);  //Verificar Reemp
+
+  const reqGroupFunc = useRef();    //ref Carac tipo 1
+  const reqGroupCon = useRef();     //ref Carac tipo 2
+  const reqGroupHab = useRef();     //ref Carac tipo 3
+  const reqGroupAcad = useRef();    //ref Carac tipo 4
+  const reqGroupEst = useRef();     //ref Carac tipo 5
+  const reqGroupIdi = useRef();     //ref Carac tipo 6
 
   //Fetch Organization
   useEffect(() => {
@@ -70,20 +86,6 @@ export default function NewStaffRequirement() {
     const getPosition = async () => {
         const positionFromServer = await fetchPosition()
         setListPuestos(positionFromServer)
-        setPuestoDetalle(() => {
-          const information = {};
-          positionFromServer.forEach((puesto) => {
-            information[puesto.id] = puesto.information;
-          });
-          return information;
-        })
-        setCheckPuesto(() => {
-          const statusInf = {};
-          positionFromServer.forEach((puesto) => {
-            statusInf[puesto.id] = 0;
-          });
-          return statusInf;
-        })
     }
     getPosition()
     }, [])
@@ -93,42 +95,86 @@ export default function NewStaffRequirement() {
     const getPerson = async () => {
         const personFromServer = await fetchPerson()
         setListTrabajador(personFromServer)
+        setUserReq({position: personFromServer[1].position.description,
+                    name: personFromServer[1].name,
+                    apPaterno: personFromServer[1].apPaterno,
+                    apMaterno: personFromServer[1].apMaterno})
     }
     getPerson()
-    }, [])
+  }, [])
 
-  const verificarCant = () => {
-    if (document.getElementById("cantidad").value > 1) {
+  const verificarCant = (item) => {
+    // if (document.getElementById("cantidad").value > 1) {
+    if (item.imaginaryTarget.value > 1){
       setCheckCount(true);
     } else {
       setCheckCount(false);
     }
+    // setCantReq(document.getElementById("cantidad").value)
+    setCantReq(item.imaginaryTarget.value)
   };
 
-  const checkInitialState  = () => {
-    let newCheckPuesto = {...checkPuesto}
-      Object.keys(newCheckPuesto).map(function(key) {
-        newCheckPuesto[key] = 0;
-      });
-    setCheckPuesto(newCheckPuesto)  
+  const reqOnChange = (item) => {
+    setReqTipo(item)
+  }
+
+  const societySelectOnChange = (item) => {
+    if(!!item){
+      setSocietySelect(item)
+    }
+  };
+
+  const divisionSelectOnChange = (item) => {
+    if(!!item){
+      setDivisionSelect(item)
+    }
+  };
+
+  const physicalSelectOnChange = (item) => {
+    if(!!item){
+      setPhysicalSelect(item)
+    }
+  };
+
+  const vpSelectOnChange = (item) => {
+    if(!!item){
+      setVPSelect(item)
+    }
+  };
+
+  const unitSelectOnChange = (item) => {
+    if(!!item){
+      setUnitSelect(item)
+    }
+  };
+
+  const centerSelectOnChange = (item) => {
+    if(!!item){
+      setCenterSelect(item)
+    }
+  };
+
+  const assignPersonDesc = (item) => {
+    setPersonaSelect(item.selectedItem)
+    if(!!item.selectedItem){
+      setListPersonaSelect([...listPersonaSelect, {id: item.selectedItem.id}])
+      setListPersonaSelectNombre([...listPersonaSelectNombre, item.selectedItem.name])
+    }
+    // console.log(listPersonaSelect)
+    // if(item.selectedItem != null){
+    //   assignPositionDesc(item.selectedItem.position)
+    // }
   }
 
   const assignPositionDesc = (item) => {
     setPuestoSelect(item.selectedItem)
     if(item.selectedItem != null){     
-      setPuestoDetalle(item.selectedItem.information)
-      checkInitialState()
-      setCheckPuesto({...checkPuesto, [item.selectedItem.id]: 1})
-      setPosPuestoSelect(item.selectedItem.id)
       setPuestoTiempoExpSelect(item.selectedItem.informationAdditional.timeExperience)
       setPuestoRangoEdadSelect(item.selectedItem.informationAdditional.rangeAge)
       setPuestoSexoSelect(item.selectedItem.informationAdditional.sex)
       setPuestoCivilStatusSelect(item.selectedItem.informationAdditional.civilStatus)
     }
-    else{  
-      setPuestoDetalle([])     
-      checkInitialState()
-      setPosPuestoSelect(0)
+    else{     
       setPuestoTiempoExpSelect(null)
       setPuestoRangoEdadSelect(null)
       setPuestoSexoSelect(null)
@@ -136,34 +182,92 @@ export default function NewStaffRequirement() {
     }
   }
 
-  // const assignPositionCode = (item) => {
-  //   console.log(item);
-  //   if(item !== null && document.getElementById("comboNomPuesto").value !== ""){
-  //     document.getElementById("comboCodPuesto").value = listPuestos[item.selectedItem.id-1].codePosition
-  //     document.getElementById("selectTiempoExp").value = listPuestos[item.selectedItem.id-1].informationAdditional.timeExperience
-  //     document.getElementById("selectRangoEdad").value = listPuestos[item.selectedItem.id-1].informationAdditional.rangeAge
-  //     document.getElementById("selectSexo").value = listPuestos[item.selectedItem.id-1].informationAdditional.sex
-  //     document.getElementById("selectEstadoCivil").value = listPuestos[item.selectedItem.id-1].informationAdditional.civilStatus
-  //     console.log("Cod Puesto: " + document.getElementById("comboCodPuesto").value)
-  //     console.log("Experiencia: " + document.getElementById("selectTiempoExp").value)
-  //     console.log("Rango: " + document.getElementById("selectRangoEdad").value)
-  //     console.log("Sexo: " + document.getElementById("selectSexo").value)
-  //     console.log("Civil: " + document.getElementById("selectEstadoCivil").value)
-  //   }
-  //   else{
-  //     document.getElementById("comboCodPuesto").value = ""
-  //     document.getElementById("comboNomPuesto").value = ""
-  //     document.getElementById("selectTiempoExp").value = "Más de 1 año"
-  //     document.getElementById("selectRangoEdad").value = "Más de 20 años"
-  //     document.getElementById("selectSexo").value = "Femenino"
-  //     document.getElementById("selectEstadoCivil").value = "Soltero"
-  //   }
-  // }
+  const descListPerson = () => {
+    return (event => {
+      
+    })
+  }
 
-  const saveRequest = () => {
-    listOrgAsign.listSociety.map((society) => {
-      console.log(society);
-    });
+  const justifOnChangeText = () => {
+    return (event => {
+        const newJustif = event.target.value
+        setJustifServ(newJustif)
+    })
+  }
+
+  const timeOnChangeText = () => {
+    return (event => {
+        const newJustif = event.target.value
+        setTiempoServ(newJustif)
+    })
+  }
+
+  const saveRequest = async () => {
+    if(!!puestoSelect && !!estimDate && tiempoServ !== "" && vacanteTipo !=="" && reqTipo !== 0 && contratoTipo !== 0 && busqTipo !== 0){
+      const data = {}    
+      let listCharac = [] 
+      if(!!reqGroupFunc.current){
+        listCharac = [...listCharac, ...reqGroupFunc.current.getDataContent()]
+      }
+      if(!!reqGroupCon.current){
+        listCharac = [...listCharac, ...reqGroupCon.current.getDataContent()]
+      }
+      if(!!reqGroupHab.current){
+        listCharac = [...listCharac, ...reqGroupHab.current.getDataContent()]
+      }
+      if(!!reqGroupAcad.current){
+        listCharac = [...listCharac, ...reqGroupAcad.current.getDataContent()]
+      }
+      if(!!reqGroupEst.current){
+        listCharac = [...listCharac, ...reqGroupEst.current.getDataContent()]
+      }
+      if(!!reqGroupIdi.current){
+        listCharac = [...listCharac, ...reqGroupIdi.current.getDataContent()]
+      }
+      data.request = {
+        society: societySelect,
+        organizationalUnit: unitSelect,
+        physicalLocation: physicalSelect,
+        costCenter: centerSelect,
+        companyDivision: divisionSelect,
+        vPManagement: vpSelect,
+        observation: "",
+        requestDate: new Date().toJSON().replace(/-/g,'/'),
+        quantity: cantReq,
+        estimatedDate: new Date(estimDate).toJSON().slice(0,10).replace(/-/g,'/'),
+        timeService: tiempoServ,
+        justification: justifServ,
+        approvedLevel: 1,
+        vacancyConsidered: vacanteTipo, 
+        typeRequest: reqTipo,
+        typeState: 1,
+        flow: 1,
+        contract: contratoTipo,
+        typeSearch: busqTipo,
+        position: puestoSelect.id,
+        userID: 1,
+        timeStatus: "1",
+        listReplacement: listPersonaSelect,
+        listCharacteristic: listCharac,
+        listCharacAdd: {
+          exp: !!puestoTiempoExpSelect ? puestoTiempoExpSelect : "",
+          timeRange: !!puestoRangoEdadSelect ? puestoRangoEdadSelect : "",
+          sex: !!puestoSexoSelect ? puestoSexoSelect : "",
+          civilStatus: !!puestoCivilStatusSelect ? puestoCivilStatusSelect : "",
+          fileOrg: "",
+          fileDesc: ""
+        }
+      };
+      // console.log(JSON.stringify(data))
+      const requestSend = await sendRequest(data);
+      // if(!!reqGroupFunc.current){
+      //   const resRef = reqGroupFunc.current.getDataContent()
+      //   console.log(resRef)
+      // }
+    }
+    else{
+      console.log("Falta llenar")
+    }
   };
 
   return (
@@ -180,25 +284,38 @@ export default function NewStaffRequirement() {
           <div className="bx--col-lg-5">
             <RadioButtonGroup
               name="radio-button-group"
-              defaultSelected="radio-1"
+              defaultSelected={1}   
+              onChange={(item) => reqOnChange(item)}      
             >
               <RadioButton
                 labelText="Nuevo Planificado"
-                value="radio-1"
-                id="radio-1"
-                onClick={() => setCheckReemp(false)}
+                value={1}
+                id="radio-1"               
+                onClick={() => {
+                  setCheckReemp(false)
+                  setListPersonaSelect([])
+                  setListPersonaSelectNombre([])
+                }}
               />
               <RadioButton
                 labelText="Nuevo No Planificado"
-                value="radio-2"
+                value={2}
                 id="radio-2"
-                onClick={() => setCheckReemp(false)}
+                onClick={() => {
+                  setCheckReemp(false)
+                  setListPersonaSelect([])
+                  setListPersonaSelectNombre([])
+                }}
               />
               <RadioButton
                 labelText="Reemplazo"
-                value="radio-3"
+                value={3}
                 id="radio-3"
-                onClick={() => setCheckReemp(true)}
+                onClick={() => {
+                  setCheckReemp(true)
+                  setListPersonaSelect([])
+                  setListPersonaSelectNombre([])
+                }}
               />
             </RadioButtonGroup>
           </div>
@@ -206,9 +323,11 @@ export default function NewStaffRequirement() {
             {checkReemp && (
               <ComboBox
                 onChange={() => {}}
+                // onChange={(item) => {assignPersonDesc(item)}}
                 id="comboNomReemp"
                 light
                 items={listTrabajador}
+                // selectedItem={personaSelect}
                 itemToString={(item) => (item ? (item.apPaterno + " " + item.apMaterno + ", " + item.name) : "")}
                 placeholder="Escriba nombre del trabajador a reemplazar..."
                 shouldFilterItem={({ item: { name }, inputValue }) => 
@@ -221,36 +340,24 @@ export default function NewStaffRequirement() {
         <div className="bx--row">
           <div className="bx--col">
             <div style={{ marginBottom: "1.2rem", backgroundColor: "#dadee9" }}>
-              {/* <Select
-                // defaultValue="placeholder-item"
-                id="select-society"
-                labelText="Sociedad"
-                light
-              >
-                {listOrgAsign.listSociety.map(society => {
-                    return(
-                        <SelectItem 
-                          key={society.id.toString()}
-                          text={society.description}
-                          value={society.id}/>
-                    )
-                })}
-              </Select> */}
               <SelectOrg
                 orgType="Sociedad"
                 orgList={listOrgAsign.listSociety}
+                selectOnChange={societySelectOnChange}
               />
             </div>
             <div style={{ marginBottom: "1.2rem", backgroundColor: "#dadee9" }}>
               <SelectOrg
                 orgType="VP/Dirección/Gerencia"
                 orgList={listOrgAsign.listVP}
+                selectOnChange={vpSelectOnChange}
               />
             </div>
             <div style={{ marginBottom: "1.2rem", backgroundColor: "#dadee9" }}>
               <SelectOrg
                 orgType="Ubicación Física"
                 orgList={listOrgAsign.listPhysicial}
+                selectOnChange={physicalSelectOnChange}
               />
             </div>
             <div>
@@ -261,16 +368,25 @@ export default function NewStaffRequirement() {
               <br></br> <br></br>
             </div>
             <div style={{ marginBottom: "1.2rem", backgroundColor: "#dadee9" }}>
-              <Select
-                defaultValue="placeholder-item"
-                id="selectTipoBusq"
-                invalidText="This is an invalid error message."
-                labelText="Tipo de Busqueda"
+                <ComboBox
+                onChange={(item) => {
+                  if(item.selectedItem === "Interna"){
+                    setBusqTipo(1)
+                  }
+                  else if(item.selectedItem === "Externa"){
+                    setBusqTipo(2)
+                  }
+                  else{
+                    setBusqTipo(0)
+                  }}}
+                id="comboTipoBusq"
                 light
-              >
-                <SelectItem text="Interna" value="0" />
-                <SelectItem text="Externa" value="1" />
-              </Select>
+                invalid={busqTipo === 0}
+                // invalidText={"Seleccione un tipo"}
+                items={["Interna","Externa"]}
+                placeholder="Seleccione tipo..."
+                titleText="Tipo de Busqueda"
+              ></ComboBox>
             </div>
             <div style={{ marginBottom: "2rem" }}>
               <label class="label a_3">Datos de Solicitante</label>
@@ -280,9 +396,10 @@ export default function NewStaffRequirement() {
               <div style={{ backgroundColor: "#dadee9" }}>
                 <TextInput
                   id="txtNombreSol"
-                  invalidText="Invalid error message."
+                  // invalidText="Invalid error message."
                   labelText="Nombre"
-                  placeholder="Placeholder text"
+                  value={userReq.apPaterno + " " + userReq.apMaterno + ", " + userReq.name}
+                  // placeholder="Placeholder text"
                   light
                 />
               </div>
@@ -293,12 +410,14 @@ export default function NewStaffRequirement() {
               <SelectOrg
                 orgType="División Empresa"
                 orgList={listOrgAsign.listDivision}
+                selectOnChange={divisionSelectOnChange}
               />
             </div>
             <div style={{ marginBottom: "1.2rem", backgroundColor: "#dadee9" }}>
               <SelectOrg
                 orgType="Unidad Organizativa"
                 orgList={listOrgAsign.listUnit}
+                selectOnChange={unitSelectOnChange}
               />
             </div>
             <div
@@ -306,6 +425,7 @@ export default function NewStaffRequirement() {
               <SelectOrg
                 orgType="Centro de Costos"
                 orgList={listOrgAsign.listCenter}
+                selectOnChange={centerSelectOnChange}
               />
             </div>
             <div>
@@ -323,6 +443,7 @@ export default function NewStaffRequirement() {
                   id="txtCargoSol"
                   // invalidText="Invalid error message."
                   labelText="Cargo"
+                  value={userReq.position}
                   // placeholder="Placeholder text"
                   light
                 />
@@ -383,7 +504,7 @@ export default function NewStaffRequirement() {
                 step={1}
                 value={minReq}
                 light
-                onChange={verificarCant}
+                onChange={(item) => verificarCant(item)}
               />
             </div>
           </div>
@@ -393,29 +514,51 @@ export default function NewStaffRequirement() {
             <div style={{ marginBottom: "1.2rem" }}>
               <DatePicker
                 datePickerType="single"
-                locale="es"
                 light
-                style={{ backgroundColor: "#dadee9" }}
+                value={estimDate}                
+                style={{ backgroundColor: "#dadee9" }}                
+                onChange={(item) => {
+                  if(item !== ""){
+                    setEstimDate(item)
+                  }
+                  else{
+                    setEstimDate("")
+                  }
+                }}
               >
                 <DatePickerInput
-                  placeholder="dd/mm/yyyy"
-                  labelText="Fecha Estimada de Ingreso"
+                  placeholder="mm/dd/yyyy"
+                  labelText="Fecha Estimada de Ingreso"  
+                  invalid={estimDate === ""}
+                  // invalidText={"Seleccione fecha"}                
                   id="date-picker-single"
                 />
               </DatePicker>
             </div>
             <div style={{ marginBottom: "1.2rem", backgroundColor: "#dadee9" }}>
-              <Select
-                // defaultValue="placeholder-item"
-                id="selectTipoContract"
-                // invalidText="This is an invalid error message."
-                labelText="Tipo de Contrato"
+              <ComboBox
+                onChange={(item) => {
+                  if(item.selectedItem==="A plazo Indeterminado"){
+                    setContratoTipo(1)
+                  }
+                  else if(item.selectedItem==="A plazo Fijo"){
+                    setContratoTipo(2)
+                  }
+                  else if(item.selectedItem==="Convenio de Formación"){
+                    setContratoTipo(3)
+                  }
+                  else{
+                    setContratoTipo(0)
+                  }
+                  }}
+                id="dropTiempocontr"
                 light
-              >
-                <SelectItem text="A plazo Indeterminado" value="1" />
-                <SelectItem text="A plazo Fijo" value="2" />
-                <SelectItem text="Convenio de Formación" value="3" />
-              </Select>
+                invalid={contratoTipo === 0}
+                // invalidText={"Seleccione tipo"}
+                items={["A plazo Indeterminado","A plazo Fijo","Convenio de Formación"]}
+                placeholder="Escriba tipo contrato..."
+                titleText="Tiempo de Contrato"
+              ></ComboBox>
             </div>
             {checkReemp && (<div style={{ marginBottom: "1.2rem" }}>
               <label class="label a_3">Datos de la persona a reemplazar</label>
@@ -423,10 +566,12 @@ export default function NewStaffRequirement() {
             {checkReemp && (
               <div style={{ marginBottom: "2rem", backgroundColor: "#dadee9" }}>
                 <ComboBox
-                  onChange={() => {}}
+                  // onChange={() => {}}
+                  onChange={(item) => {assignPersonDesc(item)}}
                   id="comboNombre"
                   light
                   items={listTrabajador}
+                  selectedItem={personaSelect}
                   itemToString={(item) => (item ? (item.apPaterno + " " + item.apMaterno + ", " + item.name) : "")}
                   placeholder="Escriba nombre..."
                   titleText="Nombres y Apellidos"
@@ -439,39 +584,34 @@ export default function NewStaffRequirement() {
           </div>
           <div className="bx--col">
             <div style={{ marginBottom: "1.6rem", backgroundColor: "#dadee9" }}>
-              <Select
-                defaultValue="placeholder-item"
-                id="select-5"
-                invalidText="This is an invalid error message."
-                labelText="¿Vacante considerada en el Plan de Personal?"
+            <ComboBox
+                onChange={(item) => {setVacanteTipo(item.selectedItem)}}
+                id="comboTipoBusq"
                 light
-              >
-                <SelectItem text="SÍ" value="option-1" />
-                <SelectItem text="NO" value="option-2" />
-              </Select>
+                // selectedItem={"Sí"}
+                items={["Sí","No"]}
+                invalid={vacanteTipo === ""}
+                // invalidText={"Seleccione tipo"}
+                placeholder="(Sí, No)"
+                titleText="¿Vacante considerada en el Plan de Personal?"
+              ></ComboBox>
             </div>
             <div style={{ marginBottom: "1.2em", backgroundColor: "#dadee9" }}>
-              {/* <Select
-                // defaultValue="placeholder-item"
-                id="selectTiempoServ"
-                // invalidText="This is an invalid error message."
-                labelText="Tiempo de Servicio"
-                light
-              >
-                <SelectItem text="Option 1" value="option-1" />
-                <SelectItem text="Option 2" value="option-2" />
-                <SelectItem text="Option 3" value="option-3" />
-              </Select> */}
               <TextInput
                   id="txtTiempoServ"
                   labelText="Tiempo de Servicio"
-                  placeholder=""
+                  placeholder="Escriba tiempo de servicio"
+                  value={tiempoServ}
+                  invalid={tiempoServ === ""}
+                  // invalidText={"Escribo tiempo"}
+                  onChange={timeOnChangeText()}
                   light
                 />
             </div>
             {checkReemp && checkCount && (
               <div style={{ marginTop: "2rem", backgroundColor: "#dadee9" }}>
                 <TextArea
+                  // onChange={() => {descListPerson(listPersonaSelect)}}
                   cols={10}
                   id="txta1"
                   invalidText="Invalid error message."
@@ -480,6 +620,7 @@ export default function NewStaffRequirement() {
                   light
                   style={{ resize: "none" }}
                   readOnly
+                  value={listPersonaSelectNombre}
                 ></TextArea>
               </div>
             )}
@@ -495,6 +636,8 @@ export default function NewStaffRequirement() {
                 labelText="Justificación"
                 placeholder="Escriba justificación..."
                 rows={3}
+                value={justifServ}
+                onChange={justifOnChangeText()}
                 light
                 style={{ resize: "none" }}
               />             
@@ -510,38 +653,53 @@ export default function NewStaffRequirement() {
         </p>
         <div>
           <RequirementGroup
+            id={1}
+            ref={reqGroupFunc}
             name="Describir las funciones o actividades especificas"
             firstLabel="Descripción"
+            puestoInformation={puestoSelect}
             type="1"
           />
         </div>
         <div>
           <RequirementGroup
+            id={2}
+            ref={reqGroupCon}
             name="Conocimiento Requerido"
             firstLabel="Descripción"
+            puestoInformation={puestoSelect}
             type="1"
           />
         </div>
         <div>
           <RequirementGroup
+            id={3}
+            ref={reqGroupHab}
             name="Habilidades Requeridas"
             firstLabel="Descripción"
+            puestoInformation={puestoSelect}
             type="1"
           />
         </div>
         <div>
           <RequirementGroup
+            id={4}
+            ref={reqGroupAcad}
             name="Formación Académica"
             firstLabel="Formación"
             secondLabel="Grado Obtenido"
+            puestoInformation={puestoSelect}
             type="2"
           />
         </div>
         <div>
           <RequirementGroup
+            id={5}
+            ref={reqGroupEst}
             name="Centro de Estudios (no determinante)"
             firstLabel="Tipo"
             secondLabel="Centro de Estudios"
+            puestoInformation={puestoSelect}
             type="2"
           />
         </div>
@@ -651,11 +809,12 @@ export default function NewStaffRequirement() {
         </div>
         <div>
           <RequirementGroup
+            id={6}
+            ref={reqGroupIdi}
             name="Idiomas"
             firstLabel="Idioma"
             secondLabel="Nivel"
-            puestoInformation={puestoDetalle}
-            puestoInfCharac={checkPuesto[posPuestoSelect]}
+            puestoInformation={puestoSelect}
             type="2"
           />
         </div>
