@@ -28,12 +28,12 @@ export default function NewStaffRequirement() {
     listUnit: [],
     listCenter: [],
   });
-  const [societySelect, setSocietySelect] = useState(1)   //Sociedad
-  const [divisionSelect, setDivisionSelect] = useState(1) //Division
-  const [physicalSelect, setPhysicalSelect] = useState(1) //U Fisica
-  const [vpSelect, setVPSelect] = useState(1)             //VP
-  const [unitSelect, setUnitSelect] = useState(1)         //Unidad
-  const [centerSelect, setCenterSelect] = useState(1)     //Centro
+  const [societySelect, setSocietySelect] = useState([{}])   //Sociedad
+  const [divisionSelect, setDivisionSelect] = useState([{}]) //Division
+  const [physicalSelect, setPhysicalSelect] = useState([{}]) //U Fisica
+  const [vpSelect, setVPSelect] = useState([{}])             //VP
+  const [unitSelect, setUnitSelect] = useState([{}])         //Unidad
+  const [centerSelect, setCenterSelect] = useState([{}])     //Centro
   const [listPuestos, setListPuestos] = useState([])      //Lista Puestos
   const [puestoSelect, setPuestoSelect] = useState(null)  //Puesto Selec
   const [reqTipo, setReqTipo] = useState(1)               //Tipo Req
@@ -118,39 +118,67 @@ export default function NewStaffRequirement() {
     setReqTipo(item)
   }
 
-  const societySelectOnChange = (item) => {
-    if(!!item){
-      setSocietySelect(item)
+  const societySelectOnChange = (index) => {
+    if(!!index){     
+      // let orgIndex = []
+      let orgList = []
+      orgList = listOrgAsign.listSociety
+      // socIndex = socList.filter(item => {return item.id == index})
+      setSocietySelect(orgList.filter(item => {return item.id == index}))
+      // console.log(orgIndex)
+      // console.log(societySelect)
+      // console.log("orgIndex.id: "+orgIndex[0].id)
+      // console.log("orgIndex.desc: "+orgIndex[0].description)
+      // console.log("orgIndex.level: "+orgIndex[0].levelAproved)
+      // console.log("societySelect.id: "+societySelect[0].id)
+      // console.log("societySelect.desc: "+societySelect[0].description)
+      // console.log("societySelect.level: "+societySelect[0].levelAproved)
+
     }
   };
 
-  const divisionSelectOnChange = (item) => {
-    if(!!item){
-      setDivisionSelect(item)
+  const divisionSelectOnChange = (index) => {
+    if(!!index){
+      let orgList = []
+      orgList = listOrgAsign.listDivision
+      setDivisionSelect(orgList.filter(item => {return item.id == index}))
+      // setDivisionSelect(item)
     }
   };
 
-  const physicalSelectOnChange = (item) => {
-    if(!!item){
-      setPhysicalSelect(item)
+  const physicalSelectOnChange = (index) => {
+    if(!!index){
+      let orgList = []
+      orgList = listOrgAsign.listPhysicial
+      setPhysicalSelect(orgList.filter(item => {return item.id == index}))
+      // setPhysicalSelect(item)
     }
   };
 
-  const vpSelectOnChange = (item) => {
-    if(!!item){
-      setVPSelect(item)
+  const vpSelectOnChange = (index) => {
+    if(!!index){
+      let orgList = []
+      orgList = listOrgAsign.listVP
+      setVPSelect(orgList.filter(item => {return item.id == index}))
+      // setVPSelect(item)
     }
   };
 
-  const unitSelectOnChange = (item) => {
-    if(!!item){
-      setUnitSelect(item)
+  const unitSelectOnChange = (index) => {
+    if(!!index){
+      let orgList = []
+      orgList = listOrgAsign.listUnit
+      setUnitSelect(orgList.filter(item => {return item.id == index}))
+      // setUnitSelect(item)
     }
   };
 
-  const centerSelectOnChange = (item) => {
-    if(!!item){
-      setCenterSelect(item)
+  const centerSelectOnChange = (index) => {
+    if(!!index){
+      let orgList = []
+      orgList = listOrgAsign.listCenter
+      setCenterSelect(orgList.filter(item => {return item.id == index}))
+      // setCenterSelect(item)
     }
   };
 
@@ -207,37 +235,49 @@ export default function NewStaffRequirement() {
       const data = {}    
       let listCharac = [] 
       if(!!reqGroupFunc.current){
-        listCharac = [...listCharac, ...reqGroupFunc.current.getDataContent()]
+        // listCharac = [...listCharac, ...reqGroupFunc.current.getDataContent()]
+        listCharac = [...listCharac, ...reqGroupFunc.current.getDataContent().map( item => (
+          {...item, charac: {id: 1, description: "Describir las funciones o actividades especificas"} }) )]
       }
       if(!!reqGroupCon.current){
-        listCharac = [...listCharac, ...reqGroupCon.current.getDataContent()]
+        // listCharac = [...listCharac, ...reqGroupCon.current.getDataContent()].
+        listCharac = [...listCharac, ...reqGroupCon.current.getDataContent().map( item => (
+          {...item, charac: {id: 2, description: "Conocimiento Requerido"} }) )]
       }
       if(!!reqGroupHab.current){
-        listCharac = [...listCharac, ...reqGroupHab.current.getDataContent()]
+        // listCharac = [...listCharac, ...reqGroupHab.current.getDataContent()]
+        listCharac = [...listCharac, ...reqGroupHab.current.getDataContent().map( item => (
+          {...item, charac: {id: 3, description: "Habilidades Requeridas"} }) )]
       }
       if(!!reqGroupAcad.current){
-        listCharac = [...listCharac, ...reqGroupAcad.current.getDataContent()]
+        // listCharac = [...listCharac, ...reqGroupAcad.current.getDataContent()]
+        listCharac = [...listCharac, ...reqGroupAcad.current.getDataContent().map( item => (
+          {...item, charac: {id: 4, description: "Formación Académica"} }) )]
       }
       if(!!reqGroupEst.current){
-        listCharac = [...listCharac, ...reqGroupEst.current.getDataContent()]
+        // listCharac = [...listCharac, ...reqGroupEst.current.getDataContent()]
+        listCharac = [...listCharac, ...reqGroupEst.current.getDataContent().map( item => (
+          {...item, charac: {id: 5, description: "Centro de Estudios (no determinante)"} }) )]
       }
       if(!!reqGroupIdi.current){
-        listCharac = [...listCharac, ...reqGroupIdi.current.getDataContent()]
+        // listCharac = [...listCharac, ...reqGroupIdi.current.getDataContent()]
+        listCharac = [...listCharac, ...reqGroupIdi.current.getDataContent().map( item => (
+          {...item, charac: {id: 6, description: "Idiomas"} }) )]
       }
       data.request = {
-        society: societySelect,
-        organizationalUnit: unitSelect,
-        physicalLocation: physicalSelect,
-        costCenter: centerSelect,
-        companyDivision: divisionSelect,
-        vPManagement: vpSelect,
+        society: societySelect[0].id === undefined ? 1 : societySelect[0].id,
+        organizationalUnit: unitSelect[0].id === undefined ? 1 : unitSelect[0].id,
+        physicalLocation: physicalSelect[0].id === undefined ? 1 : physicalSelect[0].id,
+        costCenter: centerSelect[0].id === undefined ? 1 : centerSelect[0].id,
+        companyDivision: divisionSelect[0].id === undefined ? 1 : divisionSelect[0].id,
+        vPManagement: vpSelect[0].id === undefined ? 1 : vpSelect[0].id,
         observation: "",
         requestDate: new Date().toJSON().replace(/-/g,'/'),
         quantity: cantReq,
         estimatedDate: new Date(estimDate).toJSON().slice(0,10).replace(/-/g,'/'),
         timeService: tiempoServ,
         justification: justifServ,
-        approvedLevel: 1,
+        approvedLevel: societySelect[0].levelAproved === undefined ? 1 : societySelect[0].levelAproved,
         vacancyConsidered: vacanteTipo, 
         typeRequest: reqTipo,
         typeState: 1,
@@ -258,8 +298,8 @@ export default function NewStaffRequirement() {
           fileDesc: ""
         }
       };
-      // console.log(JSON.stringify(data))
-      const requestSend = await sendRequest(data);
+      console.log(JSON.stringify(data))
+      // const requestSend = await sendRequest(data);
       // if(!!reqGroupFunc.current){
       //   const resRef = reqGroupFunc.current.getDataContent()
       //   console.log(resRef)
@@ -557,7 +597,7 @@ export default function NewStaffRequirement() {
                 // invalidText={"Seleccione tipo"}
                 items={["A plazo Indeterminado","A plazo Fijo","Convenio de Formación"]}
                 placeholder="Escriba tipo contrato..."
-                titleText="Tiempo de Contrato"
+                titleText="Tipo de Contrato"
               ></ComboBox>
             </div>
             {checkReemp && (<div style={{ marginBottom: "1.2rem" }}>
@@ -599,8 +639,8 @@ export default function NewStaffRequirement() {
             <div style={{ marginBottom: "1.2em", backgroundColor: "#dadee9" }}>
               <TextInput
                   id="txtTiempoServ"
-                  labelText="Tiempo de Servicio"
-                  placeholder="Escriba tiempo de servicio"
+                  labelText="Tiempo de Contrato"
+                  placeholder="Escriba tiempo de contrato..."
                   value={tiempoServ}
                   invalid={tiempoServ === ""}
                   // invalidText={"Escribo tiempo"}

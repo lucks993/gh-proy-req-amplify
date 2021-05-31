@@ -151,7 +151,7 @@ function App() {
                 component={NewStaffRequirement}
               />
               <Route
-                path="/requerimiento-personal-form/id"
+                path={"/requerimiento-personal-bandeja/:id"}
                 component={NewStaffRequirementForm}
               />
               <Route path="/ajuste-salarial" component={NewSalaryAdjusment} />

@@ -24,11 +24,18 @@ export const fetchPerson = async () => {
     return res.data
 }
 
+// // Fetch Requirement Request ID
+// export const fetchRequestID= async (id) => {
+//     const res = await api.get('requirement/request/'+{id})
+//     return res.data
+// }
+
 // Fetch Requirement Request Employee
 export const fetchRequest= async () => {
     const res = await api.get('requirement/request')
     return res.data
 }
+
 
 // Save Requirement Request Employee
 export const sendRequest= async (data) => {

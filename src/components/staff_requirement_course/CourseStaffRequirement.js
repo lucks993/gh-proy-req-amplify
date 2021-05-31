@@ -1,4 +1,9 @@
 import React, { useState, useEffect } from "react";
+import {
+  BrowserRouter as Route,
+  Switch,
+  useRouteMatch,
+} from "react-router-dom";
 import ReactDOM from "react-dom";
 import TableToExcel from "@linways/table-to-excel";
 import "carbon-components/css/carbon-components.min.css";
@@ -41,21 +46,27 @@ const ModalStateManager = ({
     </>
   );
 };
-export default function CourseStaffRequirement() {
+
+export let selectedItem = 0;
+export let selectedRow = {};
+export default function CourseStaffRequirement(props) {
+  let match = useRouteMatch();
   const [listRequest, setListRequest] = useState([]);
   const [infRequest, setInfRequest] = useState(() => {
     const dataReq = [{}];
     listRequest.forEach((req) => {
-      dataReq[req.id-1] = {id: req.id.toString(), 
-                          index: req.id, 
-                          society: req.society.description, 
-                          position: req.position.description,
-                          new: req.type.description,
-                          nameNew: req.listApprovers,
-                          unity_org: req.orgUnit.description,
-                          cost_center: req.costCenter.description,
-                          location: req.physLocation.description,
-                          date: req.requestDate}
+      dataReq[req.id - 1] = {
+        id: req.id.toString(),
+        index: req.id,
+        society: req.society.description,
+        position: req.position.description,
+        new: req.type.description,
+        nameNew: req.listApprovers,
+        unity_org: req.orgUnit.description,
+        cost_center: req.costCenter.description,
+        location: req.physLocation.description,
+        date: req.requestDate,
+      };
     });
     return dataReq;
   });
@@ -65,32 +76,46 @@ export default function CourseStaffRequirement() {
     const getRequest = async () => {
       const requestFromServer = await fetchRequest();
       setListRequest(requestFromServer);
+      console.log(requestFromServer);
       setInfRequest(() => {
-        const dataReq = [{}]
+        const dataReq = [{}];
         requestFromServer.map((req) => {
-          dataReq[req.id-1] = {id: req.id.toString(), 
-                             index: req.id, 
-                             society: req.society.description, 
-                             position: req.position.description,
-                             new: req.type.description,
-                             nameNew: req.listApprovers,
-                             unity_org: req.orgUnit.description,
-                             cost_center: req.costCenter.description,
-                             location: req.physLocation.description,
-                             date: req.requestDate}
+          dataReq[req.id - 1] = {
+            id: req.id.toString(),
+            index: req.id,
+            society: req.society.description,
+            position: req.position.description,
+            new: req.type.description,
+            nameNew: req.listApprovers,
+            unity_org: req.orgUnit.description,
+            cost_center: req.costCenter.description,
+            location: req.physLocation.description,
+            date: req.requestDate,
+          };
         });
         return dataReq;
-      })
+      });
     };
     getRequest();
   }, []);
 
-  const mostrarReq = () => {
-    console.log(infRequest)
+  const mostrarReq = (index) => {
+    selectedItem = index;
+    selectedRow = listRequest.filter((item) => {
+      return item.id === selectedItem;
+    });
+    console.log(selectedItem);
+    console.log(selectedRow);
+    console.log(selectedRow[0].type.id);
   };
 
-  const goToRequirement = () => {
-    window.location.href = "/requerimiento-personal-form/id";
+  const goToRequirement = (item) => {
+    selectedItem = item;
+    selectedRow = listRequest.filter((item) => {
+      return item.id === selectedItem;
+    });
+    // console.log(selectedItem)
+    props.history.push(`/requerimiento-personal-bandeja/${selectedItem}`);
   };
 
   const addRow = () => {
@@ -220,7 +245,7 @@ export default function CourseStaffRequirement() {
                         className="b-action"
                         kind="tertiary d"
                         size="default"
-                        onClick={() => goToRequirement()}
+                        onClick={() => goToRequirement(row.cells[0].value)}
                       >
                         Ver Requerimiento
                       </Button>
@@ -228,6 +253,7 @@ export default function CourseStaffRequirement() {
                         className="custom-class"
                         kind="tertiary a_1"
                         size="default"
+                        onClick={() => mostrarReq(row.cells[0].value)}
                       >
                         Aprobar
                       </Button>
@@ -287,7 +313,7 @@ export default function CourseStaffRequirement() {
         </div> */}
       </div>
       <div className="bx--col">
-        <Button className="custom-class" kind="tertiary a_1" size="default"  onClick={mostrarReq}>
+        <Button className="custom-class" kind="tertiary a_1" size="default">
           Aprobados
         </Button>
         <ModalStateManager
