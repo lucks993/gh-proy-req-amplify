@@ -49,7 +49,13 @@ export default function NewStaffRequirement() {
   const [puestoSexoSelect, setPuestoSexoSelect] = useState(null)                //Sexo
   const [listTrabajador, setListTrabajador] = useState([])                      //Lista Trabajador
   const [listPersonaSelect, setListPersonaSelect] = useState([])
-  const [listPersonaSelectNombre, setListPersonaSelectNombre] = useState([])
+  const [listPersonaSelectNombre, setListPersonaSelectNombre] = useState()
+  let listPersonCopy = listTrabajador.map(item => ({
+    ...item, datos: item.codigo + " " + item.apPaterno + " " +
+                    item.apMaterno + ", " + item.name + " // " +
+                    item.position.description
+  }))
+
   const [personaSelect, setPersonaSelect] = useState(null)  //Persona Select
   //Usuario
   const [userReq, setUserReq] = useState({
@@ -71,6 +77,16 @@ export default function NewStaffRequirement() {
   const reqGroupAcad = useRef();    //ref Carac tipo 4
   const reqGroupEst = useRef();     //ref Carac tipo 5
   const reqGroupIdi = useRef();     //ref Carac tipo 6
+
+  // For todays date;
+  Date.prototype.today = function () { 
+    return this.getFullYear() + "/" + (((this.getMonth()+1) < 10)?"0":"") + (this.getMonth()+1) + "/" + ((this.getDate() < 10)?"0":"") + this.getDate();
+  }
+
+  // For the time now
+  Date.prototype.timeNow = function () {
+      return ((this.getHours() < 10)?"0":"") + this.getHours() +":"+ ((this.getMinutes() < 10)?"0":"") + this.getMinutes() +":"+ ((this.getSeconds() < 10)?"0":"") + this.getSeconds();
+  }
 
   //Fetch Organization
   useEffect(() => {
@@ -185,13 +201,20 @@ export default function NewStaffRequirement() {
   const assignPersonDesc = (item) => {
     setPersonaSelect(item.selectedItem)
     if(!!item.selectedItem){
-      setListPersonaSelect([...listPersonaSelect, {id: item.selectedItem.id}])
-      setListPersonaSelectNombre([...listPersonaSelectNombre, item.selectedItem.name])
+      setListPersonaSelect([...listPersonaSelect, {id: item.selectedItem.id,
+                                                   datos: item.selectedItem.codigo + " " +
+                                                   item.selectedItem.apPaterno + " " + item.selectedItem.apMaterno +
+                                                    ", " + item.selectedItem.name + " // " +
+                                                   item.selectedItem.position.description}])
+      // setListPersonaSelectNombre(...listPersonaSelectNombre, listPersonCopy.map(index => {
+      //   if(index.id === item.selectedItem.id){
+      //     return {datos: index.datos}
+      //   }
+      // }))
     }
-    // console.log(listPersonaSelect)
-    // if(item.selectedItem != null){
-    //   assignPositionDesc(item.selectedItem.position)
-    // }
+    console.log(listPersonaSelect)
+    console.log(listPersonaSelectNombre)
+    console.log(listPersonCopy)
   }
 
   const assignPositionDesc = (item) => {
@@ -208,12 +231,6 @@ export default function NewStaffRequirement() {
       setPuestoSexoSelect(null)
       setPuestoCivilStatusSelect(null)
     }
-  }
-
-  const descListPerson = () => {
-    return (event => {
-      
-    })
   }
 
   const justifOnChangeText = () => {
@@ -272,7 +289,7 @@ export default function NewStaffRequirement() {
         companyDivision: divisionSelect[0].id === undefined ? 1 : divisionSelect[0].id,
         vPManagement: vpSelect[0].id === undefined ? 1 : vpSelect[0].id,
         observation: "",
-        requestDate: new Date().toJSON().replace(/-/g,'/'),
+        requestDate: new Date().today() + " T " + new Date().timeNow(),
         quantity: cantReq,
         estimatedDate: new Date(estimDate).toJSON().slice(0,10).replace(/-/g,'/'),
         timeService: tiempoServ,
@@ -298,8 +315,8 @@ export default function NewStaffRequirement() {
           fileDesc: ""
         }
       };
-      console.log(JSON.stringify(data))
-      // const requestSend = await sendRequest(data);
+      // console.log(JSON.stringify(data))
+      const requestSend = await sendRequest(data);
       // if(!!reqGroupFunc.current){
       //   const resRef = reqGroupFunc.current.getDataContent()
       //   console.log(resRef)
@@ -366,12 +383,12 @@ export default function NewStaffRequirement() {
                 // onChange={(item) => {assignPersonDesc(item)}}
                 id="comboNomReemp"
                 light
-                items={listTrabajador}
+                items={listPersonCopy}
                 // selectedItem={personaSelect}
-                itemToString={(item) => (item ? (item.apPaterno + " " + item.apMaterno + ", " + item.name) : "")}
+                itemToString={(item) => (item ? item.datos : "")}
                 placeholder="Escriba nombre del trabajador a reemplazar..."
-                shouldFilterItem={({ item: { name }, inputValue }) => 
-                  name.toLowerCase().includes(inputValue.toLowerCase())
+                shouldFilterItem={({ item: { datos }, inputValue }) => 
+                  datos.toLowerCase().includes(inputValue.toLowerCase())
                 }
               />
             )}
@@ -610,13 +627,13 @@ export default function NewStaffRequirement() {
                   onChange={(item) => {assignPersonDesc(item)}}
                   id="comboNombre"
                   light
-                  items={listTrabajador}
+                  items={listPersonCopy}
                   selectedItem={personaSelect}
-                  itemToString={(item) => (item ? (item.apPaterno + " " + item.apMaterno + ", " + item.name) : "")}
+                  itemToString={(item) => (item ? item.datos : "")}
                   placeholder="Escriba nombre..."
                   titleText="Nombres y Apellidos"
-                  shouldFilterItem={({ item: { name }, inputValue }) =>
-                    name.toLowerCase().includes(inputValue.toLowerCase())
+                  shouldFilterItem={({ item: { datos }, inputValue }) =>
+                    datos.toLowerCase().includes(inputValue.toLowerCase())
                   }
                 ></ComboBox>
               </div>
@@ -626,7 +643,7 @@ export default function NewStaffRequirement() {
             <div style={{ marginBottom: "1.6rem", backgroundColor: "#dadee9" }}>
             <ComboBox
                 onChange={(item) => {setVacanteTipo(item.selectedItem)}}
-                id="comboTipoBusq"
+                id="comboVacante"
                 light
                 // selectedItem={"Sí"}
                 items={["Sí","No"]}
@@ -653,14 +670,16 @@ export default function NewStaffRequirement() {
                 <TextArea
                   // onChange={() => {descListPerson(listPersonaSelect)}}
                   cols={10}
-                  id="txta1"
+                  id="txtListReplace"
                   invalidText="Invalid error message."
                   labelText="Lista Trabajadores"
                   rows={3}
                   light
                   style={{ resize: "none" }}
                   readOnly
-                  value={listPersonaSelectNombre}
+                  value={listPersonaSelect.map(item => {
+                    return item.datos + "\n"
+                  })}
                 ></TextArea>
               </div>
             )}
@@ -671,7 +690,7 @@ export default function NewStaffRequirement() {
             <div style={{ marginBottom: "2rem", backgroundColor: "#dadee9" }}>
               <TextArea
                 cols={20}
-                id="txta1"
+                id="txtJusti"
                 invalidText="Invalid error message."
                 labelText="Justificación"
                 placeholder="Escriba justificación..."

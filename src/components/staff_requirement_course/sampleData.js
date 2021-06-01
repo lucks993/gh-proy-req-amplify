@@ -56,6 +56,10 @@ export const headerData = [
     header: 'Nuevo o Reemplazo',
   },
   {
+    key: 'quantity',
+    header: 'Cantidad',
+  },
+  {
     key: 'nameNew',
     header: 'Nombre Nuevo Reemplazo'
   },

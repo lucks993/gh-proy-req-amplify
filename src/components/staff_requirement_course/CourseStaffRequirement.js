@@ -61,7 +61,8 @@ export default function CourseStaffRequirement(props) {
         society: req.society.description,
         position: req.position.description,
         new: req.type.description,
-        nameNew: req.listApprovers,
+        // nameNew: req.listReplacement,
+        quantity: req.quantity,
         unity_org: req.orgUnit.description,
         cost_center: req.costCenter.description,
         location: req.physLocation.description,
@@ -86,7 +87,8 @@ export default function CourseStaffRequirement(props) {
             society: req.society.description,
             position: req.position.description,
             new: req.type.description,
-            nameNew: req.listApprovers,
+            // nameNew: req.listReplacement,
+            quantity: req.quantity,
             unity_org: req.orgUnit.description,
             cost_center: req.costCenter.description,
             location: req.physLocation.description,
@@ -116,12 +118,6 @@ export default function CourseStaffRequirement(props) {
     });
     // console.log(selectedItem)
     props.history.push(`/requerimiento-personal-bandeja/${selectedItem}`);
-  };
-
-  const addRow = () => {
-    //var currentState = this.state;
-    //currentState.dataContent.push(currentState.dataContent.length);
-    this.setState({ datcontent: [...this.state.dataContent, 0] });
   };
 
   const showInstrucctions = () => {

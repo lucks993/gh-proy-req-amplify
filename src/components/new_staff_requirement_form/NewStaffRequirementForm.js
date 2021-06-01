@@ -54,7 +54,8 @@ export default function NewStaffRequirementForm(props) {
   // const [checkCount, setCheckCount] = useState(false)
   let listRep = selectedRow[0].listReplacement.map(item => ({
     ...item, datos: item.codigo + " " + item.apPaterno + " " +
-                    item.apMaterno + ", " + item.name
+                    item.apMaterno + ", " + item.name + " // " +
+                    item.position.description
   }))
 
   const verificarCant = () => {
@@ -65,10 +66,10 @@ export default function NewStaffRequirementForm(props) {
         <div style={{ marginTop: "1rem", backgroundColor: "#dadee9" }}>
           <TextArea
             cols={10}
-            id="txta1"
+            id="txtListReplace"
             invalidText="Invalid error message."
             labelText="Lista Trabajadores"
-            rows={10}
+            rows={3}
             value={listRep.map(item => {
               return item.datos+"\n"
             })}
@@ -82,9 +83,12 @@ export default function NewStaffRequirementForm(props) {
       return (
         <div style={{ marginBottom: "2rem", backgroundColor: "#dadee9" }}>
           <TextInput
-            id="txt3"
+            id="txtNomReemp"
             invalidText="Invalid error message."
             labelText="Nombres y Apellidos:"
+            value={listRep.map(item => {
+              return item.datos
+            })}
             // placeholder="Juan Salaz"
             light
             readOnly
@@ -241,7 +245,9 @@ export default function NewStaffRequirementForm(props) {
                   invalidText="Invalid error message."
                   labelText="Nombre"
                   readOnly
-                  value={selectedRow[0].applicant.username}
+                  value={selectedRow[0].applicant.person.apPaterno + " " +
+                         selectedRow[0].applicant.person.apMaterno + ", " +
+                         selectedRow[0].applicant.person.name}
                   light
                 />
               </div>
@@ -521,7 +527,7 @@ export default function NewStaffRequirementForm(props) {
             <div style={{ marginBottom: "2rem", backgroundColor: "#dadee9" }}>
               <TextArea
                 cols={20}
-                id="txta1"
+                id="txtJusti"
                 // invalidText="Invalid error message."
                 labelText="Justificación"
                 // placeholder="Puede ser buena gente"

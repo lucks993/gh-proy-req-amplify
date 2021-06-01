@@ -77,6 +77,10 @@ export const rowData = [
       header: 'Categoría',
     },
     {
+      key: 'quantity',
+      header: 'Cantidad',
+    },
+    {
       key:'typeOfContract',
       header:'Tipo de Contrato'
     }

@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+let userEmp = 2
+
 const api = axios.create({
     baseURL: "https://70cd1uugng.execute-api.us-east-1.amazonaws.com/dev/"
 });
@@ -13,8 +15,8 @@ export const fetchOrgAsignation = async () => {
 
 // Fetch Position
 export const fetchPosition = async () => {
-    // const res = await api.get('requirement/position')
-    const res = await api.get('https://7xb7zc4a8l.execute-api.us-east-2.amazonaws.com/default/gh-proy-req-requirement-get-position-test')
+    const res = await api.get('requirement/position')
+    // const res = await api.get('https://7xb7zc4a8l.execute-api.us-east-2.amazonaws.com/default/gh-proy-req-requirement-get-position-test')
     return res.data
 }
 
@@ -32,7 +34,8 @@ export const fetchPerson = async () => {
 
 // Fetch Requirement Request Employee
 export const fetchRequest= async () => {
-    const res = await api.get('requirement/request')
+    // const res = await api.get('requirement/request')
+    const res = await api.get('requirement/request/'+userEmp)
     return res.data
 }
 
@@ -51,7 +54,8 @@ export const fetchDataGraph = async () => {
 
 // Fetch Societies
 export const fetchSocieties = async () => {
-    const res = await api.get('https://7xb7zc4a8l.execute-api.us-east-2.amazonaws.com/default/gh-proy-req-config-get-society-test')
+    const res = await api.get('settings/societies')
+    // const res = await api.get('https://7xb7zc4a8l.execute-api.us-east-2.amazonaws.com/default/gh-proy-req-config-get-society-test')
     return res.data
 }
 
