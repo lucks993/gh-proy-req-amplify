@@ -17,7 +17,7 @@ import {
 } from "carbon-components-react";
 import { headerData, rowData, monthList, yearList } from "./sampleData";
 import "./ControlPanelStaffParcial.scss";
-import { fetchRequest } from "../../services/api/servicies";
+import { fetchListRequest } from "../../services/api/servicies";
 
 export default function ControlPanelStaffParcial() {
   const [checkedStatus, setCheckedStatus] = useState(false);
@@ -43,7 +43,7 @@ export default function ControlPanelStaffParcial() {
         justify: req.justification,
         description: req.position.information,
         observation: req.observation,
-        dateState: req.requestDate,
+        dateState: req.timeStatus,
         status: req.flow.section
       };
     });
@@ -53,7 +53,7 @@ export default function ControlPanelStaffParcial() {
   //Fetch Requirement Request Employee
   useEffect(() => {
     const getRequest = async () => {
-      const requestFromServer = await fetchRequest();
+      const requestFromServer = await fetchListRequest();
       setListRequest(requestFromServer);
       setInfRequest(() => {
         const dataReq = [{}];
@@ -76,7 +76,7 @@ export default function ControlPanelStaffParcial() {
             justify: req.justification,
             description: req.position.information,
             observation: req.observation,
-            dateState: req.requestDate,
+            dateState: req.timeStatus,
             status: req.flow.section
           };
         });

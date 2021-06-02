@@ -5,7 +5,7 @@ import "./ConfigRequirement.scss";
 import ConfigRequirementSociety from "./ConfigRequirementSociety";
 import { fetchSocieties, sendSocieties } from "../../services/api/servicies";
 
-export default function ConfigRequirement() {
+export default function ConfigRequirement(props) {
   const [listSocieties, setListSocieties] = useState([]);
   const [checkSocieties, setCheckSocieties] = useState(() => {
     const statusCheck = {};
@@ -43,6 +43,7 @@ export default function ConfigRequirement() {
     }));
     // console.log(JSON.stringify(data))
     const societiesSend = await sendSocieties(data);
+    props.history.go(0)
     // console.log("response: " + JSON.stringify(societiesSend))
   };
 

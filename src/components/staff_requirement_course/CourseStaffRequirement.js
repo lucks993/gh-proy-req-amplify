@@ -1,9 +1,4 @@
 import React, { useState, useEffect } from "react";
-import {
-  BrowserRouter as Route,
-  Switch,
-  useRouteMatch,
-} from "react-router-dom";
 import ReactDOM from "react-dom";
 import TableToExcel from "@linways/table-to-excel";
 import "carbon-components/css/carbon-components.min.css";
@@ -27,7 +22,7 @@ import {
 } from "carbon-components-react";
 import { headerData, rowData } from "./sampleData";
 import "./CourseStaffRequirement.scss";
-import { fetchRequest, sendRequestApprover } from "../../services/api/servicies";
+import { fetchRequest, sendRequestApprover, sendRequestReject } from "../../services/api/servicies";
 
 const ModalStateManager = ({
   renderLauncher: LauncherContent,
@@ -59,8 +54,8 @@ let userReq = {
 }
 // const [listRow, setListRow] = useState([])
 export default function CourseStaffRequirement(props) {
-  let match = useRouteMatch();
   const [listRequest, setListRequest] = useState([]);
+  const [obsValue, setObsValue] = useState("Este requerimiento no es conforme")
   const [infRequest, setInfRequest] = useState(() => {
     const dataReq = [{}];
     listRequest.forEach((req) => {
@@ -120,15 +115,19 @@ export default function CourseStaffRequirement(props) {
     getRequest();
   }, []);
 
-  const mostrarReq = (index) => {
-    selectedItem = index;
-    selectedRow = listRequest.filter((item) => {
-      return item.id === selectedItem;
-    });
-    console.log(selectedItem);
-    console.log(selectedRow);
-    // console.log(selectedRow[0].type.id);
-  };
+  // const mostrarReq = (index) => {
+  //   selectedItem = index;
+  //   selectedRow = listRequest.filter((item) => {
+  //     return item.id === selectedItem;
+  //   });
+  //   console.log(selectedItem);
+  //   console.log(selectedRow);
+  //   // console.log(selectedRow[0].type.id);
+  // };
+
+  const actualizar = () => {
+    props.history.go(0)
+  }
 
   const goToRequirement = (item) => {
     selectedItem = item;
@@ -162,6 +161,36 @@ export default function CourseStaffRequirement(props) {
     }
     console.log(JSON.stringify(data))
     const requestSend = await sendRequestApprover(data)
+    props.history.go(0)
+  }
+
+  const obsOnChangeText = () => {
+    return (event => {
+        const newObs = event.target.value
+        setObsValue(newObs)
+    })
+  }
+
+  const rechazarReq = async (index) => {
+    const data = {}
+
+    selectedItem = index;
+    selectedRow = listRequest.filter((item) => {
+      return item.id === selectedItem;
+    });
+    // console.log(selectedItem);
+    console.log(selectedRow);
+    // setObsValue(document.getElementById("textRejectAlone").value)
+    data.request = {
+      id: selectedRow[0].id,
+      observation: obsValue,
+      flow: (selectedRow[0].flow.id <= 6) ? 4 : 8,    
+      state: 4,
+      dateApproved: new Date().today() + " T " + new Date().timeNow(),
+    }
+    // console.log(JSON.stringify(data))
+    const requestSend = await sendRequestReject(data)
+    props.history.go(0)
   }
 
   const showInstrucctions = () => {
@@ -318,6 +347,7 @@ export default function CourseStaffRequirement(props) {
                             primaryButtonText="Guardar"
                             secondaryButtonText="Cancelar"
                             open={open}
+                            onRequestSubmit={() => rechazarReq(row.cells[0].value)}
                             onRequestClose={() => setOpen(false)}
                           >
                             <p style={{ marginBottom: "1rem" }}>
@@ -325,8 +355,10 @@ export default function CourseStaffRequirement(props) {
                             </p>
                             <TextArea
                               data-modal-primary-focus
-                              id="text-area-1"
+                              id="textRejectAlone"
                               placeholder="Escriba aquí..."
+                              defaultValue={obsValue}
+                              // onChange={obsOnChangeText()}
                               // style={{ marginBottom: "1rem", borderRadius: '6px', border: "3px solid black" }}
                             />
                           </Modal>
@@ -374,6 +406,7 @@ export default function CourseStaffRequirement(props) {
               primaryButtonText="Guardar"
               secondaryButtonText="Cancelar"
               open={open}
+              onRequestSubmit={() => setOpen(false)}
               onRequestClose={() => setOpen(false)}
             >
               <p style={{ marginBottom: "1rem" }}>
@@ -381,7 +414,7 @@ export default function CourseStaffRequirement(props) {
               </p>
               <TextArea
                 data-modal-primary-focus
-                id="text-area-1"
+                id="textRejectAll"
                 placeholder="Escriba aquí..."
                 // style={{ marginBottom: "1rem", borderRadius: '6px', border: "3px solid black" }}
               />

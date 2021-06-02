@@ -6,12 +6,8 @@ import {
   Form,
   TextInput,
   TextArea,
-  Select,
-  SelectItem,
   Button,
   Modal,
-  DatePicker,
-  DatePickerInput,
   // Checkbox,
   RadioButton,
   RadioButtonGroup,
@@ -20,6 +16,7 @@ import {
 } from "carbon-components-react";
 import RequirementGroup from "./RequirementGroupForm";
 import { selectedRow } from "../staff_requirement_course/CourseStaffRequirement";
+import { sendRequestApprover, sendRequestReject } from "../../services/api/servicies";
 
 const ModalStateManager = ({
   renderLauncher: LauncherContent,
@@ -57,6 +54,15 @@ export default function NewStaffRequirementForm(props) {
                     item.apMaterno + ", " + item.name + " // " +
                     item.position.description
   }))
+  let userReq = {
+    position: 2,
+    name: "",
+    apPaterno: "",
+    apMaterno: "",
+    codeSuperior: "0",
+    approverRole: 2
+  }
+  const [obsValue, setObsValue] = useState("Este requerimiento no es conforme")
 
   const verificarCant = () => {
     var cant;
@@ -104,11 +110,40 @@ export default function NewStaffRequirementForm(props) {
     props.history.goBack();
   };
 
-  const mostrarReq = () => {
-    console.log(listRep.forEach(item => {
-      return console.log(item.datos)
-    }))
-  };
+  const aprobarReq = async () => {
+    const data = {}
+
+    data.request = {
+      id: selectedRow[0].id,
+      flow: (selectedRow[0].flow.id === 1 && userReq.codeSuperior !== "0") ? 1 :
+            (selectedRow[0].approvedLevel === 0 && selectedRow[0].flow.id === 2) ? 4 :
+            (selectedRow[0].flow.id < 6 ? (selectedRow[0].flow.id + 1) : (selectedRow[0].flow.id === 6 ? selectedRow[0].flow.id :
+                                          (selectedRow[0].flow.id < 10 ? (selectedRow[0].flow.id + 1) : selectedRow[0].flow.id))), //Flow siguiente
+      state: (selectedRow[0].approvedLevel === 0 && selectedRow[0].flow.id === 2) ? 3 :
+             (selectedRow[0].flow.id < 6 ? 2 : (selectedRow[0].flow.id === 6 ? 3 :
+                                          (selectedRow[0].flow.id < 10 ? 2 : 3))),
+      approver: userReq.approverRole, //id del usuario
+      dateApproved: new Date().today() + " T " + new Date().timeNow(),
+    }
+    console.log(JSON.stringify(data))
+    const requestSend = await sendRequestApprover(data)
+    props.history.goBack()
+  }
+
+  const rechazarReq = async () => {
+    const data = {}
+
+    data.request = {
+      id: selectedRow[0].id,
+      observation: obsValue,
+      flow: (selectedRow[0].flow.id <= 6) ? 4 : 8,    
+      state: 4,
+      dateApproved: new Date().today() + " T " + new Date().timeNow(),
+    }
+    console.log(JSON.stringify(data))
+    const requestSend = await sendRequestReject(data)
+    props.history.goBack()
+  }
 
   return (
     <Form>
@@ -777,7 +812,7 @@ export default function NewStaffRequirementForm(props) {
             className="custom-class"
             kind="tertiary a_1"
             size="field"
-            onClick={() => mostrarReq()}
+            onClick={() => aprobarReq()}
           >
             Aprobar
           </Button>
@@ -802,7 +837,7 @@ export default function NewStaffRequirementForm(props) {
                 modalHeading="Observaciones"
                 primaryButtonText="Guardar"
                 secondaryButtonText="Cancelar"
-                open={open}
+                onRequestSubmit={() => rechazarReq()}
                 onRequestClose={() => setOpen(false)}
               >
                 <p style={{ marginBottom: "1rem" }}>
@@ -810,8 +845,10 @@ export default function NewStaffRequirementForm(props) {
                 </p>
                 <TextArea
                   data-modal-primary-focus
-                  id="text-area-1"
+                  id="textRejectAlone"
                   placeholder="Escriba aquí..."
+                  defaultValue={obsValue}
+                  // onChange={obsOnChangeText()}
                   // style={{ marginBottom: "1rem", borderRadius: '6px', border: "3px solid black" }}
                 />
               </Modal>

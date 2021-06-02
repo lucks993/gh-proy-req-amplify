@@ -18,7 +18,7 @@ import RequirementGroup from "./RequirementGroup";
 import SelectOrg from "./SelectOrg";
 import { fetchOrgAsignation, fetchPosition, fetchPerson, sendRequest } from "../../services/api/servicies";
 
-export default function NewStaffRequirement() {
+export default function NewStaffRequirement(props) {
   //Listas
   const [listOrgAsign, setListOrgAsign] = useState({
     listSociety: [],
@@ -263,8 +263,8 @@ export default function NewStaffRequirement() {
 
   const timeOnChangeText = () => {
     return (event => {
-        const newJustif = event.target.value
-        setTiempoServ(newJustif)
+        const newTimeChange= event.target.value
+        setTiempoServ(newTimeChange)
     })
   }
 
@@ -325,7 +325,7 @@ export default function NewStaffRequirement() {
         typeSearch: busqTipo,
         position: puestoSelect.id,
         userID: 1,
-        timeStatus: "1",
+        timeStatus: new Date().today() + " T " + new Date().timeNow(),
         listReplacement: listPersonaSelect,
         listCharacteristic: listCharac,
         listCharacAdd: {
@@ -339,6 +339,7 @@ export default function NewStaffRequirement() {
       };
       // console.log(JSON.stringify(data))
       const requestSend = await sendRequest(data);
+      props.history.go(0)
       // if(!!reqGroupFunc.current){
       //   const resRef = reqGroupFunc.current.getDataContent()
       //   console.log(resRef)
