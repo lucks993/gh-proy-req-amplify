@@ -28,12 +28,12 @@ export default function NewStaffRequirement() {
     listUnit: [],
     listCenter: [],
   });
-  const [societySelect, setSocietySelect] = useState([{}])   //Sociedad
-  const [divisionSelect, setDivisionSelect] = useState([{}]) //Division
-  const [physicalSelect, setPhysicalSelect] = useState([{}]) //U Fisica
-  const [vpSelect, setVPSelect] = useState([{}])             //VP
-  const [unitSelect, setUnitSelect] = useState([{}])         //Unidad
-  const [centerSelect, setCenterSelect] = useState([{}])     //Centro
+  const [societySelect, setSocietySelect] = useState(null)   //Sociedad
+  const [divisionSelect, setDivisionSelect] = useState(null) //Division
+  const [physicalSelect, setPhysicalSelect] = useState(null) //U Fisica
+  const [vpSelect, setVPSelect] = useState(null)             //VP
+  const [unitSelect, setUnitSelect] = useState(null)         //Unidad
+  const [centerSelect, setCenterSelect] = useState(null)     //Centro
   const [listPuestos, setListPuestos] = useState([])      //Lista Puestos
   const [puestoSelect, setPuestoSelect] = useState(null)  //Puesto Selec
   const [reqTipo, setReqTipo] = useState(1)               //Tipo Req
@@ -63,6 +63,8 @@ export default function NewStaffRequirement() {
     name: "",
     apPaterno: "",
     apMaterno: "",
+    codeSuperior: "0",
+    approverRole: 1
   })
   const [maxDoc, setMaxDoc] = useState(0);
   const minReq = 1;                                     //Cant min
@@ -114,7 +116,8 @@ export default function NewStaffRequirement() {
         setUserReq({position: personFromServer[1].position.description,
                     name: personFromServer[1].name,
                     apPaterno: personFromServer[1].apPaterno,
-                    apMaterno: personFromServer[1].apMaterno})
+                    apMaterno: personFromServer[1].apMaterno,
+                    codeSuperior: personFromServer[1].codeSuperior})
     }
     getPerson()
   }, [])
@@ -134,68 +137,86 @@ export default function NewStaffRequirement() {
     setReqTipo(item)
   }
 
-  const societySelectOnChange = (index) => {
-    if(!!index){     
-      // let orgIndex = []
-      let orgList = []
-      orgList = listOrgAsign.listSociety
-      // socIndex = socList.filter(item => {return item.id == index})
-      setSocietySelect(orgList.filter(item => {return item.id == index}))
-      // console.log(orgIndex)
-      // console.log(societySelect)
-      // console.log("orgIndex.id: "+orgIndex[0].id)
-      // console.log("orgIndex.desc: "+orgIndex[0].description)
-      // console.log("orgIndex.level: "+orgIndex[0].levelAproved)
-      // console.log("societySelect.id: "+societySelect[0].id)
-      // console.log("societySelect.desc: "+societySelect[0].description)
-      // console.log("societySelect.level: "+societySelect[0].levelAproved)
-
+  const societySelectOnChange = (item) => {
+    setSocietySelect(item.selectedItem)
+    if(item.selectedItem == null){
+      setSocietySelect(null)
     }
+    // if(!!index){     
+    //   // let orgIndex = []
+    //   let orgList = []
+    //   orgList = listOrgAsign.listSociety
+    //   // socIndex = socList.filter(item => {return item.id == index})
+    //   setSocietySelect(orgList.filter(item => {return item.id == index}))
+    //   // console.log(orgIndex)
+    //   // console.log(societySelect)
+    //   // console.log("orgIndex.id: "+orgIndex[0].id)
+    //   // console.log("orgIndex.desc: "+orgIndex[0].description)
+    //   // console.log("orgIndex.level: "+orgIndex[0].levelAproved)
+    //   // console.log("societySelect.id: "+societySelect[0].id)
+    //   // console.log("societySelect.desc: "+societySelect[0].description)
+    //   // console.log("societySelect.level: "+societySelect[0].levelAproved)
+    // }
   };
 
-  const divisionSelectOnChange = (index) => {
-    if(!!index){
-      let orgList = []
-      orgList = listOrgAsign.listDivision
-      setDivisionSelect(orgList.filter(item => {return item.id == index}))
-      // setDivisionSelect(item)
+  const divisionSelectOnChange = (item) => {
+    setDivisionSelect(item.selectedItem)
+    if(item.selectedItem == null){
+      setDivisionSelect(null)
     }
+    // if(!!index){
+    //   let orgList = []
+    //   orgList = listOrgAsign.listDivision
+    //   setDivisionSelect(orgList.filter(item => {return item.id == index}))
+    // }
   };
 
-  const physicalSelectOnChange = (index) => {
-    if(!!index){
-      let orgList = []
-      orgList = listOrgAsign.listPhysicial
-      setPhysicalSelect(orgList.filter(item => {return item.id == index}))
-      // setPhysicalSelect(item)
+  const physicalSelectOnChange = (item) => {
+    setPhysicalSelect(item.selectedItem)
+    if(item.selectedItem == null){
+      setPhysicalSelect(null)
     }
+    // if(!!index){
+    //   let orgList = []
+    //   orgList = listOrgAsign.listPhysicial
+    //   setPhysicalSelect(orgList.filter(item => {return item.id == index}))
+    // }
   };
 
-  const vpSelectOnChange = (index) => {
-    if(!!index){
-      let orgList = []
-      orgList = listOrgAsign.listVP
-      setVPSelect(orgList.filter(item => {return item.id == index}))
-      // setVPSelect(item)
+  const vpSelectOnChange = (item) => {
+    setVPSelect(item.selectedItem)
+    if(item.selectedItem == null){
+      setVPSelect(null)
     }
+    // if(!!index){
+    //   let orgList = []
+    //   orgList = listOrgAsign.listVP
+    //   setVPSelect(orgList.filter(item => {return item.id == index}))
+    // }
   };
 
-  const unitSelectOnChange = (index) => {
-    if(!!index){
-      let orgList = []
-      orgList = listOrgAsign.listUnit
-      setUnitSelect(orgList.filter(item => {return item.id == index}))
-      // setUnitSelect(item)
+  const unitSelectOnChange = (item) => {
+    setUnitSelect(item.selectedItem)
+    if(item.selectedItem == null){
+      setUnitSelect(null)
     }
+    // if(!!index){
+    //   let orgList = []
+    //   orgList = listOrgAsign.listUnit
+    //   setUnitSelect(orgList.filter(item => {return item.id == index}))
+    // }
   };
 
-  const centerSelectOnChange = (index) => {
-    if(!!index){
-      let orgList = []
-      orgList = listOrgAsign.listCenter
-      setCenterSelect(orgList.filter(item => {return item.id == index}))
-      // setCenterSelect(item)
+  const centerSelectOnChange = (item) => {
+    setCenterSelect(item.selectedItem)
+    if(item.selectedItem == null){
+      setCenterSelect(null)
     }
+    // if(!!index){
+    //   let orgList = []
+    //   orgList = listOrgAsign.listCenter
+    //   setCenterSelect(orgList.filter(item => {return item.id == index}))
+    // }
   };
 
   const assignPersonDesc = (item) => {
@@ -248,7 +269,8 @@ export default function NewStaffRequirement() {
   }
 
   const saveRequest = async () => {
-    if(!!puestoSelect && !!estimDate && tiempoServ !== "" && vacanteTipo !=="" && reqTipo !== 0 && contratoTipo !== 0 && busqTipo !== 0){
+    if(!!puestoSelect && !!estimDate && tiempoServ !== "" && vacanteTipo !=="" && reqTipo !== 0 && contratoTipo !== 0 && busqTipo !== 0 &&
+       !!societySelect && !!unitSelect && !!physicalSelect && !!centerSelect && !!divisionSelect && !!vpSelect){
       const data = {}    
       let listCharac = [] 
       if(!!reqGroupFunc.current){
@@ -282,23 +304,23 @@ export default function NewStaffRequirement() {
           {...item, charac: {id: 6, description: "Idiomas"} }) )]
       }
       data.request = {
-        society: societySelect[0].id === undefined ? 1 : societySelect[0].id,
-        organizationalUnit: unitSelect[0].id === undefined ? 1 : unitSelect[0].id,
-        physicalLocation: physicalSelect[0].id === undefined ? 1 : physicalSelect[0].id,
-        costCenter: centerSelect[0].id === undefined ? 1 : centerSelect[0].id,
-        companyDivision: divisionSelect[0].id === undefined ? 1 : divisionSelect[0].id,
-        vPManagement: vpSelect[0].id === undefined ? 1 : vpSelect[0].id,
+        society: societySelect.id,
+        organizationalUnit: unitSelect.id,
+        physicalLocation: physicalSelect.id,
+        costCenter: centerSelect.id,
+        companyDivision: divisionSelect.id,
+        vPManagement: vpSelect.id,
         observation: "",
         requestDate: new Date().today() + " T " + new Date().timeNow(),
         quantity: cantReq,
         estimatedDate: new Date(estimDate).toJSON().slice(0,10).replace(/-/g,'/'),
         timeService: tiempoServ,
         justification: justifServ,
-        approvedLevel: societySelect[0].levelAproved === undefined ? 1 : societySelect[0].levelAproved,
+        approvedLevel: societySelect.levelAproved,
         vacancyConsidered: vacanteTipo, 
         typeRequest: reqTipo,
         typeState: 1,
-        flow: 1,
+        flow: userReq.codeSuperior !== "0" ? 1 : (userReq.approverRole === 4 ? 4 : 2),
         contract: contratoTipo,
         typeSearch: busqTipo,
         position: puestoSelect.id,
@@ -325,6 +347,7 @@ export default function NewStaffRequirement() {
     else{
       console.log("Falta llenar")
     }
+    console.log(societySelect)
   };
 
   return (
@@ -400,6 +423,7 @@ export default function NewStaffRequirement() {
               <SelectOrg
                 orgType="Sociedad"
                 orgList={listOrgAsign.listSociety}
+                orgSelect={societySelect}
                 selectOnChange={societySelectOnChange}
               />
             </div>
@@ -407,6 +431,7 @@ export default function NewStaffRequirement() {
               <SelectOrg
                 orgType="VP/Dirección/Gerencia"
                 orgList={listOrgAsign.listVP}
+                orgSelect={vpSelect}
                 selectOnChange={vpSelectOnChange}
               />
             </div>
@@ -414,6 +439,7 @@ export default function NewStaffRequirement() {
               <SelectOrg
                 orgType="Ubicación Física"
                 orgList={listOrgAsign.listPhysicial}
+                orgSelect={physicalSelect}
                 selectOnChange={physicalSelectOnChange}
               />
             </div>
@@ -467,6 +493,7 @@ export default function NewStaffRequirement() {
               <SelectOrg
                 orgType="División Empresa"
                 orgList={listOrgAsign.listDivision}
+                orgSelect={divisionSelect}
                 selectOnChange={divisionSelectOnChange}
               />
             </div>
@@ -474,6 +501,7 @@ export default function NewStaffRequirement() {
               <SelectOrg
                 orgType="Unidad Organizativa"
                 orgList={listOrgAsign.listUnit}
+                orgSelect={unitSelect}
                 selectOnChange={unitSelectOnChange}
               />
             </div>
@@ -482,6 +510,7 @@ export default function NewStaffRequirement() {
               <SelectOrg
                 orgType="Centro de Costos"
                 orgList={listOrgAsign.listCenter}
+                orgSelect={centerSelect}
                 selectOnChange={centerSelectOnChange}
               />
             </div>
@@ -559,7 +588,7 @@ export default function NewStaffRequirement() {
                 max={maxReq}
                 min={minReq}
                 step={1}
-                value={minReq}
+                value={cantReq}
                 light
                 onChange={(item) => verificarCant(item)}
               />

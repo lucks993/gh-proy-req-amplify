@@ -27,7 +27,7 @@ import {
 } from "carbon-components-react";
 import { headerData, rowData } from "./sampleData";
 import "./CourseStaffRequirement.scss";
-import { fetchRequest } from "../../services/api/servicies";
+import { fetchRequest, sendRequestApprover } from "../../services/api/servicies";
 
 const ModalStateManager = ({
   renderLauncher: LauncherContent,
@@ -49,6 +49,15 @@ const ModalStateManager = ({
 
 export let selectedItem = 0;
 export let selectedRow = {};
+let userReq = {
+  position: 2,
+  name: "",
+  apPaterno: "",
+  apMaterno: "",
+  codeSuperior: "0",
+  approverRole: 2
+}
+// const [listRow, setListRow] = useState([])
 export default function CourseStaffRequirement(props) {
   let match = useRouteMatch();
   const [listRequest, setListRequest] = useState([]);
@@ -71,6 +80,16 @@ export default function CourseStaffRequirement(props) {
     });
     return dataReq;
   });
+
+  // For todays date;
+  Date.prototype.today = function () { 
+    return this.getFullYear() + "/" + (((this.getMonth()+1) < 10)?"0":"") + (this.getMonth()+1) + "/" + ((this.getDate() < 10)?"0":"") + this.getDate();
+  }
+
+  // For the time now
+  Date.prototype.timeNow = function () {
+      return ((this.getHours() < 10)?"0":"") + this.getHours() +":"+ ((this.getMinutes() < 10)?"0":"") + this.getMinutes() +":"+ ((this.getSeconds() < 10)?"0":"") + this.getSeconds();
+  }
 
   //Fetch Requirement Request Employee
   useEffect(() => {
@@ -108,7 +127,7 @@ export default function CourseStaffRequirement(props) {
     });
     console.log(selectedItem);
     console.log(selectedRow);
-    console.log(selectedRow[0].type.id);
+    // console.log(selectedRow[0].type.id);
   };
 
   const goToRequirement = (item) => {
@@ -119,6 +138,31 @@ export default function CourseStaffRequirement(props) {
     // console.log(selectedItem)
     props.history.push(`/requerimiento-personal-bandeja/${selectedItem}`);
   };
+
+  const aprobarReq = async (index) => {
+    const data = {}
+
+    selectedItem = index;
+    selectedRow = listRequest.filter((item) => {
+      return item.id === selectedItem;
+    });
+    // console.log(selectedItem);
+    console.log(selectedRow);
+    data.request = {
+      id: selectedRow[0].id,
+      flow: (selectedRow[0].flow.id === 1 && userReq.codeSuperior !== "0") ? 1 :
+            (selectedRow[0].approvedLevel === 0 && selectedRow[0].flow.id === 2) ? 4 :
+            (selectedRow[0].flow.id < 6 ? (selectedRow[0].flow.id + 1) : (selectedRow[0].flow.id === 6 ? selectedRow[0].flow.id :
+                                          (selectedRow[0].flow.id < 10 ? (selectedRow[0].flow.id + 1) : selectedRow[0].flow.id))), //Flow siguiente
+      state: (selectedRow[0].approvedLevel === 0 && selectedRow[0].flow.id === 2) ? 3 :
+             (selectedRow[0].flow.id < 6 ? 2 : (selectedRow[0].flow.id === 6 ? 3 :
+                                          (selectedRow[0].flow.id < 10 ? 2 : 3))),
+      approver: userReq.approverRole, //id del usuario
+      dateApproved: new Date().today() + " T " + new Date().timeNow(),
+    }
+    console.log(JSON.stringify(data))
+    const requestSend = await sendRequestApprover(data)
+  }
 
   const showInstrucctions = () => {
     return (
@@ -249,7 +293,7 @@ export default function CourseStaffRequirement(props) {
                         className="custom-class"
                         kind="tertiary a_1"
                         size="default"
-                        onClick={() => mostrarReq(row.cells[0].value)}
+                        onClick={() => aprobarReq(row.cells[0].value)}
                       >
                         Aprobar
                       </Button>
@@ -309,7 +353,7 @@ export default function CourseStaffRequirement(props) {
         </div> */}
       </div>
       <div className="bx--col">
-        <Button className="custom-class" kind="tertiary a_1" size="default">
+        <Button className="custom-class" kind="tertiary a_1" size="default" >
           Aprobados
         </Button>
         <ModalStateManager
