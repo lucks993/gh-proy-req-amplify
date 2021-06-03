@@ -49,12 +49,17 @@ export default function NewStaffRequirement(props) {
   const [puestoSexoSelect, setPuestoSexoSelect] = useState(null)                //Sexo
   const [listTrabajador, setListTrabajador] = useState([])                      //Lista Trabajador
   const [listPersonaSelect, setListPersonaSelect] = useState([])
-  const [listPersonaSelectNombre, setListPersonaSelectNombre] = useState()
   let listPersonCopy = listTrabajador.map(item => ({
     ...item, datos: item.codigo + " " + item.apPaterno + " " +
-                    item.apMaterno + ", " + item.name + " // " +
-                    item.position.description
+                    item.apMaterno + ", " + item.name
   }))
+  let listPersonCopyRole4 = listTrabajador.map(item => ({
+    ...item, datos: item.codigo + " " + item.apPaterno + " " +
+                    item.apMaterno + ", " + item.name + " // " +
+                    item.position.codePosition + " " + item.position.description
+  }))
+
+  let posTypeFlow = "Empresa"
 
   const [personaSelect, setPersonaSelect] = useState(null)  //Persona Select
   //Usuario
@@ -222,19 +227,23 @@ export default function NewStaffRequirement(props) {
   const assignPersonDesc = (item) => {
     setPersonaSelect(item.selectedItem)
     if(!!item.selectedItem){
-      setListPersonaSelect([...listPersonaSelect, {id: item.selectedItem.id,
+      if(userReq.approverRole !== 4){
+        setListPersonaSelect([...listPersonaSelect, {id: item.selectedItem.id,
                                                    datos: item.selectedItem.codigo + " " +
                                                    item.selectedItem.apPaterno + " " + item.selectedItem.apMaterno +
+                                                    ", " + item.selectedItem.name}])
+      }
+      else{
+        setListPersonaSelect([...listPersonaSelect, {id: item.selectedItem.id,
+                                                    datos: item.selectedItem.codigo + " " +
+                                                    item.selectedItem.apPaterno + " " + item.selectedItem.apMaterno +
                                                     ", " + item.selectedItem.name + " // " +
-                                                   item.selectedItem.position.description}])
-      // setListPersonaSelectNombre(...listPersonaSelectNombre, listPersonCopy.map(index => {
-      //   if(index.id === item.selectedItem.id){
-      //     return {datos: index.datos}
-      //   }
-      // }))
+                                                    item.selectedItem.position.codePosition + " " +
+                                                    item.selectedItem.position.description}])
+      }
+      
     }
     console.log(listPersonaSelect)
-    console.log(listPersonaSelectNombre)
     console.log(listPersonCopy)
   }
 
@@ -320,7 +329,7 @@ export default function NewStaffRequirement(props) {
         vacancyConsidered: vacanteTipo, 
         typeRequest: reqTipo,
         typeState: 1,
-        flow: userReq.codeSuperior !== "0" ? 1 : (userReq.approverRole === 4 ? 4 : 2),
+        flow: userReq.codeSuperior !== "0" ? 1 : (posTypeFlow === "Corporativo" ? 7 : 2),
         contract: contratoTipo,
         typeSearch: busqTipo,
         position: puestoSelect.id,
@@ -375,7 +384,6 @@ export default function NewStaffRequirement(props) {
                 onClick={() => {
                   setCheckReemp(false)
                   setListPersonaSelect([])
-                  setListPersonaSelectNombre([])
                 }}
               />
               <RadioButton
@@ -385,7 +393,6 @@ export default function NewStaffRequirement(props) {
                 onClick={() => {
                   setCheckReemp(false)
                   setListPersonaSelect([])
-                  setListPersonaSelectNombre([])
                 }}
               />
               <RadioButton
@@ -395,7 +402,6 @@ export default function NewStaffRequirement(props) {
                 onClick={() => {
                   setCheckReemp(true)
                   setListPersonaSelect([])
-                  setListPersonaSelectNombre([])
                 }}
               />
             </RadioButtonGroup>

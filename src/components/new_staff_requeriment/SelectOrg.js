@@ -2,8 +2,6 @@ import React from "react";
 import "carbon-components/css/carbon-components.min.css";
 import "./NewStaffRequirement.scss";
 import {
-    Select,
-    SelectItem,
     ComboBox
 } from "carbon-components-react";
 

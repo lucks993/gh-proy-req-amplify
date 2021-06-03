@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, forwardRef, useImperativeHandle, useRef } from "react";
 import ReactDOM from "react-dom";
-import TableToExcel from "@linways/table-to-excel";
 import "carbon-components/css/carbon-components.min.css";
 import {
   Button,
@@ -20,9 +19,131 @@ import {
   TableSelectRow,
   TextArea,
 } from "carbon-components-react";
-import { headerData, rowData } from "./sampleData";
+import { headerData } from "./sampleData";
 import "./CourseStaffRequirement.scss";
 import { fetchRequest, sendRequestApprover, sendRequestReject } from "../../services/api/servicies";
+
+const ModalRechazo = ({rechazarReq, row })=> {
+  
+  const textArea = useRef();
+
+  const onRequestSubmit = () => {
+    rechazarReq(row.cells[0].value, textArea.current.value)
+  }
+
+  return (
+    <ModalStateManager
+      renderLauncher={({ setOpen }) => (
+        <Button
+          className="custom-class"
+          kind="tertiary b_1"
+          size="default"
+          onClick={() => setOpen(true)}
+        >
+          Rechazar
+        </Button>
+      )}
+    >
+      {({ open, setOpen }) => (
+        <Modal
+          modalHeading="Observaciones"
+          primaryButtonText="Guardar"
+          secondaryButtonText="Cancelar"
+          open={open}
+          onRequestSubmit={onRequestSubmit}
+          onRequestClose={() => setOpen(false)}
+        >
+          <p style={{ marginBottom: "1rem" }}>
+            Escriba las observaciones correspondientes
+          </p>
+          <TextArea
+            ref={textArea}
+            data-modal-primary-focus
+            id="textRejectAlone"
+            placeholder="Escriba aquí..."
+            defaultValue="Este requerimiento no es conforme"
+          />
+        </Modal>
+      )}
+    </ModalStateManager>
+  )
+}
+
+const ContentTable = forwardRef(({goToRequirement, aprobarReq, rechazarReq, obsValue, ...props}, ref)=> {
+  const {
+    rows,
+    headers,
+    getHeaderProps,
+    getTableProps,
+    getRowProps,
+    getSelectionProps,
+    selectAll,
+    selectRow,
+    selectedRows 
+  } = props;
+
+  useImperativeHandle(ref, ()=> ({
+    getSelectedRows: ()=> selectedRows
+  }))
+
+  return (
+  <TableContainer className="SolicitudesRP">
+    <Table {...getTableProps()} size="compact">
+      <TableHead>
+        <TableRow>
+          <TableSelectAll {...getSelectionProps()} />
+          <TableExpandHeader />
+          {headers.map((header) => (
+            <TableHeader {...getHeaderProps({ header })}>
+              {header.header}
+            </TableHeader>
+          ))}
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {rows.map((row) => (
+          <React.Fragment key={row.id}>
+            <TableExpandRow {...getRowProps({ row })}>
+              <TableSelectRow {...getSelectionProps({ row })}/>
+              {row.cells.map((cell) => (
+                <TableCell key={cell.id}>{cell.value}</TableCell>
+              ))}
+            </TableExpandRow>
+            <TableExpandedRow
+              colSpan={headers.length + 2}
+              className="demo-expanded-td"
+            >
+              <div>
+                <br></br> <br></br>
+              </div>
+              <Button
+                kind="primary"
+                className="b-action"
+                kind="tertiary d"
+                size="default"
+                onClick={() => goToRequirement(row.cells[0].value)}
+              >
+                Ver Requerimiento
+              </Button>
+              <Button
+                className="custom-class"
+                kind="tertiary a_1"
+                size="default"
+                onClick={() => aprobarReq(row.cells[0].value)}
+              >
+                Aprobar
+              </Button>
+              <ModalRechazo rechazarReq={rechazarReq} row={row} />
+
+              <div className="bx--row"></div>
+            </TableExpandedRow>
+          </React.Fragment>
+        ))}
+      </TableBody>
+    </Table>
+  </TableContainer>
+)
+})
 
 const ModalStateManager = ({
   renderLauncher: LauncherContent,
@@ -45,36 +166,20 @@ const ModalStateManager = ({
 export let selectedItem = 0;
 export let selectedRow = {};
 let userReq = {
-  position: 2,
+  position: 1,
   name: "",
   apPaterno: "",
   apMaterno: "",
   codeSuperior: "0",
-  approverRole: 2
+  approverRole: 1
 }
 // const [listRow, setListRow] = useState([])
 export default function CourseStaffRequirement(props) {
   const [listRequest, setListRequest] = useState([]);
   const [obsValue, setObsValue] = useState("Este requerimiento no es conforme")
-  const [infRequest, setInfRequest] = useState(() => {
-    const dataReq = [{}];
-    listRequest.forEach((req) => {
-      dataReq[req.id - 1] = {
-        id: req.id.toString(),
-        index: req.id,
-        society: req.society.description,
-        position: req.position.description,
-        new: req.type.description,
-        // nameNew: req.listReplacement,
-        quantity: req.quantity,
-        unity_org: req.orgUnit.description,
-        cost_center: req.costCenter.description,
-        location: req.physLocation.description,
-        date: req.requestDate,
-      };
-    });
-    return dataReq;
-  });
+  const [infRequest, setInfRequest] = useState([]);
+  const textArea2 = useRef()
+  const table = useRef();
 
   // For todays date;
   Date.prototype.today = function () { 
@@ -91,22 +196,88 @@ export default function CourseStaffRequirement(props) {
     const getRequest = async () => {
       const requestFromServer = await fetchRequest();
       setListRequest(requestFromServer);
-      console.log(requestFromServer);
       setInfRequest(() => {
-        const dataReq = [{}];
-        requestFromServer.map((req) => {
-          dataReq[req.id - 1] = {
-            id: req.id.toString(),
+        const dataReq = requestFromServer.map((req) => {
+          return {
+            id: req.id,
             index: req.id,
+            _original: req,
             society: req.society.description,
             position: req.position.description,
             new: req.type.description,
-            // nameNew: req.listReplacement,
+            nameNew: (req.listReplacement.length === 0) ? "" :
+            (<ModalStateManager
+              renderLauncher={({ setOpen }) => (
+                <Button
+                  className="custom-class"
+                  kind="tertiary d"
+                  size="default"
+                  onClick={() => setOpen(true)}
+                >
+                  Ver
+                </Button>
+              )}
+            >
+              {({ open, setOpen }) => (
+                <Modal
+                  modalHeading="Lista Reemplazo"
+                  passiveModal
+                  secondaryButtonText={null}
+                  open={open}
+                  onRequestSubmit={() =>  setOpen(false)}
+                  onRequestClose={() => setOpen(false)}
+                >
+                  <TextArea
+                    readOnly
+                    data-modal-primary-focus
+                    id="textListReemp_2"
+                    defaultValue={req.listReplacement.map(index => {
+                      return (index.codigo + " " + index.apPaterno + " " + index.apMaterno + ", " + index.name + "\n" + "\n")
+                    })}
+                  />
+                </Modal>
+              )}
+            </ModalStateManager>),
             quantity: req.quantity,
             unity_org: req.orgUnit.description,
             cost_center: req.costCenter.description,
             location: req.physLocation.description,
             date: req.requestDate,
+            approvers: (req.listApprovers.length === 0) ? "" :
+            (<ModalStateManager
+              renderLauncher={({ setOpen }) => (
+                <Button
+                  className="custom-class"
+                  kind="tertiary d"
+                  size="default"
+                  onClick={() => setOpen(true)}
+                >
+                  Ver
+                </Button>
+              )}
+            >
+              {({ open, setOpen }) => (
+                <Modal
+                  modalHeading="Lista Aprobadores"
+                  passiveModal
+                  secondaryButtonText={null}
+                  open={open}
+                  onRequestSubmit={() =>  setOpen(false)}
+                  onRequestClose={() => setOpen(false)}
+                >
+                  <TextArea
+                    readOnly
+                    data-modal-primary-focus
+                    id="textListApprov_2"
+                    defaultValue={req.listApprovers.map(index => {
+                      return ("Aprobador: "+ index.approver.person.codigo + " " + index.approver.person.apPaterno +
+                                  " " + index.approver.person.apMaterno + ", " + index.approver.person.name + "\n" +
+                              "Fecha: " + index.approbalDate + "\n" + "\n")
+                    })}
+                  />
+                </Modal>
+              )}
+            </ModalStateManager>),
           };
         });
         return dataReq;
@@ -125,29 +296,25 @@ export default function CourseStaffRequirement(props) {
   //   // console.log(selectedRow[0].type.id);
   // };
 
-  const actualizar = () => {
-    props.history.go(0)
-  }
-
   const goToRequirement = (item) => {
     selectedItem = item;
     selectedRow = listRequest.filter((item) => {
       return item.id === selectedItem;
     });
     // console.log(selectedItem)
+    // console.log(selectedRow)
     props.history.push(`/requerimiento-personal-bandeja/${selectedItem}`);
   };
 
   const aprobarReq = async (index) => {
-    const data = {}
+    let data = {}
 
     selectedItem = index;
     selectedRow = listRequest.filter((item) => {
       return item.id === selectedItem;
     });
-    // console.log(selectedItem);
     console.log(selectedRow);
-    data.request = {
+    let req = {
       id: selectedRow[0].id,
       flow: (selectedRow[0].flow.id === 1 && userReq.codeSuperior !== "0") ? 1 :
             (selectedRow[0].approvedLevel === 0 && selectedRow[0].flow.id === 2) ? 4 :
@@ -159,36 +326,30 @@ export default function CourseStaffRequirement(props) {
       approver: userReq.approverRole, //id del usuario
       dateApproved: new Date().today() + " T " + new Date().timeNow(),
     }
+
+    data.request = [req]
     console.log(JSON.stringify(data))
     const requestSend = await sendRequestApprover(data)
     props.history.go(0)
   }
 
-  const obsOnChangeText = () => {
-    return (event => {
-        const newObs = event.target.value
-        setObsValue(newObs)
-    })
-  }
-
-  const rechazarReq = async (index) => {
-    const data = {}
+  const rechazarReq = async (index, textAreaValue) => {
+    let data = {}
 
     selectedItem = index;
     selectedRow = listRequest.filter((item) => {
       return item.id === selectedItem;
     });
-    // console.log(selectedItem);
     console.log(selectedRow);
-    // setObsValue(document.getElementById("textRejectAlone").value)
-    data.request = {
+    let req = {
       id: selectedRow[0].id,
-      observation: obsValue,
-      flow: (selectedRow[0].flow.id <= 6) ? 4 : 8,    
+      observation: textAreaValue,
+      flow: selectedRow[0].flow.id,
       state: 4,
       dateApproved: new Date().today() + " T " + new Date().timeNow(),
     }
-    // console.log(JSON.stringify(data))
+    data.request = [req]
+    console.log(JSON.stringify(data))
     const requestSend = await sendRequestReject(data)
     props.history.go(0)
   }
@@ -211,16 +372,67 @@ export default function CourseStaffRequirement(props) {
     );
   };
 
-  const exportReportToExcel = () => {
-    let table = document.getElementsByTagName("table"); // you can use document.getElementById('tableId') as well by providing id to the table tag
-    TableToExcel.convert(table[0], {
-      // html code may contain multiple tables so here we are refering to 1st table tag
-      name: `Solicitudes_Req_Personal.xlsx`, // fileName you could use any name
-      sheet: {
-        name: "Sheet 1", // sheetName
-      },
-    });
-  };
+  const renderContentTable = (props) => {
+    return <ContentTable 
+        ref={table}
+        goToRequirement={goToRequirement} 
+        aprobarReq={aprobarReq} 
+        rechazarReq={rechazarReq} 
+        obsValue={obsValue}
+        {...props} 
+    />;
+  }
+
+  const onClickAprobar = async () => {
+    let data = {}
+    const selectedRows = table.current.getSelectedRows();
+
+    let listSelectedRows = listRequest.filter(item => 
+      selectedRows.find(key => item.id === key.id))
+    
+    data.request = listSelectedRows.map(item => ({
+        id: item.id,
+        flow: (item.flow.id === 1 && userReq.codeSuperior !== "0") ? 1 :
+              (item.approvedLevel === 0 && item.flow.id === 2) ? 4 :
+              (item.flow.id < 6 ? (item.flow.id + 1) : (item.flow.id === 6 ? item.flow.id :
+                                            (item.flow.id < 10 ? (item.flow.id + 1) : item.flow.id))), //Flow siguiente
+        state: (item.approvedLevel === 0 && item.flow.id === 2) ? 3 :
+              (item.flow.id < 6 ? 2 : (item.flow.id === 6 ? 3 :
+                                            (item.flow.id < 10 ? 2 : 3))),
+        approver: userReq.approverRole, //id del usuario
+        dateApproved: new Date().today() + " T " + new Date().timeNow(),
+      
+    }))
+
+    console.log(JSON.stringify(data))
+    const requestSend = await sendRequestApprover(data)
+    props.history.go(0)
+    // console.log(selectedRows);
+    // console.log(listSelectedRows)
+  }
+
+  const onClickRechazar = async () => {
+    let data = {}
+
+    const selectedRows = table.current.getSelectedRows();
+
+    let listSelectedRows = listRequest.filter(item => 
+      selectedRows.find(key => item.id === key.id))
+
+    data.request = listSelectedRows.map(item => ({
+        id: item.id,
+        observation: textArea2.current.value,
+        flow: item.flow.id,
+        state: 4,
+        dateApproved: new Date().today() + " T " + new Date().timeNow(),
+    
+    }))
+    // console.log(selectedRows);
+    console.log(JSON.stringify(data))
+    // console.log(textArea2.current.value)
+    const requestSend = await sendRequestReject(data)
+    props.history.go(0)
+  }
 
   return (
     <div className="bg--grid">
@@ -232,146 +444,7 @@ export default function CourseStaffRequirement(props) {
       </div>
       {showInstrucctions}
       <DataTable rows={infRequest} headers={headerData}>
-        {({
-          rows,
-          headers,
-          getHeaderProps,
-          getTableProps,
-          getRowProps,
-          getSelectionProps,
-        }) => (
-          <TableContainer className="SolicitudesRP">
-            <Table {...getTableProps()} size="compact">
-              <TableHead>
-                <TableRow>
-                  <TableSelectAll {...getSelectionProps()} />
-                  <TableExpandHeader />
-                  {headers.map((header) => (
-                    <TableHeader {...getHeaderProps({ header })}>
-                      {header.header}
-                    </TableHeader>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {rows.map((row) => (
-                  <React.Fragment key={row.id}>
-                    <TableExpandRow {...getRowProps({ row })}>
-                      <TableSelectRow {...getSelectionProps({ row })} />
-                      {row.cells.map((cell) => (
-                        <TableCell key={cell.id}>{cell.value}</TableCell>
-                      ))}
-                    </TableExpandRow>
-                    <TableExpandedRow
-                      colSpan={headers.length + 2}
-                      className="demo-expanded-td"
-                    >
-                      {/* <p className="section-form" style={{ fontWeight: "bold", backgroundColor: "#002060"}}>
-                        Historial de Aprobaciones
-                      </p>
-                      <DataTable rows={rowDataSub} headers={headerDataSub}>
-                        {({
-                          rows,
-                          headers,
-                          getHeaderProps,
-                          getRowProps,
-                          getTableProps,
-                          getTableContainerProps,
-                        }) => (
-                          <TableContainer
-                            {...getTableContainerProps()}>
-                            <Table {...getTableProps()} isSortable>
-                              <TableHead>
-                                <TableRow>
-                                  {headers.map((header) => (
-                                    <TableHeader
-                                      key={header.key}
-                                      {...getHeaderProps({ header })}
-                                      >
-                                      {header.header}
-                                    </TableHeader>
-                                  ))}
-                                </TableRow>
-                              </TableHead>
-                              <TableBody>
-                                {rows.map((row) => (
-                                  <TableRow key={row.id} {...getRowProps({ row })} style={{textAlign:"center", borderBottom: "2px solid black"}}>
-                                    {row.cells.map((cell) => (
-                                      <TableCell key={cell.id}>{cell.value}</TableCell>
-                                    ))}
-                                  </TableRow>
-                                ))}
-                              </TableBody>
-                            </Table>
-                          </TableContainer>
-                        )}
-                      </DataTable> */}
-                      <div>
-                        <br></br> <br></br>
-                      </div>
-                      <Button
-                        kind="primary"
-                        className="b-action"
-                        kind="tertiary d"
-                        size="default"
-                        onClick={() => goToRequirement(row.cells[0].value)}
-                      >
-                        Ver Requerimiento
-                      </Button>
-                      <Button
-                        className="custom-class"
-                        kind="tertiary a_1"
-                        size="default"
-                        onClick={() => aprobarReq(row.cells[0].value)}
-                      >
-                        Aprobar
-                      </Button>
-                      {/* <Button className="custom-class" kind='tertiary b_1'size='default'>
-                        Rechazar
-                      </Button> */}
-                      <ModalStateManager
-                        renderLauncher={({ setOpen }) => (
-                          <Button
-                            className="custom-class"
-                            kind="tertiary b_1"
-                            size="default"
-                            onClick={() => setOpen(true)}
-                          >
-                            Rechazar
-                          </Button>
-                        )}
-                      >
-                        {({ open, setOpen }) => (
-                          <Modal
-                            modalHeading="Observaciones"
-                            primaryButtonText="Guardar"
-                            secondaryButtonText="Cancelar"
-                            open={open}
-                            onRequestSubmit={() => rechazarReq(row.cells[0].value)}
-                            onRequestClose={() => setOpen(false)}
-                          >
-                            <p style={{ marginBottom: "1rem" }}>
-                              Escriba las observaciones correspondientes
-                            </p>
-                            <TextArea
-                              data-modal-primary-focus
-                              id="textRejectAlone"
-                              placeholder="Escriba aquí..."
-                              defaultValue={obsValue}
-                              // onChange={obsOnChangeText()}
-                              // style={{ marginBottom: "1rem", borderRadius: '6px', border: "3px solid black" }}
-                            />
-                          </Modal>
-                        )}
-                      </ModalStateManager>
-                      <div className="bx--row"></div>
-                    </TableExpandedRow>
-                  </React.Fragment>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
+        {renderContentTable}
       </DataTable>
 
       <div className="bx--row">
@@ -385,7 +458,7 @@ export default function CourseStaffRequirement(props) {
         </div> */}
       </div>
       <div className="bx--col">
-        <Button className="custom-class" kind="tertiary a_1" size="default" >
+        <Button className="custom-class" kind="tertiary a_1" size="default" onClick={onClickAprobar} >
           Aprobados
         </Button>
         <ModalStateManager
@@ -406,13 +479,14 @@ export default function CourseStaffRequirement(props) {
               primaryButtonText="Guardar"
               secondaryButtonText="Cancelar"
               open={open}
-              onRequestSubmit={() => setOpen(false)}
+              onRequestSubmit={onClickRechazar}
               onRequestClose={() => setOpen(false)}
             >
               <p style={{ marginBottom: "1rem" }}>
                 Escriba las observaciones correspondientes
               </p>
               <TextArea
+                ref={textArea2}
                 data-modal-primary-focus
                 id="textRejectAll"
                 placeholder="Escriba aquí..."

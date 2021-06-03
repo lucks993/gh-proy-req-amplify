@@ -1,4 +1,4 @@
-import React, { useState, useEffect, fetchRequest } from "react";
+import React, { useState, useRef } from "react";
 import ReactDOM from "react-dom";
 import "./NewStaffRequirementForm.scss";
 import "carbon-components/css/carbon-components.min.css";
@@ -8,11 +8,8 @@ import {
   TextArea,
   Button,
   Modal,
-  // Checkbox,
   RadioButton,
   RadioButtonGroup,
-  ComboBox,
-  NumberInput,
 } from "carbon-components-react";
 import RequirementGroup from "./RequirementGroupForm";
 import { selectedRow } from "../staff_requirement_course/CourseStaffRequirement";
@@ -37,18 +34,7 @@ const ModalStateManager = ({
 };
 
 export default function NewStaffRequirementForm(props) {
-  // const [checkSuggested, setCheckSuggested] = useState(false)
-  // const [checkUnique, setCheckUnique] = useState(false)
-  // const [countUnique, setCountUnique] = useState(1)
-  // const dataReq = selectedRow
-  // const [listPuestos, setListPuestos] = useState([
-  //   { id: "0", cod: "COD8975", text: "TÉCNICO" },
-  //   { id: "1", cod: "COD7153", text: "ANALISTA" },
-  // ]);
-  // const [minReq, setMinReq] = useState(1);
-  // const [maxReq, setMaxReq] = useState(200);
-  // const [countReq, setCountReq] = useState(5);
-  // const [checkCount, setCheckCount] = useState(false)
+  const textArea = useRef();
   let listRep = selectedRow[0].listReplacement.map(item => ({
     ...item, datos: item.codigo + " " + item.apPaterno + " " +
                     item.apMaterno + ", " + item.name + " // " +
@@ -95,7 +81,6 @@ export default function NewStaffRequirementForm(props) {
             value={listRep.map(item => {
               return item.datos
             })}
-            // placeholder="Juan Salaz"
             light
             readOnly
             style={{ height: "40px" }}
@@ -135,14 +120,14 @@ export default function NewStaffRequirementForm(props) {
 
     data.request = {
       id: selectedRow[0].id,
-      observation: obsValue,
-      flow: (selectedRow[0].flow.id <= 6) ? 4 : 8,    
+      observation: textArea.current.value,
+      flow: selectedRow[0].flow.id,    
       state: 4,
       dateApproved: new Date().today() + " T " + new Date().timeNow(),
     }
     console.log(JSON.stringify(data))
-    const requestSend = await sendRequestReject(data)
-    props.history.goBack()
+    // const requestSend = await sendRequestReject(data)
+    // props.history.goBack()
   }
 
   return (
@@ -190,17 +175,6 @@ export default function NewStaffRequirementForm(props) {
                 value={selectedRow[0].society.description}
                 light
               />
-              {/* <Select
-                defaultValue="placeholder-item"
-                id="select-1"
-                invalidText="This is an invalid error message."
-                labelText="Sociedad"
-                light
-              >
-                <SelectItem text="Option 1" value="option-1" disabled/>
-                <SelectItem text="Option 2" value="option-2" />
-                <SelectItem text="Option 3" value="option-3" disabled/>
-              </Select> */}
             </div>
             <div style={{ marginBottom: "1.2rem", backgroundColor: "#dadee9" }}>
               <TextInput
@@ -210,17 +184,6 @@ export default function NewStaffRequirementForm(props) {
                 value={selectedRow[0].vp.description}
                 light
               />
-              {/* <Select
-                defaultValue="placeholder-item"
-                id="select-2"
-                invalidText="This is an invalid error message."
-                labelText="VP/Dirección/Gerencia"
-                light
-              >
-                <SelectItem text="Option 1" value="option-1" />
-                <SelectItem text="Option 2" value="option-2" disabled/>
-                <SelectItem text="Option 3" value="option-3" disabled/>
-              </Select> */}
             </div>
             <div style={{ marginBottom: "1.2rem", backgroundColor: "#dadee9" }}>
               <TextInput
@@ -230,17 +193,6 @@ export default function NewStaffRequirementForm(props) {
                 value={selectedRow[0].physLocation.description}
                 light
               />
-              {/* <Select
-                defaultValue="placeholder-item"
-                id="select-3"
-                invalidText="This is an invalid error message."
-                labelText="Ubicación Física"
-                light
-              >
-                <SelectItem text="Option 1" value="option-1" disabled/>
-                <SelectItem text="Option 2" value="option-2" disabled/>
-                <SelectItem text="Option 3" value="option-3" />
-              </Select> */}
             </div>
             <div>
               <br></br> <br></br>
@@ -257,17 +209,6 @@ export default function NewStaffRequirementForm(props) {
                 value={selectedRow[0].search.description}
                 light
               />
-              {/* <Select
-                defaultValue="placeholder-item"
-                id="select-4"
-                invalidText="This is an invalid error message."
-                labelText="Tipo de Busqueda"
-                light
-              >
-                <SelectItem text="Option 1" value="option-1" />
-                <SelectItem text="Option 2" value="option-2" disabled/>
-                <SelectItem text="Option 3" value="option-3" disabled/>
-              </Select> */}
             </div>
             <div style={{ marginBottom: "2rem" }}>
               <label class="label a_3">Datos de Solicitante</label>
@@ -297,17 +238,6 @@ export default function NewStaffRequirementForm(props) {
                 value={selectedRow[0].compDivision.description}
                 light
               />
-              {/* <Select
-                defaultValue="placeholder-item"
-                id="select-1"
-                invalidText="This is an invalid error message."
-                labelText="División Empresa"
-                light
-              >
-                <SelectItem text="Option 1" value="option-1" disabled/>
-                <SelectItem text="Option 2" value="option-2" disabled/>
-                <SelectItem text="Option 3" value="option-3" />
-              </Select> */}
             </div>
             <div style={{ marginBottom: "1.2rem", backgroundColor: "#dadee9" }}>
               <TextInput
@@ -317,17 +247,6 @@ export default function NewStaffRequirementForm(props) {
                 value={selectedRow[0].orgUnit.description}
                 light
               />
-              {/* <Select
-                defaultValue="placeholder-item"
-                id="select-5"
-                invalidText="This is an invalid error message."
-                labelText="Unidad Organizativa"
-                light
-              >
-                <SelectItem text="Option 1" value="option-1" />
-                <SelectItem text="Option 2" value="option-2" disabled/>
-                <SelectItem text="Option 3" value="option-3" disabled/>
-              </Select> */}
             </div>
             <div
               style={{ marginBottom: "1.14rem", backgroundColor: "#dadee9" }}
@@ -339,17 +258,6 @@ export default function NewStaffRequirementForm(props) {
                 value={selectedRow[0].costCenter.description}
                 light
               />
-              {/* <Select
-                defaultValue="placeholder-item"
-                id="select-6"
-                invalidText="This is an invalid error message."
-                labelText="Centro de Costos"
-                light
-              >
-                <SelectItem text="Option 1" value="option-1" />
-                <SelectItem text="Option 2" value="option-2" disabled/>
-                <SelectItem text="Option 3" value="option-3" disabled/>
-              </Select> */}
             </div>
             <div>
               <br></br> <br></br>
@@ -361,7 +269,6 @@ export default function NewStaffRequirementForm(props) {
               <br></br> <br></br>
             </div>
             <div style={{ marginBottom: "2.1rem" }}>
-              {/* <label class="label a_3">Datos de Solicitante</label> */}
               <div>
                 <br></br> <br></br>
               </div>
@@ -395,17 +302,6 @@ export default function NewStaffRequirementForm(props) {
                 light
                 readOnly
               />
-              {/* <ComboBox
-                  onChange={() => {}}
-                  id="comboCodPuesto"
-                  light
-                  items={listPuestos}
-                  itemToString={(item) => (item ? item.cod : '')}
-                  placeholder="Escriba código..."
-                  titleText="Código de Posición a Reemplazar"
-                  initialSelectedItem={listPuestos[1]}
-                  disabled
-              /> */}
             </div>
           </div>
           <div className="bx--col-lg-6">
@@ -417,17 +313,6 @@ export default function NewStaffRequirementForm(props) {
                 light
                 readOnly
               />
-              {/* <ComboBox
-                  onChange={() => {}}
-                  id="comboNomPuesto"
-                  light
-                  items={listPuestos}
-                  itemToString={(item) => (item ? item.text : '')}
-                  placeholder="Escriba puesto..."
-                  titleText="Posición/Puesto"
-                  initialSelectedItem={listPuestos[1]}
-                  disabled
-              /> */}
             </div>
           </div>
           <div className="bx--col-lg-2.1">
@@ -439,17 +324,6 @@ export default function NewStaffRequirementForm(props) {
                 light
                 readOnly
               />
-              {/* <NumberInput
-                  id="cantidad"
-                  invalidText="Number is not valid"
-                  label="Cantidad de Vacantes"
-                  max={maxReq}
-                  min={minReq}
-                  step={1}
-                  value={countReq}
-                  light
-                  readOnly
-              /> */}
             </div>
           </div>
         </div>
@@ -463,20 +337,6 @@ export default function NewStaffRequirementForm(props) {
                 light
                 readOnly
               />
-              {/* <DatePicker 
-                dateFormat='d/m/Y'
-                datePickerType="single"
-                locale="es"
-                allowInput="false"
-                light
-                style={{ backgroundColor:"#dadee9" }}>
-                <DatePickerInput
-                  placeholder="03/11/2010"
-                  labelText="Fecha Estimada de Ingreso"
-                  id="date-picker-single"
-                  disabled
-                />
-              </DatePicker> */}
             </div>
             <div style={{ marginBottom: "1.2rem", backgroundColor: "#dadee9" }}>
               <TextInput
@@ -486,33 +346,11 @@ export default function NewStaffRequirementForm(props) {
                 light
                 readOnly
               />
-              {/* <Select
-              defaultValue="placeholder-item"
-              id="select-1"
-              invalidText="This is an invalid error message."
-              labelText="Tipo de Contrato"
-              light
-            >
-              <SelectItem text="Option 1" value="option-1" disabled/>
-              <SelectItem text="Option 2" value="option-2" />
-              <SelectItem text="Option 3" value="option-3" disabled/>
-            </Select> */}
             </div>
             <div style={{ marginBottom: "1.2rem" }}>
               <label class="label a_3">Datos de la persona a reemplazar</label>
             </div>
             {verificarCant()}
-            {/* <div style={{ marginBottom: "2rem", backgroundColor:"#dadee9" }}>
-              <TextInput
-                id="txt3"
-                invalidText="Invalid error message."
-                labelText="Nombres y Apellidos:"
-                placeholder="Juan Salaz"
-                light
-                readOnly
-                style={{ height: "40px" }}
-              />
-            </div> */}
           </div>
           <div className="bx--col">
             <div style={{ marginBottom: "9.2rem", backgroundColor: "#dadee9" }}>
@@ -523,16 +361,6 @@ export default function NewStaffRequirementForm(props) {
                 light
                 readOnly
               />
-              {/* <Select
-                defaultValue="placeholder-item"
-                id="select-5"
-                invalidText="This is an invalid error message."
-                labelText="¿Vacante considerada en el Plan de Personal?"
-                light
-              >
-                <SelectItem text="SÍ" value="option-1" />
-                <SelectItem text="NO" value="option-2" disabled/>
-              </Select> */}
             </div>
             <div style={{ marginBottom: "1.2rem", backgroundColor: "#dadee9" }}>
               <TextInput
@@ -542,17 +370,6 @@ export default function NewStaffRequirementForm(props) {
                 light
                 readOnly
               />
-              {/* <Select
-                defaultValue="placeholder-item"
-                id="select-1"
-                invalidText="This is an invalid error message."
-                labelText="Tiempo de Servicio"
-                light
-              >
-                <SelectItem text="Option 1" value="option-1" disabled/>
-                <SelectItem text="Option 2" value="option-2" disabled/>
-                <SelectItem text="Option 3" value="option-3" />
-              </Select> */}
             </div>
             {/* {verificarCant()} */}
           </div>
@@ -563,9 +380,7 @@ export default function NewStaffRequirementForm(props) {
               <TextArea
                 cols={20}
                 id="txtJusti"
-                // invalidText="Invalid error message."
                 labelText="Justificación"
-                // placeholder="Puede ser buena gente"
                 rows={3}
                 value={selectedRow[0].justification}
                 light
@@ -639,30 +454,6 @@ export default function NewStaffRequirementForm(props) {
                 value={selectedRow[0].characteristicsAdditional.timeExperience}
                 light
               />
-              {/* <Select
-                defaultValue="placeholder-item"
-                id="select-1"
-                invalidText="This is an invalid error message."
-                labelText="Tiempo de Experiencia"
-                light
-              >
-                <SelectItem text="Más de 1 año" value="Más de 1 año" />
-                <SelectItem
-                  text="Más de 2 años"
-                  value="Más de 2 años"
-                  disabled
-                />
-                <SelectItem
-                  text="Más de 3 años"
-                  value="Más de 3 años"
-                  disabled
-                />
-                <SelectItem
-                  text="Más de 4 años"
-                  value="Más de 4 años"
-                  disabled
-                />
-              </Select> */}
             </div>
           </div>
           <div className="bx--col">
@@ -674,20 +465,6 @@ export default function NewStaffRequirementForm(props) {
                 value={selectedRow[0].characteristicsAdditional.rangeAge}
                 light
               />
-              {/* <Select
-                defaultValue="placeholder-item"
-                id="select-1"
-                invalidText="This is an invalid error message."
-                labelText="Rango de Edad"
-                light
-              >
-                <SelectItem
-                  text="Más de 20 años"
-                  value="Más de 20 años"
-                  disabled
-                />
-                <SelectItem text="Más de 30 años" value="Más de 30 años" />
-              </Select> */}
             </div>
           </div>
           <div className="bx--col">
@@ -699,17 +476,6 @@ export default function NewStaffRequirementForm(props) {
                 value={selectedRow[0].characteristicsAdditional.sex}
                 light
               />
-              {/* <Select
-                defaultValue="placeholder-item"
-                id="select-1"
-                invalidText="This is an invalid error message."
-                labelText="Sexo"
-                light
-              >
-                <SelectItem text="Femenino" value="option-1" disabled />
-                <SelectItem text="Masculino" value="option-2" disabled />
-                <SelectItem text="Indistinto" value="option-3" />
-              </Select> */}
             </div>
           </div>
         </div>
@@ -723,19 +489,6 @@ export default function NewStaffRequirementForm(props) {
                 value={selectedRow[0].characteristicsAdditional.civilStatus}
                 light
               />
-              {/* <Select
-                defaultValue="placeholder-item"
-                id="select-2"
-                invalidText="This is an invalid error message."
-                labelText="Estado Civil"
-                light
-              >
-                <SelectItem text="Soltero" value="option-1" disabled />
-                <SelectItem text="Casado" value="option-2" disabled />
-                <SelectItem text="Viudo" value="option-3" disabled />
-                <SelectItem text="Divorciado" value="option-4" disabled />
-                <SelectItem text="Indistinto" value="option-5" />
-              </Select> */}
             </div>
           </div>
           <div className="bx--col"></div>
@@ -750,41 +503,6 @@ export default function NewStaffRequirementForm(props) {
             type="2"
           />
         </div>
-        {/* <div>
-          <Checkbox 
-            labelText="¿Existen Candidatos Sugeridos?" 
-            id="checked"
-            checked={checkSuggested}
-            onChange = {() => {setCheckSuggested(!checkSuggested)
-                               setCountUnique(1)}}
-            disabled
-          />
-        </div>
-        {checkSuggested && <div>
-          <RequirementGroup
-            countFunc={setCountUnique}
-            name="Candidatos Sugeridos"
-            firstLabel="Nombre y Apellidos"
-            secondLabel="Posición"
-            type="3"
-            checkUniqueValue={checkUnique}  
-          />
-          {(countUnique < 2) ? (
-              <Checkbox
-                labelText="Candidato Único"
-                id="checked-2"
-                checked={checkUnique}
-                onChange = {() => setCheckUnique(!checkUnique)}
-                disabled/>
-              ) : (
-              <Checkbox
-                labelText="Candidato Único"
-                id="checked-2"
-                checked={checkUnique}
-                onChange = {() => setCheckUnique(!checkUnique)}
-                disabled/>
-              )}
-        </div>} */}
         <div className="bx--row">
           {/* <FileUploader
             accept={[
@@ -819,9 +537,6 @@ export default function NewStaffRequirementForm(props) {
           <div className="spacer"></div>
           <ModalStateManager
             renderLauncher={({ setOpen }) => (
-              // <Button kind="danger" size="field" onClick={() => setOpen(true)}>
-              //   Denegar
-              // </Button>
               <Button
                 className="custom-class"
                 kind="tertiary b_1"
@@ -837,6 +552,7 @@ export default function NewStaffRequirementForm(props) {
                 modalHeading="Observaciones"
                 primaryButtonText="Guardar"
                 secondaryButtonText="Cancelar"
+                open={open}
                 onRequestSubmit={() => rechazarReq()}
                 onRequestClose={() => setOpen(false)}
               >
@@ -844,12 +560,11 @@ export default function NewStaffRequirementForm(props) {
                   Escriba las observaciones correspondientes
                 </p>
                 <TextArea
+                  ref={textArea}
                   data-modal-primary-focus
                   id="textRejectAlone"
                   placeholder="Escriba aquí..."
-                  defaultValue={obsValue}
-                  // onChange={obsOnChangeText()}
-                  // style={{ marginBottom: "1rem", borderRadius: '6px', border: "3px solid black" }}
+                  defaultValue="Este requerimiento no es conforme"
                 />
               </Modal>
             )}

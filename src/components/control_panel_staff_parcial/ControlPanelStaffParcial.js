@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
+import ReactDOM from "react-dom";
 import { DocumentDownload32 } from "@carbon/icons-react";
 import TableToExcel from "@linways/table-to-excel";
 import "carbon-components/css/carbon-components.min.css";
 import {
   Button,
   DataTable,
+  Modal,
   TableContainer,
   Table,
   TableHead,
@@ -14,10 +16,32 @@ import {
   TableCell,
   Select,
   SelectItem,
+  TextArea,
 } from "carbon-components-react";
-import { headerData, rowData, monthList, yearList } from "./sampleData";
+import { headerData, monthList, yearList } from "./sampleData";
 import "./ControlPanelStaffParcial.scss";
 import { fetchListRequest } from "../../services/api/servicies";
+
+const ModalStateManager = ({
+  renderLauncher: LauncherContent,
+  children: ModalContent,
+}) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      {!ModalContent || typeof document === "undefined"
+        ? null
+        : ReactDOM.createPortal(
+            <ModalContent open={open} setOpen={setOpen} />,
+            document.body
+          )}
+      {LauncherContent && <LauncherContent open={open} setOpen={setOpen} />}
+    </>
+  );
+};
+
+export let selectedItem = 0;
+export let selectedRow = {};
 
 export default function ControlPanelStaffParcial() {
   const [checkedStatus, setCheckedStatus] = useState(false);
@@ -32,7 +56,57 @@ export default function ControlPanelStaffParcial() {
         position: req.position.description,
         typeOfVacant: req.type.description,
         codOfVacant: req.position.codePosition,
-        // replaceOf: req.listReplacement.name,
+        replaceOf:
+          req.listReplacement.length === 0 ? (
+            ""
+          ) : (
+            <ModalStateManager
+              renderLauncher={({ setOpen }) => (
+                <Button
+                  className="custom-class"
+                  kind="tertiary d"
+                  size="default"
+                  onClick={() => setOpen(true)}
+                >
+                  Ver
+                </Button>
+              )}
+            >
+              {({ open, setOpen }) => (
+                <Modal
+                  modalHeading="Lista Reemplazo"
+                  passiveModal
+                  secondaryButtonText={null}
+                  open={open}
+                  onRequestSubmit={() => setOpen(false)}
+                  onRequestClose={() => setOpen(false)}
+                >
+                  <TextArea
+                    readOnly
+                    data-modal-primary-focus
+                    id="textListReemp_1"
+                    defaultValue={req.listReplacement.map((index) => {
+                      return (
+                        index.codigo +
+                        " " +
+                        index.apPaterno +
+                        " " +
+                        index.apMaterno +
+                        ", " +
+                        index.name +
+                        "\n" +
+                        "Puesto: " +
+                        index.position.codePosition +
+                        index.position.description +
+                        "\n" +
+                        "\n"
+                      );
+                    })}
+                  />
+                </Modal>
+              )}
+            </ModalStateManager>
+          ),
         orgUnit: req.orgUnit.description,
         centerOfCost: req.costCenter.description,
         physicLocation: req.physLocation.description,
@@ -44,7 +118,7 @@ export default function ControlPanelStaffParcial() {
         description: req.position.information,
         observation: req.observation,
         dateState: req.timeStatus,
-        status: req.flow.section
+        status: req.flow.section,
       };
     });
     return dataReq;
@@ -65,7 +139,57 @@ export default function ControlPanelStaffParcial() {
             position: req.position.description,
             typeOfVacant: req.type.description,
             codOfVacant: req.position.codePosition,
-            // replaceOf: req.listReplacement,
+            replaceOf:
+              req.listReplacement.length === 0 ? (
+                ""
+              ) : (
+                <ModalStateManager
+                  renderLauncher={({ setOpen }) => (
+                    <Button
+                      className="custom-class"
+                      kind="tertiary d"
+                      size="default"
+                      onClick={() => setOpen(true)}
+                    >
+                      Ver
+                    </Button>
+                  )}
+                >
+                  {({ open, setOpen }) => (
+                    <Modal
+                      modalHeading="Lista Reemplazo"
+                      passiveModal
+                      secondaryButtonText={null}
+                      open={open}
+                      onRequestSubmit={() => setOpen(false)}
+                      onRequestClose={() => setOpen(false)}
+                    >
+                      <TextArea
+                        readOnly
+                        data-modal-primary-focus
+                        id="textListReemp_2"
+                        defaultValue={req.listReplacement.map((index) => {
+                          return (
+                            index.codigo +
+                            " " +
+                            index.apPaterno +
+                            " " +
+                            index.apMaterno +
+                            ", " +
+                            index.name +
+                            "\n" +
+                            "Puesto: " +
+                            index.position.codePosition +
+                            index.position.description +
+                            "\n" +
+                            "\n"
+                          );
+                        })}
+                      />
+                    </Modal>
+                  )}
+                </ModalStateManager>
+              ),
             orgUnit: req.orgUnit.description,
             centerOfCost: req.costCenter.description,
             physicLocation: req.physLocation.description,
@@ -77,7 +201,7 @@ export default function ControlPanelStaffParcial() {
             description: req.position.information,
             observation: req.observation,
             dateState: req.timeStatus,
-            status: req.flow.section
+            status: req.flow.section,
           };
         });
         return dataReq;
@@ -86,17 +210,11 @@ export default function ControlPanelStaffParcial() {
     getRequest();
   }, []);
 
-  const addRow = () => {
-    var currentState = this.state;
-    currentState.dataContent.push(currentState.dataContent.length);
-    this.setState(currentState);
-  };
-
   const handleCheck = (e) => {
     if (!checkedStatus) {
-      setCheckedStatus(true)
+      setCheckedStatus(true);
     } else {
-      setCheckedStatus(false)
+      setCheckedStatus(false);
     }
   };
 
@@ -131,7 +249,7 @@ export default function ControlPanelStaffParcial() {
             <SelectItem text="Seleccione mes" value="placeholder-item" hidden />
             {monthList.map((month) => (
               <SelectItem
-                key={month.id.toString}
+                key={month.id}
                 text={month.name}
                 value={month.value}
               />
@@ -285,7 +403,7 @@ export default function ControlPanelStaffParcial() {
               kind="tertiary f"
               renderIcon={DocumentDownload32}
               size="default"
-              onClick={() => this.exportReportToExcel(this)}
+              onClick={() => exportReportToExcel(this)}
             >
               Excel
             </Button>

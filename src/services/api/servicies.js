@@ -34,14 +34,12 @@ export const fetchPerson = async () => {
 
 // Fetch Requirement Request Employee
 export const fetchRequest= async () => {
-    // const res = await api.get('requirement/request')
     const res = await api.get('requirement/request/'+userEmp)
     return res.data
 }
 
 // Fetch Requirement Request Employee
 export const fetchListRequest= async () => {
-    // const res = await api.get('requirement/request')
     const res = await api.get('requirement/request')
     return res.data
 }

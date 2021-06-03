@@ -78,6 +78,10 @@ export const headerData = [
   {
     key:'date',
     header:'Fecha de Solicitud'
+  },
+  {
+    key:'approvers',
+    header:'Aprobadores'
   }
 ];
 
@@ -94,6 +98,17 @@ export const rowDataSub = [
 ];
 
 export const headerDataSub = [
+  {
+    key: 'manager',
+    header: 'Realizado por',
+  },
+  {
+    key: 'approved_date',
+    header: 'Fecha y Hora',
+  }
+];
+
+export const headerDataSub2 = [
   {
     key: 'index',
     header: '#',

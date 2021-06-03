@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, forwardRef, useImperativeHandle, useRef } from "react";
+import ReactDOM from "react-dom";
 import { Email32, DocumentDownload32 } from "@carbon/icons-react";
 import TableToExcel from "@linways/table-to-excel";
 import "carbon-components/css/carbon-components.min.css";
 import {
   Button,
   DataTable,
+  Modal,
   TableContainer,
   Table,
   TableHead,
@@ -12,42 +14,113 @@ import {
   TableHeader,
   TableBody,
   TableCell,
+  TableSelectAll,
+  TableSelectRow,
+  TextArea,
   Select,
-  SelectItem,
+  SelectItem
 } from "carbon-components-react";
-import { headerData, rowData, monthList, yearList } from "./sampleData";
+import { headerData, monthList, yearList } from "./sampleData";
 import "./ControlPanelStaff.scss";
-import { fetchListRequest } from "../../services/api/servicies";
+import { fetchListRequest, sendRequestApprover } from "../../services/api/servicies";
 
-export default function ControlPanelStaff() {
+const ContentTable = forwardRef(({ goToRequirement, aprobarReq, rechazarReq, obsValue, ...props}, ref)=> {
+  const {
+    rows,
+    headers,
+    getHeaderProps,
+    getTableProps,
+    getRowProps,
+    getSelectionProps,
+    selectAll,
+    selectRow,
+    selectedRows 
+  } = props;
+
+  useImperativeHandle(ref, ()=> ({
+    getSelectedRows: ()=> selectedRows
+  }))
+
+  return (
+  <TableContainer className="SolicitudesRP">
+    <Table {...getTableProps()} size="compact">
+      <TableHead>
+        <TableRow>
+          <TableSelectAll {...getSelectionProps()} />
+            {headers.map((header) => (
+              <TableHeader {...getHeaderProps({ header })}>
+                {header.header}
+              </TableHeader>
+          ))}
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {rows.map((row) => (
+          <TableRow key={row.id}>
+              <TableSelectRow {...getSelectionProps({ row })}/>
+              {row.cells.map((cell) => (
+                <TableCell key={cell.id}>
+                  {cell.value}
+                  {(cell.value === false || cell.value === true) && (
+                  <input
+                    type="checkbox"
+                    style={{ height: "25px", width: "100px" }}
+                  ></input>
+                )}</TableCell>
+              ))}
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  </TableContainer>
+)
+})
+
+const ModalStateManager = ({
+  renderLauncher: LauncherContent,
+  children: ModalContent,
+}) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      {!ModalContent || typeof document === "undefined"
+        ? null
+        : ReactDOM.createPortal(
+            <ModalContent open={open} setOpen={setOpen} />,
+            document.body
+          )}
+      {LauncherContent && <LauncherContent open={open} setOpen={setOpen} />}
+    </>
+  );
+};
+
+
+export let selectedItem = 0;
+export let selectedRow = {};
+let userReq = {
+  position: 4,
+  name: "",
+  apPaterno: "",
+  apMaterno: "",
+  codeSuperior: "0",
+  approverRole: 4
+}
+export default function ControlPanelStaff(props) {
   const [checkedStatus, setCheckedStatus] = useState(false);
-  const [listRequest, setListRequest] = useState([]);
-  const [infRequest, setInfRequest] = useState(() => {
-    const dataReq = [{}];
-    listRequest.forEach((req) => {
-      dataReq[req.id-1] = {id: req.id.toString(), 
-                          index: req.id, 
-                          state: req.state.description,
-                          society: req.society.description, 
-                          position: req.position.description,
-                          typeOfVacant: req.type.description,
-                          codOfVacant: req.position.codePosition,
-                          // replaceOf: req.listReplacement,
-                          orgUnit: req.orgUnit.description,
-                          centerOfCost: req.costCenter.description,
-                          physicLocation: req.physicalLocation.description,
-                          category: req.search.description,
-                          typeOfContract: req.contract.description,
-                          timeOfContract: req.timeService,
-                          justify: req.justification,
-                          description: req.position.information,
-                          observation: req.observation,
-                          dateState: req.timeStatus,
-                          status: req.flow.section,
-                          check: false}
-    });
-    return dataReq;
-  });
+  const [obsValue, setObsValue] = useState("Este requerimiento no es conforme")
+  const [listRequest, setListRequest] = useState([])
+  const [infRequest, setInfRequest] = useState([])
+  const table = useRef();
+
+  // For todays date;
+  Date.prototype.today = function () { 
+    return this.getFullYear() + "/" + (((this.getMonth()+1) < 10)?"0":"") + (this.getMonth()+1) + "/" + ((this.getDate() < 10)?"0":"") + this.getDate();
+  }
+
+  // For the time now
+  Date.prototype.timeNow = function () {
+      return ((this.getHours() < 10)?"0":"") + this.getHours() +":"+ ((this.getMinutes() < 10)?"0":"") + this.getMinutes() +":"+ ((this.getSeconds() < 10)?"0":"") + this.getSeconds();
+  }
 
   //Fetch Requirement Request Employee
   useEffect(() => {
@@ -55,41 +128,76 @@ export default function ControlPanelStaff() {
       const requestFromServer = await fetchListRequest();
       setListRequest(requestFromServer);
       setInfRequest(() => {
-        const dataReq = [{}]
-        requestFromServer.map((req) => {
-          dataReq[req.id-1] = {id: req.id.toString(), 
-                             index: req.id, 
-                             state: req.state.description,
-                             society: req.society.description, 
-                             position: req.position.description,
-                             typeOfVacant: req.type.description,
-                             codOfVacant: req.position.codePosition,
-                            //  replaceOf: req.listReplacement,
-                             orgUnit: req.orgUnit.description,
-                             centerOfCost: req.costCenter.description,
-                             physicLocation: req.physLocation.description,
-                             category: req.search.description,
-                             quantity: req.quantity,
-                             typeOfContract: req.contract.description,
-                             timeOfContract: req.timeService,
-                             justify: req.justification,
-                             description: req.position.information,
-                             observation: req.observation,
-                             dateState: req.timeStatus,
-                             status: req.flow.section,
-                             check: false}
+        const dataReq = requestFromServer.map((req) => {
+            return {
+              id: req.id, 
+              index: req.id, 
+              state: req.state.description,
+              _original: req,
+              society: req.society.description, 
+              position: req.position.description,
+              typeOfVacant: req.type.description,
+              codOfVacant: req.position.codePosition,
+              replaceOf: (req.listReplacement.length === 0) ? "" :
+                        (<ModalStateManager
+                          renderLauncher={({ setOpen }) => (
+                            <Button
+                              className="custom-class"
+                              kind="tertiary d"
+                              size="default"
+                              onClick={() => setOpen(true)}
+                            >
+                              Ver
+                            </Button>
+                          )}
+                        >
+                          {({ open, setOpen }) => (
+                            <Modal
+                              modalHeading="Lista Reemplazo"
+                              passiveModal
+                              secondaryButtonText={null}
+                              open={open}
+                              onRequestSubmit={() =>  setOpen(false)}
+                              onRequestClose={() => setOpen(false)}
+                            >
+                              <TextArea
+                                readOnly
+                                data-modal-primary-focus
+                                id="textListReemp_2"
+                                defaultValue={req.listReplacement.map(index => {
+                                  return (index.codigo + " " + index.apPaterno + " " + index.apMaterno + ", " + index.name + "\n" +
+                                          "Puesto: " + index.position.codePosition + " " + index.position.description + "\n" + "\n")
+                                  })}
+                              />
+                            </Modal>
+                          )}
+                        </ModalStateManager>),
+              orgUnit: req.orgUnit.description,
+              centerOfCost: req.costCenter.description,
+              physicLocation: req.physLocation.description,
+              category: req.search.description,
+              quantity: req.quantity,
+              typeOfContract: req.contract.description,
+              timeOfContract: req.timeService,
+              justify: req.justification,
+              description: (<Button
+                            className="custom-class"
+                            kind="tertiary d"
+                            size="default"
+                            onClick={() => onClickVerReq(req)}
+                          >
+                            Ver
+                          </Button>),
+              observation: req.observation,
+              dateState: req.timeStatus,
+              status: req.flow.section,
+              check: false}
         });
         return dataReq;
       })
     };
     getRequest();
   }, []);
-
-  const addRow = () => {
-    var currentState = this.state;
-    currentState.dataContent.push(currentState.dataContent.length);
-    this.setState(currentState);
-  };
 
   const handleCheck = (e) => {
     if (!this.state.checkedStatus) {
@@ -103,6 +211,72 @@ export default function ControlPanelStaff() {
     }
   };
 
+  const goToRequirement = () => {
+    const selectedRows = table.current.getSelectedRows();
+    if(selectedRows.length > 0){
+      selectedItem = selectedRows[0].id
+      console.log(listRequest)
+      selectedRow = listRequest.filter((item) => {
+        return item.id === selectedItem;
+      });
+    }
+    else{
+      selectedItem = 0
+    }
+    console.log(listRequest)
+    // console.log(selectedItem)
+    console.log(selectedRow)
+    // props.history.push(`/requerimiento-personal-bandeja/${selectedItem}`);
+  };
+
+  const aprobarReq = async (index) => {
+    const data = {}
+
+    selectedItem = index;
+    selectedRow = listRequest.filter((item) => {
+      return item.id === selectedItem;
+    });
+    // console.log(selectedItem);
+    console.log(selectedRow);
+    data.request = {
+      id: selectedRow[0].id,
+      flow: (selectedRow[0].flow.id === 1 && userReq.codeSuperior !== "0") ? 1 :
+            (selectedRow[0].approvedLevel === 0 && selectedRow[0].flow.id === 2) ? 4 :
+            (selectedRow[0].flow.id < 6 ? (selectedRow[0].flow.id + 1) : (selectedRow[0].flow.id === 6 ? selectedRow[0].flow.id :
+                                          (selectedRow[0].flow.id < 10 ? (selectedRow[0].flow.id + 1) : selectedRow[0].flow.id))), //Flow siguiente
+      state: (selectedRow[0].approvedLevel === 0 && selectedRow[0].flow.id === 2) ? 3 :
+             (selectedRow[0].flow.id < 6 ? 2 : (selectedRow[0].flow.id === 6 ? 3 :
+                                          (selectedRow[0].flow.id < 10 ? 2 : 3))),
+      approver: userReq.approverRole, //id del usuario
+      dateApproved: new Date().today() + " T " + new Date().timeNow(),
+    }
+    console.log(JSON.stringify(data))
+    // const requestSend = await sendRequestApprover(data)
+    // props.history.go(0)
+  }
+
+  const rechazarReq = async (index, textAreaValue) => {
+    const data = {}
+
+    selectedItem = index;
+    selectedRow = listRequest.filter((item) => {
+      return item.id === selectedItem;
+    });
+    // console.log(selectedItem);
+    console.log(selectedRow);
+    // setObsValue(document.getElementById("textRejectAlone").value)
+    data.request = {
+      id: selectedRow[0].id,
+      observation: textAreaValue,
+      flow: selectedRow[0].flow.id,
+      state: 4,
+      dateApproved: new Date().today() + " T " + new Date().timeNow(),
+    }
+    console.log(JSON.stringify(data))
+    // const requestSend = await sendRequestReject(data)
+    // props.history.go(0)
+  }
+
   const exportReportToExcel = () => {
     let table = document.getElementsByTagName("table"); // you can use document.getElementById('tableId') as well by providing id to the table tag
     TableToExcel.convert(table[0], {
@@ -113,6 +287,65 @@ export default function ControlPanelStaff() {
       },
     });
   };
+
+  const renderContentTable = (props) => {
+    return <ContentTable
+        ref={table} 
+        goToRequirement={goToRequirement} 
+        aprobarReq={aprobarReq} 
+        rechazarReq={rechazarReq} 
+        obsValue={obsValue}
+        {...props} 
+    />;
+  }
+
+  const onClickAprobar = async () => {
+    let data = {}
+    const selectedRows = table.current.getSelectedRows();
+
+    let listSelectedRows = listRequest.filter(item => 
+      selectedRows.find(key => item.id === key.id))
+
+    data.request = listSelectedRows.map(item => ({
+        id: item.id,
+        flow: item.flow.id < 6 ? 5 : 9, //Flow siguiente
+        state: 2,
+        approver: userReq.approverRole, //id del usuario
+        dateApproved: new Date().today() + " T " + new Date().timeNow(),
+      
+    }))
+
+    console.log(JSON.stringify(data))
+    const requestSend = await sendRequestApprover(data)
+    props.history.go(0)
+    // console.log(selectedRows);
+    // console.log(listSelectedRows)
+  }
+
+  const onClickVerReq = (index) => {
+    console.log(index)
+    const selectedRows = table.current.getSelectedRows();
+    if(selectedRows.length > 0){
+      selectedItem = selectedRows[0].id
+      selectedRow = listRequest.filter((item) => {
+        return item.id === selectedItem;
+      });
+    }
+    else{
+      selectedItem = 0
+    }
+    console.log(listRequest)
+    // console.log(selectedItem)
+    console.log(selectedRow)
+    // props.history.push(`/requerimiento-personal-bandeja/${selectedItem}`);
+    // const selectedRows = table.current.getSelectedRows();
+    // selectedRow = listRequest.filter((item) => {
+    //   return item.id === selectedRows[0].id;
+    // });
+    // console.log(copyListReq)
+    // console.log(selectedRows[0]);
+    // console.log(selectedRow)
+  }
 
   return (
     <div className="bg--grid">
@@ -134,7 +367,7 @@ export default function ControlPanelStaff() {
             <SelectItem text="Seleccione mes" value="placeholder-item" hidden />
             {monthList.map((month) => (
               <SelectItem
-                key={month.id.toString}
+                key={month.id}
                 text={month.name}
                 value={month.value}
               />
@@ -271,40 +504,7 @@ export default function ControlPanelStaff() {
         </div>
       </div>
       <DataTable rows={infRequest} headers={headerData}>
-        {({ rows, headers, getHeaderProps, getTableProps, getRowProps }) => (
-          <TableContainer title="">
-            <Table {...getTableProps()} size="compact" id="table">
-              <TableHead>
-                <TableRow>
-                  {headers.map((header) => (
-                    <TableHeader {...getHeaderProps({ header })}>
-                      {header.header}
-                    </TableHeader>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {rows.map((row) => (
-                  <React.Fragment key={row.id}>
-                    <TableRow {...getRowProps({ row })}>
-                      {row.cells.map((cell) => (
-                        <TableCell key={cell.id}>
-                          {cell.value}
-                          {(cell.value === false || cell.value === true) && (
-                            <input
-                              type="checkbox"
-                              style={{ height: "25px", width: "100px" }}
-                            ></input>
-                          )}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  </React.Fragment>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
+        {renderContentTable}
       </DataTable>
 
       <div className="bx--row">
@@ -321,6 +521,16 @@ export default function ControlPanelStaff() {
               Excel
             </Button>
           </div>
+          {(userReq.approverRole === 4) && (<div className="bx--col">
+            <Button
+              className="custom-class"
+              kind="tertiary a_1"
+              size="default"
+              onClick={onClickAprobar}
+            >
+              Aprobar
+            </Button>
+          </div>)}
         </div>
       </div>
       <div className="bx--col">
