@@ -13,6 +13,8 @@ import {
 } from "carbon-components-react";
 import RequirementGroup from "./RequirementGroupForm";
 import { selectedRow } from "../staff_requirement_course/CourseStaffRequirement";
+import { selectedRow2 } from "../control_panel_staff/ControlPanelStaff";
+import { selectedRow3 } from "../control_panel_staff_parcial/ControlPanelStaffParcial";
 import { sendRequestApprover, sendRequestReject } from "../../services/api/servicies";
 
 const ModalStateManager = ({
@@ -35,7 +37,26 @@ const ModalStateManager = ({
 
 export default function NewStaffRequirementForm(props) {
   const textArea = useRef();
-  let listRep = selectedRow[0].listReplacement.map(item => ({
+
+  let rowExport = {}
+  let banish = false
+  if(!!selectedRow){
+    rowExport = selectedRow
+    // console.log("SelectedRow: " + selectedRow)
+    // console.log("banish: " + banish)
+  }
+  else if (!!selectedRow2){
+    rowExport = selectedRow2
+    banish = true
+    // console.log("banish: " + banish)
+    // console.log("SelectedRow2: " + selectedRow2)
+  }
+  else if (!!selectedRow3){
+    rowExport = selectedRow3
+    banish = true
+  }
+
+  let listRep = rowExport[0].listReplacement.map(item => ({
     ...item, datos: item.codigo + " " + item.apPaterno + " " +
                     item.apMaterno + ", " + item.name + " // " +
                     item.position.description
@@ -52,8 +73,8 @@ export default function NewStaffRequirementForm(props) {
 
   const verificarCant = () => {
     var cant;
-    cant = selectedRow[0].quantity;
-    if (cant > 1 && (selectedRow[0].type.id === 3)) {
+    cant = rowExport[0].quantity;
+    if (cant > 1 && (rowExport[0].type.id === 3)) {
       return (
         <div style={{ marginTop: "1rem", backgroundColor: "#dadee9" }}>
           <TextArea
@@ -71,7 +92,7 @@ export default function NewStaffRequirementForm(props) {
           ></TextArea>
         </div>
       );
-    } else if (cant === 1 && (selectedRow[0].type.id === 3)) {
+    } else if (cant === 1 && (rowExport[0].type.id === 3)) {
       return (
         <div style={{ marginBottom: "2rem", backgroundColor: "#dadee9" }}>
           <TextInput
@@ -99,14 +120,14 @@ export default function NewStaffRequirementForm(props) {
     const data = {}
 
     data.request = {
-      id: selectedRow[0].id,
-      flow: (selectedRow[0].flow.id === 1 && userReq.codeSuperior !== "0") ? 1 :
-            (selectedRow[0].approvedLevel === 0 && selectedRow[0].flow.id === 2) ? 4 :
-            (selectedRow[0].flow.id < 6 ? (selectedRow[0].flow.id + 1) : (selectedRow[0].flow.id === 6 ? selectedRow[0].flow.id :
-                                          (selectedRow[0].flow.id < 10 ? (selectedRow[0].flow.id + 1) : selectedRow[0].flow.id))), //Flow siguiente
-      state: (selectedRow[0].approvedLevel === 0 && selectedRow[0].flow.id === 2) ? 3 :
-             (selectedRow[0].flow.id < 6 ? 2 : (selectedRow[0].flow.id === 6 ? 3 :
-                                          (selectedRow[0].flow.id < 10 ? 2 : 3))),
+      id: rowExport[0].id,
+      flow: (rowExport[0].flow.id === 1 && userReq.codeSuperior !== "0") ? 1 :
+            (rowExport[0].approvedLevel === 0 && rowExport[0].flow.id === 2) ? 4 :
+            (rowExport[0].flow.id < 6 ? (rowExport[0].flow.id + 1) : (rowExport[0].flow.id === 6 ? rowExport[0].flow.id :
+                                          (rowExport[0].flow.id < 10 ? (rowExport[0].flow.id + 1) : rowExport[0].flow.id))), //Flow siguiente
+      state: (rowExport[0].approvedLevel === 0 && rowExport[0].flow.id === 2) ? 3 :
+             (rowExport[0].flow.id < 6 ? 2 : (rowExport[0].flow.id === 6 ? 3 :
+                                          (rowExport[0].flow.id < 10 ? 2 : 3))),
       approver: userReq.approverRole, //id del usuario
       dateApproved: new Date().today() + " T " + new Date().timeNow(),
     }
@@ -116,18 +137,20 @@ export default function NewStaffRequirementForm(props) {
   }
 
   const rechazarReq = async () => {
-    const data = {}
+    let data = {}
 
-    data.request = {
-      id: selectedRow[0].id,
+    // data.request = {
+    let req = {   
+      id: rowExport[0].id,
       observation: textArea.current.value,
-      flow: selectedRow[0].flow.id,    
+      flow: rowExport[0].flow.id,    
       state: 4,
       dateApproved: new Date().today() + " T " + new Date().timeNow(),
     }
-    console.log(JSON.stringify(data))
-    // const requestSend = await sendRequestReject(data)
-    // props.history.goBack()
+    data.request = [req]
+    // console.log(JSON.stringify(data))
+    const requestSend = await sendRequestReject(data)
+    props.history.goBack()
   }
 
   return (
@@ -143,25 +166,25 @@ export default function NewStaffRequirementForm(props) {
         <div class="bx--row">
           <RadioButtonGroup
             name="radio-button-group"
-            defaultSelected={selectedRow[0].type.id}
+            defaultSelected={rowExport[0].type.id}
           >
             <RadioButton
               labelText="Nuevo Planificado"
               value={1}
               id="radio-1"
-              disabled={selectedRow[0].type.id !== 1}
+              disabled={rowExport[0].type.id !== 1}
             />
             <RadioButton
               labelText="Nuevo No Planificado"
               value={2}
               id="radio-2"
-              disabled={selectedRow[0].type.id !== 2}
+              disabled={rowExport[0].type.id !== 2}
             />
             <RadioButton
               labelText="Reemplazo"
               value={3}
               id="radio-3"
-              disabled={selectedRow[0].type.id !== 3}
+              disabled={rowExport[0].type.id !== 3}
             />
           </RadioButtonGroup>
         </div>
@@ -172,7 +195,7 @@ export default function NewStaffRequirementForm(props) {
                 id="txtSociedad"
                 labelText="Sociedad"
                 readOnly
-                value={selectedRow[0].society.description}
+                value={rowExport[0].society.description}
                 light
               />
             </div>
@@ -181,7 +204,7 @@ export default function NewStaffRequirementForm(props) {
                 id="txtVP"
                 labelText="VP/Dirección/Gerencia"
                 readOnly
-                value={selectedRow[0].vp.description}
+                value={rowExport[0].vp.description}
                 light
               />
             </div>
@@ -190,7 +213,7 @@ export default function NewStaffRequirementForm(props) {
                 id="txtUFisica"
                 labelText="Ubicación Física"
                 readOnly
-                value={selectedRow[0].physLocation.description}
+                value={rowExport[0].physLocation.description}
                 light
               />
             </div>
@@ -206,7 +229,7 @@ export default function NewStaffRequirementForm(props) {
                 id="txtBusqueda"
                 labelText="Tipo de Busqueda"
                 readOnly
-                value={selectedRow[0].search.description}
+                value={rowExport[0].search.description}
                 light
               />
             </div>
@@ -221,9 +244,9 @@ export default function NewStaffRequirementForm(props) {
                   invalidText="Invalid error message."
                   labelText="Nombre"
                   readOnly
-                  value={selectedRow[0].applicant.person.apPaterno + " " +
-                         selectedRow[0].applicant.person.apMaterno + ", " +
-                         selectedRow[0].applicant.person.name}
+                  value={rowExport[0].applicant.person.apPaterno + " " +
+                         rowExport[0].applicant.person.apMaterno + ", " +
+                         rowExport[0].applicant.person.name}
                   light
                 />
               </div>
@@ -235,7 +258,7 @@ export default function NewStaffRequirementForm(props) {
                 id="txtDivEmpresa"
                 labelText="División Empresa"
                 readOnly
-                value={selectedRow[0].compDivision.description}
+                value={rowExport[0].compDivision.description}
                 light
               />
             </div>
@@ -244,7 +267,7 @@ export default function NewStaffRequirementForm(props) {
                 id="txtOrgUnit"
                 labelText="Unidad Organizativa"
                 readOnly
-                value={selectedRow[0].orgUnit.description}
+                value={rowExport[0].orgUnit.description}
                 light
               />
             </div>
@@ -255,7 +278,7 @@ export default function NewStaffRequirementForm(props) {
                 id="txtCentroCosto"
                 labelText="Centro de Costos"
                 readOnly
-                value={selectedRow[0].costCenter.description}
+                value={rowExport[0].costCenter.description}
                 light
               />
             </div>
@@ -277,7 +300,7 @@ export default function NewStaffRequirementForm(props) {
                   id="txtCargoSolicitante"
                   invalidText="Invalid error message."
                   labelText="Cargo"
-                  value={selectedRow[0].applicant.position.description}
+                  value={rowExport[0].applicant.position.description}
                   light
                   readOnly
                 />
@@ -298,7 +321,7 @@ export default function NewStaffRequirementForm(props) {
               <TextInput
                 id="txtCodPuesto"
                 labelText="Código de Posición a Reemplazar"
-                value={selectedRow[0].position.codePosition}
+                value={rowExport[0].position.codePosition}
                 light
                 readOnly
               />
@@ -309,7 +332,7 @@ export default function NewStaffRequirementForm(props) {
               <TextInput
                 id="txtNomPuesto"
                 labelText="Posición/Puesto"
-                value={selectedRow[0].position.description}
+                value={rowExport[0].position.description}
                 light
                 readOnly
               />
@@ -320,7 +343,7 @@ export default function NewStaffRequirementForm(props) {
               <TextInput
                 id="cantidad"
                 labelText="Cantidad de Vacantes"
-                value={selectedRow[0].quantity}
+                value={rowExport[0].quantity}
                 light
                 readOnly
               />
@@ -333,7 +356,7 @@ export default function NewStaffRequirementForm(props) {
               <TextInput
                 id="txt-date-picker-single"
                 labelText="Fecha Estimada de Ingreso"
-                value={selectedRow[0].estimatedDate}
+                value={rowExport[0].estimatedDate}
                 light
                 readOnly
               />
@@ -342,7 +365,7 @@ export default function NewStaffRequirementForm(props) {
               <TextInput
                 id="txtTipoContrato"
                 labelText="Tipo de Contrato"
-                value={selectedRow[0].contract.description}
+                value={rowExport[0].contract.description}
                 light
                 readOnly
               />
@@ -357,7 +380,7 @@ export default function NewStaffRequirementForm(props) {
               <TextInput
                 id="txtConsideradoPlan"
                 labelText="¿Vacante considerada en el Plan de Personal?"
-                value={selectedRow[0].vacancyConsidered}
+                value={rowExport[0].vacancyConsidered}
                 light
                 readOnly
               />
@@ -366,7 +389,7 @@ export default function NewStaffRequirementForm(props) {
               <TextInput
                 id="txtTiempoContrato"
                 labelText="Tiempo de Contrato"
-                value={selectedRow[0].timeService}
+                value={rowExport[0].timeService}
                 light
                 readOnly
               />
@@ -382,7 +405,7 @@ export default function NewStaffRequirementForm(props) {
                 id="txtJusti"
                 labelText="Justificación"
                 rows={3}
-                value={selectedRow[0].justification}
+                value={rowExport[0].justification}
                 light
                 readOnly
                 style={{ resize: "none" }}
@@ -402,7 +425,7 @@ export default function NewStaffRequirementForm(props) {
             id={1}
             name="Describir las funciones o actividades especificas"
             firstLabel="Descripción"
-            puestoInformation={selectedRow[0].listCharacteristics}
+            puestoInformation={rowExport[0].listCharacteristics}
             type="1"
           />
         </div>
@@ -411,7 +434,7 @@ export default function NewStaffRequirementForm(props) {
             id={2}
             name="Conocimiento Requerido"
             firstLabel="Descripción"
-            puestoInformation={selectedRow[0].listCharacteristics}
+            puestoInformation={rowExport[0].listCharacteristics}
             type="1"
           />
         </div>
@@ -420,7 +443,7 @@ export default function NewStaffRequirementForm(props) {
             id={3}
             name="Habilidades Requeridas"
             firstLabel="Descripción"
-            puestoInformation={selectedRow[0].listCharacteristics}
+            puestoInformation={rowExport[0].listCharacteristics}
             type="1"
           />
         </div>
@@ -430,7 +453,7 @@ export default function NewStaffRequirementForm(props) {
             name="Formación Académica"
             firstLabel="Formación"
             secondLabel="Grado Obtenido"
-            puestoInformation={selectedRow[0].listCharacteristics}
+            puestoInformation={rowExport[0].listCharacteristics}
             type="2"
           />
         </div>
@@ -440,7 +463,7 @@ export default function NewStaffRequirementForm(props) {
             name="Centro de Estudios (no determinante)"
             firstLabel="Tipo"
             secondLabel="Centro de Estudios"
-            puestoInformation={selectedRow[0].listCharacteristics}
+            puestoInformation={rowExport[0].listCharacteristics}
             type="2"
           />
         </div>
@@ -451,7 +474,7 @@ export default function NewStaffRequirementForm(props) {
                 id="txtTiempoExp"
                 labelText="Tiempo de Experiencia"
                 readOnly
-                value={selectedRow[0].characteristicsAdditional.timeExperience}
+                value={rowExport[0].characteristicsAdditional.timeExperience}
                 light
               />
             </div>
@@ -462,7 +485,7 @@ export default function NewStaffRequirementForm(props) {
                 id="txtEdadRange"
                 labelText="Rango de Edad"
                 readOnly
-                value={selectedRow[0].characteristicsAdditional.rangeAge}
+                value={rowExport[0].characteristicsAdditional.rangeAge}
                 light
               />
             </div>
@@ -473,7 +496,7 @@ export default function NewStaffRequirementForm(props) {
                 id="txtSex"
                 labelText="Sexo"
                 readOnly
-                value={selectedRow[0].characteristicsAdditional.sex}
+                value={rowExport[0].characteristicsAdditional.sex}
                 light
               />
             </div>
@@ -486,7 +509,7 @@ export default function NewStaffRequirementForm(props) {
                 id="txtCivil"
                 labelText="Estado Civil"
                 readOnly
-                value={selectedRow[0].characteristicsAdditional.civilStatus}
+                value={rowExport[0].characteristicsAdditional.civilStatus}
                 light
               />
             </div>
@@ -499,7 +522,7 @@ export default function NewStaffRequirementForm(props) {
             name="Idiomas"
             firstLabel="Idioma"
             secondLabel="Nivel"
-            puestoInformation={selectedRow[0].listCharacteristics}
+            puestoInformation={rowExport[0].listCharacteristics}
             type="2"
           />
         </div>
@@ -522,7 +545,8 @@ export default function NewStaffRequirementForm(props) {
             labelTitle="Adjunta Organigrama / Descriptivo de Puesto"
           /> */}
         </div>
-        <div className="row-action">
+        {(!banish) &&
+        (<div className="row-action">
           {/* <Button kind="primary" className="b-action" size="field">
             Aprobar
           </Button> */}
@@ -582,7 +606,20 @@ export default function NewStaffRequirementForm(props) {
           >
             Regresar
           </Button>
-        </div>
+        </div>)}
+        {(banish) &&
+          (<div className="row-action">
+            <Button
+              kind="primary"
+              className="b-action"
+              kind="tertiary d_1"
+              size="field"
+              onClick={() => goToRequirement()}
+            >
+              Regresar
+            </Button>
+          </div>)
+        }
       </div>
     </Form>
   );

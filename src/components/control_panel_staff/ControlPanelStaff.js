@@ -61,12 +61,13 @@ const ContentTable = forwardRef(({ goToRequirement, aprobarReq, rechazarReq, obs
               {row.cells.map((cell) => (
                 <TableCell key={cell.id}>
                   {cell.value}
-                  {(cell.value === false || cell.value === true) && (
+                  {/* {(cell.value === false || cell.value === true) && (
                   <input
                     type="checkbox"
                     style={{ height: "25px", width: "100px" }}
                   ></input>
-                )}</TableCell>
+                )} */}
+                </TableCell>
               ))}
           </TableRow>
         ))}
@@ -96,8 +97,10 @@ const ModalStateManager = ({
 
 
 export let selectedItem = 0;
-export let selectedRow = {};
+let selectedRow = {};
+export let selectedRow2 = null;
 let userReq = {
+  id: 4,
   position: 4,
   name: "",
   apPaterno: "",
@@ -184,14 +187,18 @@ export default function ControlPanelStaff(props) {
                             className="custom-class"
                             kind="tertiary d"
                             size="default"
-                            onClick={() => onClickVerReq(req)}
+                            onClick={() => onClickVerReq(req, requestFromServer)}
                           >
                             Ver
                           </Button>),
               observation: req.observation,
               dateState: req.timeStatus,
               status: req.flow.section,
-              check: false}
+              check: <input
+                        type="checkbox"
+                        style={{ height: "25px", width: "100px" }}
+                      >
+                      </input>}
         });
         return dataReq;
       })
@@ -240,14 +247,21 @@ export default function ControlPanelStaff(props) {
     console.log(selectedRow);
     data.request = {
       id: selectedRow[0].id,
-      flow: (selectedRow[0].flow.id === 1 && userReq.codeSuperior !== "0") ? 1 :
-            (selectedRow[0].approvedLevel === 0 && selectedRow[0].flow.id === 2) ? 4 :
-            (selectedRow[0].flow.id < 6 ? (selectedRow[0].flow.id + 1) : (selectedRow[0].flow.id === 6 ? selectedRow[0].flow.id :
-                                          (selectedRow[0].flow.id < 10 ? (selectedRow[0].flow.id + 1) : selectedRow[0].flow.id))), //Flow siguiente
-      state: (selectedRow[0].approvedLevel === 0 && selectedRow[0].flow.id === 2) ? 3 :
-             (selectedRow[0].flow.id < 6 ? 2 : (selectedRow[0].flow.id === 6 ? 3 :
-                                          (selectedRow[0].flow.id < 10 ? 2 : 3))),
-      approver: userReq.approverRole, //id del usuario
+      flowID: selectedRow[0].flow.id,
+      flowType: selectedRow[0].flow.type,
+      flowSeq: selectedRow[0].flow.sequence,
+      state: selectedRow[0].state.id,
+      reqConf: selectedRow[0].approvedLevel,
+      // flow: (selectedRow[0].flow.id === 1 && userReq.codeSuperior !== "0") ? 1 :
+      //       (selectedRow[0].approvedLevel === 0 && selectedRow[0].flow.id === 2) ? 4 :
+      //       (selectedRow[0].flow.id < 6 ? (selectedRow[0].flow.id + 1) : (selectedRow[0].flow.id === 6 ? selectedRow[0].flow.id :
+      //                                     (selectedRow[0].flow.id < 10 ? (selectedRow[0].flow.id + 1) : selectedRow[0].flow.id))), //Flow siguiente
+      // state: (selectedRow[0].approvedLevel === 0 && selectedRow[0].flow.id === 2) ? 3 :
+      //        (selectedRow[0].flow.id < 6 ? 2 : (selectedRow[0].flow.id === 6 ? 3 :
+      //                                     (selectedRow[0].flow.id < 10 ? 2 : 3))),
+      userCodeSup: userReq.codeSuperior,
+      approverID: userReq.id,             //ID del usuario
+      approverRole: userReq.approverRole, //Rol del usuario
       dateApproved: new Date().today() + " T " + new Date().timeNow(),
     }
     console.log(JSON.stringify(data))
@@ -308,36 +322,54 @@ export default function ControlPanelStaff(props) {
 
     data.request = listSelectedRows.map(item => ({
         id: item.id,
-        flow: item.flow.id < 6 ? 5 : 9, //Flow siguiente
-        state: 2,
-        approver: userReq.approverRole, //id del usuario
+        flowID: item.flow.id,
+        flowType:item.flow.type,
+        flowSeq: item.flow.sequence,
+        state: item.state.id,
+        reqConf: item.approvedLevel,
+        // flow: item.flow.id < 6 ? 5 : 9, //Flow siguiente
+        // state: 2,
+        userCodeSup: userReq.codeSuperior,
+        approverID: userReq.id,             //ID del usuario
+        approverRole: userReq.approverRole, //Rol del usuario
         dateApproved: new Date().today() + " T " + new Date().timeNow(),
       
     }))
 
     console.log(JSON.stringify(data))
-    const requestSend = await sendRequestApprover(data)
-    props.history.go(0)
+    if(data.request.length > 0){
+      const requestSend = await sendRequestApprover(data)
+      props.history.go(0)
+    }
     // console.log(selectedRows);
     // console.log(listSelectedRows)
   }
 
-  const onClickVerReq = (index) => {
+  const onClickVerReq = (index, list) => {
     console.log(index)
-    const selectedRows = table.current.getSelectedRows();
-    if(selectedRows.length > 0){
-      selectedItem = selectedRows[0].id
-      selectedRow = listRequest.filter((item) => {
-        return item.id === selectedItem;
-      });
+    console.log(list)
+    selectedItem = index.id
+    console.log("selectedRow2: "+selectedRow2)
+    selectedRow2 = list.filter((item) => {
+      return item.id === index.id;
+    });
+    // const selectedRows = table.current.getSelectedRows();
+    // if(selectedRows.length > 0){
+    //   selectedItem = selectedRows[0].id
+    //   selectedRow = list.filter((item) => {
+    //     return item.id === selectedItem;
+    //   });
+    // }
+    // else{
+    //   selectedItem = 0
+    //   selectedRow = {}
+    // }
+    console.log("SelectedRow: "+selectedRow2) 
+    console.log("SelectedRow[0].id: "+selectedRow2[0].id)
+    console.log("selectedItem: "+selectedItem)
+    if(selectedItem !== 0){
+      props.history.push(`/requerimiento-personal-bandeja/${selectedItem}`);
     }
-    else{
-      selectedItem = 0
-    }
-    console.log(listRequest)
-    // console.log(selectedItem)
-    console.log(selectedRow)
-    // props.history.push(`/requerimiento-personal-bandeja/${selectedItem}`);
     // const selectedRows = table.current.getSelectedRows();
     // selectedRow = listRequest.filter((item) => {
     //   return item.id === selectedRows[0].id;

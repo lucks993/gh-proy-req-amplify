@@ -41,9 +41,10 @@ const ModalStateManager = ({
 };
 
 export let selectedItem = 0;
-export let selectedRow = {};
+let selectedRow = {};
+export let selectedRow3 = null;
 
-export default function ControlPanelStaffParcial() {
+export default function ControlPanelStaffParcial(props) {
   const [checkedStatus, setCheckedStatus] = useState(false);
   const [listRequest, setListRequest] = useState([]);
   const [infRequest, setInfRequest] = useState(() => {
@@ -198,7 +199,14 @@ export default function ControlPanelStaffParcial() {
             typeOfContract: req.contract.description,
             timeOfContract: req.timeService,
             justify: req.justification,
-            description: req.position.information,
+            description: (<Button
+                          className="custom-class"
+                          kind="tertiary d"
+                          size="default"
+                          onClick={() => onClickVerReq(req, requestFromServer)}
+                        >
+                          Ver
+                        </Button>),
             observation: req.observation,
             dateState: req.timeStatus,
             status: req.flow.section,
@@ -217,6 +225,22 @@ export default function ControlPanelStaffParcial() {
       setCheckedStatus(false);
     }
   };
+
+  const onClickVerReq = (index, list) => {
+    console.log(index)
+    console.log(list)
+    selectedItem = index.id
+    console.log("selectedRow3: "+selectedRow3)
+    selectedRow3 = list.filter((item) => {
+      return item.id === index.id;
+    });
+    console.log("SelectedRow3: "+selectedRow3) 
+    console.log("SelectedRow3[0].id: "+selectedRow3[0].id)
+    console.log("selectedItem: "+selectedItem)
+    if(selectedItem !== 0){
+      props.history.push(`/requerimiento-personal-bandeja/${selectedItem}`);
+    }
+  }
 
   const exportReportToExcel = () => {
     let table = document.getElementsByTagName("table"); // you can use document.getElementById('tableId') as well by providing id to the table tag

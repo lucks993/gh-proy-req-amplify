@@ -164,14 +164,15 @@ const ModalStateManager = ({
 };
 
 export let selectedItem = 0;
-export let selectedRow = {};
+export let selectedRow = null;
 let userReq = {
-  position: 1,
+  id: 4,
+  position: 4,
   name: "",
   apPaterno: "",
   apMaterno: "",
   codeSuperior: "0",
-  approverRole: 1
+  approverRole: 4
 }
 // const [listRow, setListRow] = useState([])
 export default function CourseStaffRequirement(props) {
@@ -232,7 +233,7 @@ export default function CourseStaffRequirement(props) {
                     data-modal-primary-focus
                     id="textListReemp_2"
                     defaultValue={req.listReplacement.map(index => {
-                      return (index.codigo + " " + index.apPaterno + " " + index.apMaterno + ", " + index.name + "\n" + "\n")
+                      return ("Trabajador: " + index.codigo + " " + index.apPaterno + " " + index.apMaterno + ", " + index.name + "\n" + "\n")
                     })}
                   />
                 </Modal>
@@ -316,14 +317,20 @@ export default function CourseStaffRequirement(props) {
     console.log(selectedRow);
     let req = {
       id: selectedRow[0].id,
-      flow: (selectedRow[0].flow.id === 1 && userReq.codeSuperior !== "0") ? 1 :
-            (selectedRow[0].approvedLevel === 0 && selectedRow[0].flow.id === 2) ? 4 :
-            (selectedRow[0].flow.id < 6 ? (selectedRow[0].flow.id + 1) : (selectedRow[0].flow.id === 6 ? selectedRow[0].flow.id :
-                                          (selectedRow[0].flow.id < 10 ? (selectedRow[0].flow.id + 1) : selectedRow[0].flow.id))), //Flow siguiente
-      state: (selectedRow[0].approvedLevel === 0 && selectedRow[0].flow.id === 2) ? 3 :
-             (selectedRow[0].flow.id < 6 ? 2 : (selectedRow[0].flow.id === 6 ? 3 :
-                                          (selectedRow[0].flow.id < 10 ? 2 : 3))),
-      approver: userReq.approverRole, //id del usuario
+      flowID: selectedRow[0].flow.id,
+      flowType: selectedRow[0].flow.type,
+      flowSeq: selectedRow[0].flow.sequence,
+      state: selectedRow[0].state.id,
+      reqConf: selectedRow[0].approvedLevel,
+      // flow: (selectedRow[0].flow.id === 1 && userReq.codeSuperior !== "0") ? 1 :
+      //       (selectedRow[0].flow.id < 6 ? (selectedRow[0].flow.id + 1) : (selectedRow[0].flow.id === 6 ? selectedRow[0].flow.id :
+      //                                     (selectedRow[0].flow.id < 10 ? (selectedRow[0].flow.id + 1) : selectedRow[0].flow.id))), //Flow siguiente
+      // state: (selectedRow[0].approvedLevel === 0 && selectedRow[0].flow.id === 2) ? 3 :
+      //        (selectedRow[0].flow.id < 6 ? 2 : (selectedRow[0].flow.id === 6 ? 3 :
+      //                                     (selectedRow[0].flow.id < 10 ? 2 : 3))),
+      userCodeSup: userReq.codeSuperior,
+      approverID: userReq.id,             //ID del usuario
+      approverRole: userReq.approverRole, //Rol del usuario
       dateApproved: new Date().today() + " T " + new Date().timeNow(),
     }
 
@@ -392,21 +399,29 @@ export default function CourseStaffRequirement(props) {
     
     data.request = listSelectedRows.map(item => ({
         id: item.id,
-        flow: (item.flow.id === 1 && userReq.codeSuperior !== "0") ? 1 :
-              (item.approvedLevel === 0 && item.flow.id === 2) ? 4 :
-              (item.flow.id < 6 ? (item.flow.id + 1) : (item.flow.id === 6 ? item.flow.id :
-                                            (item.flow.id < 10 ? (item.flow.id + 1) : item.flow.id))), //Flow siguiente
-        state: (item.approvedLevel === 0 && item.flow.id === 2) ? 3 :
-              (item.flow.id < 6 ? 2 : (item.flow.id === 6 ? 3 :
-                                            (item.flow.id < 10 ? 2 : 3))),
-        approver: userReq.approverRole, //id del usuario
+        flowID: item.flow.id,
+        flowType: item.flow.type,
+        flowSeq: item.flow.sequence,
+        state: item.state.id,
+        reqConf: item.approvedLevel,
+        // flow: (item.flow.id === 1 && userReq.codeSuperior !== "0") ? 1 :
+        //       (item.flow.id < 6 ? (item.flow.id + 1) : (item.flow.id === 6 ? item.flow.id :
+        //                                     (item.flow.id < 10 ? (item.flow.id + 1) : item.flow.id))), //Flow siguiente
+        // state: (item.approvedLevel === 0 && item.flow.id === 2) ? 3 :
+        //       (item.flow.id < 6 ? 2 : (item.flow.id === 6 ? 3 :
+        //                                     (item.flow.id < 10 ? 2 : 3))),
+        userCodeSup: userReq.codeSuperior,  //Cod Sup
+        approverID: userReq.id,             //ID del usuario
+        approverRole: userReq.approverRole, //Rol del usuario
         dateApproved: new Date().today() + " T " + new Date().timeNow(),
       
     }))
 
     console.log(JSON.stringify(data))
-    const requestSend = await sendRequestApprover(data)
-    props.history.go(0)
+    if(data.request.length > 0){
+      const requestSend = await sendRequestApprover(data)
+      props.history.go(0)
+    }
     // console.log(selectedRows);
     // console.log(listSelectedRows)
   }
@@ -430,8 +445,10 @@ export default function CourseStaffRequirement(props) {
     // console.log(selectedRows);
     console.log(JSON.stringify(data))
     // console.log(textArea2.current.value)
-    const requestSend = await sendRequestReject(data)
-    props.history.go(0)
+    if(data.request.length > 0){
+      const requestSend = await sendRequestReject(data)
+      props.history.go(0)
+    }
   }
 
   return (

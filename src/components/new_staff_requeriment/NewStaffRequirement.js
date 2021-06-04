@@ -59,8 +59,6 @@ export default function NewStaffRequirement(props) {
                     item.position.codePosition + " " + item.position.description
   }))
 
-  let posTypeFlow = "Empresa"
-
   const [personaSelect, setPersonaSelect] = useState(null)  //Persona Select
   //Usuario
   const [userReq, setUserReq] = useState({
@@ -69,7 +67,8 @@ export default function NewStaffRequirement(props) {
     apPaterno: "",
     apMaterno: "",
     codeSuperior: "0",
-    approverRole: 1
+    approverRole: 1, 
+    id: 1
   })
   const [maxDoc, setMaxDoc] = useState(0);
   const minReq = 1;                                     //Cant min
@@ -118,11 +117,14 @@ export default function NewStaffRequirement(props) {
     const getPerson = async () => {
         const personFromServer = await fetchPerson()
         setListTrabajador(personFromServer)
-        setUserReq({position: personFromServer[1].position.description,
-                    name: personFromServer[1].name,
-                    apPaterno: personFromServer[1].apPaterno,
-                    apMaterno: personFromServer[1].apMaterno,
-                    codeSuperior: personFromServer[1].codeSuperior})
+        setUserReq({position: personFromServer[0].position.description,
+                    name: personFromServer[0].name,
+                    apPaterno: personFromServer[0].apPaterno,
+                    apMaterno: personFromServer[0].apMaterno,
+                    codeSuperior: personFromServer[0].codeSuperior,
+                    id: personFromServer[0].id,
+                    approverRole: 1
+                  })
     }
     getPerson()
   }, [])
@@ -227,24 +229,65 @@ export default function NewStaffRequirement(props) {
   const assignPersonDesc = (item) => {
     setPersonaSelect(item.selectedItem)
     if(!!item.selectedItem){
-      if(userReq.approverRole !== 4){
-        setListPersonaSelect([...listPersonaSelect, {id: item.selectedItem.id,
-                                                   datos: item.selectedItem.codigo + " " +
-                                                   item.selectedItem.apPaterno + " " + item.selectedItem.apMaterno +
-                                                    ", " + item.selectedItem.name}])
-      }
-      else{
+      if(listPersonaSelect.length === 0){
         setListPersonaSelect([...listPersonaSelect, {id: item.selectedItem.id,
                                                     datos: item.selectedItem.codigo + " " +
                                                     item.selectedItem.apPaterno + " " + item.selectedItem.apMaterno +
-                                                    ", " + item.selectedItem.name + " // " +
-                                                    item.selectedItem.position.codePosition + " " +
-                                                    item.selectedItem.position.description}])
+                                                    ", " + item.selectedItem.name}])
+        console.log(listPersonaSelect)
       }
-      
+      else{
+        let encontrado = listPersonaSelect.some(function(index) {
+          return item.selectedItem.id === index.id
+        })
+        if(!encontrado && listPersonaSelect.length < cantReq){
+          setListPersonaSelect([...listPersonaSelect, {id: item.selectedItem.id,
+                                                    datos: item.selectedItem.codigo + " " +
+                                                    item.selectedItem.apPaterno + " " + item.selectedItem.apMaterno +
+                                                    ", " + item.selectedItem.name}])
+          }
+      }
     }
     console.log(listPersonaSelect)
     console.log(listPersonCopy)
+  }
+
+  const assignFillPersonDesc = (item) => {
+    if(!!item){
+      setPersonaSelect(item.selectedItem)
+      if(item.selectedItem != null){
+        // setPersonaSelect(item.selectedItem)
+        setListPersonaSelect([...listPersonaSelect, {id: item.selectedItem.id,
+          datos: item.selectedItem.codigo + " " +
+          item.selectedItem.apPaterno + " " + item.selectedItem.apMaterno +
+          ", " + item.selectedItem.name}])
+        setSocietySelect(item.selectedItem.society)
+        setDivisionSelect(item.selectedItem.companyDivision)
+        setPhysicalSelect(item.selectedItem.companyDivision)
+        setVPSelect(item.selectedItem.vPManagement)
+        setUnitSelect(item.selectedItem.vPManagement)
+        setCenterSelect(item.selectedItem.costCenter)
+        setPuestoSelect(item.selectedItem.position)
+        setPuestoTiempoExpSelect(item.selectedItem.position.informationAdditional.timeExperience)
+        setPuestoRangoEdadSelect(item.selectedItem.position.informationAdditional.rangeAge)
+        setPuestoSexoSelect(item.selectedItem.position.informationAdditional.sex)
+        setPuestoCivilStatusSelect(item.selectedItem.position.informationAdditional.civilStatus)
+      }
+    }
+    else{
+      setPersonaSelect(null)
+      setSocietySelect(null)
+      setDivisionSelect(null)
+      setPhysicalSelect(null)
+      setVPSelect(null)
+      setUnitSelect(null)
+      setCenterSelect(null)
+      setPuestoSelect(null)
+      setPuestoTiempoExpSelect(null)
+      setPuestoRangoEdadSelect(null)
+      setPuestoSexoSelect(null)
+      setPuestoCivilStatusSelect(null)
+    }
   }
 
   const assignPositionDesc = (item) => {
@@ -254,7 +297,7 @@ export default function NewStaffRequirement(props) {
       setPuestoRangoEdadSelect(item.selectedItem.informationAdditional.rangeAge)
       setPuestoSexoSelect(item.selectedItem.informationAdditional.sex)
       setPuestoCivilStatusSelect(item.selectedItem.informationAdditional.civilStatus)
-    }
+    }   
     else{     
       setPuestoTiempoExpSelect(null)
       setPuestoRangoEdadSelect(null)
@@ -329,11 +372,14 @@ export default function NewStaffRequirement(props) {
         vacancyConsidered: vacanteTipo, 
         typeRequest: reqTipo,
         typeState: 1,
-        flow: userReq.codeSuperior !== "0" ? 1 : (posTypeFlow === "Corporativo" ? 7 : 2),
+        // flow: userReq.codeSuperior !== "0" ? 1 : (posTypeFlow === "Corporativo" ? 7 : 2),
         contract: contratoTipo,
         typeSearch: busqTipo,
         position: puestoSelect.id,
-        userID: 1,
+        posScope: puestoSelect.scopePosition,
+        userID: userReq.id,
+        userAppRole: userReq.approverRole,
+        userCodeSup: userReq.codeSuperior,
         timeStatus: new Date().today() + " T " + new Date().timeNow(),
         listReplacement: listPersonaSelect,
         listCharacteristic: listCharac,
@@ -384,6 +430,7 @@ export default function NewStaffRequirement(props) {
                 onClick={() => {
                   setCheckReemp(false)
                   setListPersonaSelect([])
+                  assignFillPersonDesc(null)
                 }}
               />
               <RadioButton
@@ -393,6 +440,7 @@ export default function NewStaffRequirement(props) {
                 onClick={() => {
                   setCheckReemp(false)
                   setListPersonaSelect([])
+                  assignFillPersonDesc(null)
                 }}
               />
               <RadioButton
@@ -409,12 +457,11 @@ export default function NewStaffRequirement(props) {
           <div className="bx--col-lg-5" style={{ marginBottom: "1.2rem"}}>
             {checkReemp && (
               <ComboBox
-                onChange={() => {}}
-                // onChange={(item) => {assignPersonDesc(item)}}
+                onChange={(item) => {assignFillPersonDesc(item)}}
                 id="comboNomReemp"
                 light
                 items={listPersonCopy}
-                // selectedItem={personaSelect}
+                selectedItem={personaSelect}
                 itemToString={(item) => (item ? item.datos : "")}
                 placeholder="Escriba nombre del trabajador a reemplazar..."
                 shouldFilterItem={({ item: { datos }, inputValue }) => 

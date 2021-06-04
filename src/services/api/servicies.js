@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-let userEmp = 1
+let userEmp = 4
 
 const api = axios.create({
     baseURL: "https://70cd1uugng.execute-api.us-east-1.amazonaws.com/dev/"
@@ -25,12 +25,6 @@ export const fetchPerson = async () => {
     const res = await api.get('requirement/person')
     return res.data
 }
-
-// // Fetch Requirement Request ID
-// export const fetchRequestID= async (id) => {
-//     const res = await api.get('requirement/request/'+{id})
-//     return res.data
-// }
 
 // Fetch Requirement Request Employee
 export const fetchRequest= async () => {

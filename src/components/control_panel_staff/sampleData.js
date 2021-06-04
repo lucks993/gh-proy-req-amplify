@@ -122,7 +122,7 @@ export const rowData = [
     },
     {
       key:'check',
-      header:'Disparador'
+      header:'Enviado'
     }
   ];
 
