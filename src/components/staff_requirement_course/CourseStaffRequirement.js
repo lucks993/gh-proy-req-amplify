@@ -166,13 +166,13 @@ const ModalStateManager = ({
 export let selectedItem = 0;
 export let selectedRow = null;
 let userReq = {
-  id: 4,
-  position: 4,
+  id: 2,
+  position: 2,
   name: "",
   apPaterno: "",
   apMaterno: "",
   codeSuperior: "0",
-  approverRole: 4
+  approverRole: 2
 }
 // const [listRow, setListRow] = useState([])
 export default function CourseStaffRequirement(props) {

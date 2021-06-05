@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-let userEmp = 4
+let userEmp = 2
 
 const api = axios.create({
     baseURL: "https://70cd1uugng.execute-api.us-east-1.amazonaws.com/dev/"
