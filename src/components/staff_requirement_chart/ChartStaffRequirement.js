@@ -7,24 +7,35 @@ import {
     SelectItem,
     TextArea
   } from "carbon-components-react";
-import { barOption1, barData3, barOption3, barData4, barOption4,
+import { barData1, barOption1, barData3, barOption3, barData4, barOption4,
         monthList, yearList } from "./sampleData";
 import "@carbon/charts/styles.css";
 import "./ChartStaffRequirement.scss";
-import { fetchDataGraph } from "../../services/api/servicies";
+import { fetchDataGraph1, fetchDataGraph3 } from "../../services/api/servicies";
 
 export default function ChartStaffRequirement () {
 const [idGraph, setIdGraph] = useState(0)
-const [barData1, setBarData1] = useState([])
+const [barData1Get, setBarData1Get] = useState([])
+const [barData3Get, setBarData3Get] = useState([])
 
-//Fetch Organization
+//Fetch Graph1
 useEffect(() => {
     const getDataGraph = async () => {
-        const dataGraphFromServer = await fetchDataGraph()
-        setBarData1(dataGraphFromServer)
+        const dataGraphFromServer = await fetchDataGraph1()
+        setBarData1Get(dataGraphFromServer)
     }
     getDataGraph()
     }, [])
+
+//Fetch Graph3
+useEffect(() => {
+    const getDataGraph = async () => {
+        const dataGraphFromServer = await fetchDataGraph3()
+        setBarData3Get(dataGraphFromServer)
+    }
+    getDataGraph()
+    }, [])
+
 
 const showDiv = () => {
     setIdGraph(document.getElementById("GraficoReq").value)
@@ -52,6 +63,7 @@ const showInstrucctions = () => {
 }
 
 const showCalendar = () => {
+    console.log(barData1Get)
     if(idGraph > 0 && idGraph !== "3")
         return (
             <div className="bx--row" style={{ marginBottom: "1.2rem" }}>
@@ -114,7 +126,7 @@ return(
             <div>
                 <div>
                 <GroupedBarChart
-                    data={barData1}
+                    data={barData1Get}
                     options={barOption1}>      
                 </GroupedBarChart>
                 </div>
@@ -122,7 +134,7 @@ return(
         )}
         {(idGraph === "2") && <div>
         <PieChart
-            data={barData3}
+            data={barData3Get}
             options={barOption3}>      
         </PieChart>
         </div>}

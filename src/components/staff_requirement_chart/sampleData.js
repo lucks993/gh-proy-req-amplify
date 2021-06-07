@@ -64,39 +64,39 @@ export const monthList = [
 export const yearList = [
     {
         id: 1,
-        value: 2015
-    },
-    {
-        id: 2,
-        value: 2016
-    },
-    {
-        id: 3,
-        value: 2017
-    },
-    {
-        id: 4,
-        value: 2018
-    },
-    {
-        id: 5,
-        value: 2019
-    },
-    {
-        id: 6,
-        value: 2020
-    },
-    {
-        id: 7,
         value: 2021
     },
     {
-        id: 8,
+        id: 2,
         value: 2022
     },
     {
-        id: 9,
+        id: 3,
         value: 2023
+    },
+    {
+        id: 4,
+        value: 2024
+    },
+    {
+        id: 5,
+        value: 2025
+    },
+    {
+        id: 6,
+        value: 2026
+    },
+    {
+        id: 7,
+        value: 2027
+    },
+    {
+        id: 8,
+        value: 2028
+    },
+    {
+        id: 9,
+        value: 2029
     }
 ]
 
@@ -320,7 +320,7 @@ export const barOption3 =
         },   
         color: {
             scale: {
-                "GLORIA CORPORATIVO": "#002060",
+                GLORIA: "#002060",
                 YURA: "#7f7f7f ",
                 SUPERMIX: "#2f6948",
                 CALCESUR: "#7030a0",

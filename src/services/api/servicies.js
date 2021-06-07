@@ -57,9 +57,15 @@ export const sendRequestReject= async (data) => {
     return res.data
 }
 
-// Fetch DataGraph
-export const fetchDataGraph = async () => {
-    const res = await api.get('graph/request')
+// Fetch DataGraph1
+export const fetchDataGraph1 = async () => {
+    const res = await api.get('graph/request1')
+    return res.data
+}
+
+// Fetch DataGraph3
+export const fetchDataGraph3 = async () => {
+    const res = await api.get('graph/request3')
     return res.data
 }
 
