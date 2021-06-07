@@ -15,7 +15,7 @@ import RequirementGroup from "./RequirementGroupForm";
 import { selectedRow } from "../staff_requirement_course/CourseStaffRequirement";
 import { selectedRow2 } from "../control_panel_staff/ControlPanelStaff";
 import { selectedRow3 } from "../control_panel_staff_parcial/ControlPanelStaffParcial";
-import { sendRequestApprover, sendRequestReject } from "../../services/api/servicies";
+import { sendRequestApprover, sendRequestReject, sendRequestObserve } from "../../services/api/servicies";
 
 const ModalStateManager = ({
   renderLauncher: LauncherContent,
@@ -150,6 +150,23 @@ export default function NewStaffRequirementForm(props) {
     data.request = [req]
     // console.log(JSON.stringify(data))
     const requestSend = await sendRequestReject(data)
+    props.history.goBack()
+  }
+
+  const observarReq = async () => {
+    let data = {}
+
+    // data.request = {
+    let req = {   
+      id: rowExport[0].id,
+      observation: textArea.current.value,
+      flow: rowExport[0].flow.id,    
+      state: 5,
+      dateApproved: new Date().today() + " T " + new Date().timeNow(),
+    }
+    data.request = [req]
+    // console.log(JSON.stringify(data))
+    const requestSend = await sendRequestObserve(data)
     props.history.goBack()
   }
 
@@ -593,6 +610,41 @@ export default function NewStaffRequirementForm(props) {
               </Modal>
             )}
           </ModalStateManager>
+          {(userReq.approverRole === 4 || userReq.approverRole === 5 || userReq.approverRole === 6) && 
+          (<ModalStateManager
+            renderLauncher={({ setOpen }) => (
+              <Button
+                className="custom-class"
+                kind="tertiary b_1"
+                size="field"
+                onClick={() => setOpen(true)}
+              >
+                Observar
+              </Button>
+            )}
+          >
+            {({ open, setOpen }) => (
+              <Modal
+                modalHeading="Observaciones"
+                primaryButtonText="Guardar"
+                secondaryButtonText="Cancelar"
+                open={open}
+                onRequestSubmit={() => observarReq()}
+                onRequestClose={() => setOpen(false)}
+              >
+                <p style={{ marginBottom: "1rem" }}>
+                  Escriba las observaciones correspondientes
+                </p>
+                <TextArea
+                  ref={textArea}
+                  data-modal-primary-focus
+                  id="textRejectAlone"
+                  placeholder="Escriba aquí..."
+                  defaultValue="Este requerimiento no es conforme"
+                />
+              </Modal>
+            )}
+          </ModalStateManager>)}
           <div className="spacer"></div>
           {/* <Button kind="primary" size="field">
             Cancelar

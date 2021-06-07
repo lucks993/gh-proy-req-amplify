@@ -64,38 +64,47 @@ export const monthList = [
 export const yearList = [
     {
         id: 1,
+        name: '2021',
         value: 2021
     },
     {
         id: 2,
+        name: '2022',
         value: 2022
     },
     {
         id: 3,
+        name: '2023',
         value: 2023
     },
     {
         id: 4,
+        name: '2024',
         value: 2024
     },
     {
         id: 5,
+        name: '2025',
         value: 2025
     },
     {
         id: 6,
+        name: '2026',
         value: 2026
     },
     {
         id: 7,
+        name: '2027',
         value: 2027
     },
     {
         id: 8,
+        name: '2028',
         value: 2028
     },
     {
         id: 9,
+        name: '2029',
         value: 2029
     }
 ]
@@ -322,7 +331,7 @@ export const barOption3 =
             scale: {
                 GLORIA: "#002060",
                 YURA: "#7f7f7f ",
-                SUPERMIX: "#2f6948",
+                SUPERAMIX: "#2f6948",
                 CALCESUR: "#7030a0",
                 RACIEMSA: "#c00000",
                 TRUPAL: "#ed7c31",

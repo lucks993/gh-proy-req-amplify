@@ -21,7 +21,7 @@ import {
 } from "carbon-components-react";
 import { headerData } from "./sampleData";
 import "./CourseStaffRequirement.scss";
-import { fetchRequest, sendRequestApprover, sendRequestReject } from "../../services/api/servicies";
+import { fetchRequest, sendRequestApprover, sendRequestReject, sendRequestObserve } from "../../services/api/servicies";
 
 const ModalRechazo = ({rechazarReq, row })=> {
   
@@ -69,7 +69,53 @@ const ModalRechazo = ({rechazarReq, row })=> {
   )
 }
 
-const ContentTable = forwardRef(({goToRequirement, aprobarReq, rechazarReq, obsValue, ...props}, ref)=> {
+const ModalObservado = ({observarReq, row })=> {
+  
+  const textArea = useRef();
+
+  const onRequestSubmit = () => {
+    observarReq(row.cells[0].value, textArea.current.value)
+  }
+
+  return (
+    <ModalStateManager
+      renderLauncher={({ setOpen }) => (
+        <Button
+          className="custom-class"
+          kind="tertiary c_1"
+          size="default"
+          onClick={() => setOpen(true)}
+        >
+          Observar
+        </Button>
+      )}
+    >
+      {({ open, setOpen }) => (
+        <Modal
+          modalHeading="Observaciones"
+          primaryButtonText="Guardar"
+          secondaryButtonText="Cancelar"
+          open={open}
+          onRequestSubmit={onRequestSubmit}
+          onRequestClose={() => setOpen(false)}
+        >
+          <p style={{ marginBottom: "1rem" }}>
+            Escriba las observaciones correspondientes
+          </p>
+          <TextArea
+            ref={textArea}
+            data-modal-primary-focus
+            id="textRejectAlone"
+            placeholder="Escriba aquí..."
+            defaultValue="Este requerimiento no es conforme"
+          />
+        </Modal>
+      )}
+    </ModalStateManager>
+  )
+}
+
+const ContentTable = forwardRef(({goToRequirement, aprobarReq, rechazarReq, observarReq, obsValue, ...props}, ref)=> {
   const {
     rows,
     headers,
@@ -134,6 +180,8 @@ const ContentTable = forwardRef(({goToRequirement, aprobarReq, rechazarReq, obsV
                 Aprobar
               </Button>
               <ModalRechazo rechazarReq={rechazarReq} row={row} />
+              {(userReq.approverRole === 4 || userReq.approverRole === 5 || userReq.approverRole === 6) &&
+              (<ModalObservado observarReq={observarReq} row={row} />)}
 
               <div className="bx--row"></div>
             </TableExpandedRow>
@@ -166,13 +214,13 @@ const ModalStateManager = ({
 export let selectedItem = 0;
 export let selectedRow = null;
 let userReq = {
-  id: 2,
-  position: 2,
+  id: 4,
+  position: 4,
   name: "",
   apPaterno: "",
   apMaterno: "",
   codeSuperior: "0",
-  approverRole: 2
+  approverRole: 4
 }
 // const [listRow, setListRow] = useState([])
 export default function CourseStaffRequirement(props) {
@@ -361,6 +409,27 @@ export default function CourseStaffRequirement(props) {
     props.history.go(0)
   }
 
+  const observarReq = async (index, textAreaValue) => {
+    let data = {}
+
+    selectedItem = index;
+    selectedRow = listRequest.filter((item) => {
+      return item.id === selectedItem;
+    });
+    console.log(selectedRow);
+    let req = {
+      id: selectedRow[0].id,
+      observation: textAreaValue,
+      flow: selectedRow[0].flow.id,
+      state: 5,
+      dateApproved: new Date().today() + " T " + new Date().timeNow(),
+    }
+    data.request = [req]
+    console.log(JSON.stringify(data))
+    const requestSend = await sendRequestObserve(data)
+    props.history.go(0)
+  }
+
   const showInstrucctions = () => {
     return (
       <div style={{ marginBottom: "2rem" }}>
@@ -384,7 +453,8 @@ export default function CourseStaffRequirement(props) {
         ref={table}
         goToRequirement={goToRequirement} 
         aprobarReq={aprobarReq} 
-        rechazarReq={rechazarReq} 
+        rechazarReq={rechazarReq}
+        observarReq={observarReq} 
         obsValue={obsValue}
         {...props} 
     />;
@@ -451,6 +521,30 @@ export default function CourseStaffRequirement(props) {
     }
   }
 
+  const onClickObservar = async () => {
+    let data = {}
+
+    const selectedRows = table.current.getSelectedRows();
+
+    let listSelectedRows = listRequest.filter(item => 
+      selectedRows.find(key => item.id === key.id))
+
+    data.request = listSelectedRows.map(item => ({
+        id: item.id,
+        observation: textArea2.current.value,
+        flow: item.flow.id,
+        state: 5,
+        dateApproved: new Date().today() + " T " + new Date().timeNow(),
+    
+    }))
+    // console.log(selectedRows);
+    console.log(JSON.stringify(data))
+    if(data.request.length > 0){
+      const requestSend = await sendRequestObserve(data)
+      props.history.go(0)
+    }
+  }
+
   return (
     <div className="bg--grid">
       <h2 className="center_titles">
@@ -512,6 +606,41 @@ export default function CourseStaffRequirement(props) {
             </Modal>
           )}
         </ModalStateManager>
+        {(userReq.approverRole === 4 || userReq.approverRole === 5 || userReq.approverRole === 6) && 
+        (<ModalStateManager
+          renderLauncher={({ setOpen }) => (
+            <Button
+              className="custom-class"
+              kind="tertiary c_1"
+              size="default"
+              onClick={() => setOpen(true)}
+            >
+              Observados
+            </Button>
+          )}
+        >
+          {({ open, setOpen }) => (
+            <Modal
+              modalHeading="Observaciones"
+              primaryButtonText="Guardar"
+              secondaryButtonText="Cancelar"
+              open={open}
+              onRequestSubmit={onClickObservar}
+              onRequestClose={() => setOpen(false)}
+            >
+              <p style={{ marginBottom: "1rem" }}>
+                Escriba las observaciones correspondientes
+              </p>
+              <TextArea
+                ref={textArea2}
+                data-modal-primary-focus
+                id="textRejectAll"
+                placeholder="Escriba aquí..."
+                // style={{ marginBottom: "1rem", borderRadius: '6px', border: "3px solid black" }}
+              />
+            </Modal>
+          )}
+        </ModalStateManager>)}
       </div>
     </div>
   );

@@ -5,24 +5,32 @@ import "carbon-components/css/carbon-components.min.css";
 import {
     Select,
     SelectItem,
+    ComboBox,
     TextArea
   } from "carbon-components-react";
-import { barData1, barOption1, barData3, barOption3, barData4, barOption4,
+import { barOption1, barOption3, barOption4,
         monthList, yearList } from "./sampleData";
 import "@carbon/charts/styles.css";
 import "./ChartStaffRequirement.scss";
-import { fetchDataGraph1, fetchDataGraph3 } from "../../services/api/servicies";
+import { fetchDataGraph1, fetchDataGraph3, fetchDataGraph4 } from "../../services/api/servicies";
 
 export default function ChartStaffRequirement () {
 const [idGraph, setIdGraph] = useState(0)
 const [barData1Get, setBarData1Get] = useState([])
+const [barData1CopyGet, setBarData1CopyGet] = useState([])
 const [barData3Get, setBarData3Get] = useState([])
+const [barData3CopyGet, setBarData3CopyGet] = useState([])
+const [barData4Get, setBarData4Get] = useState([])
+const [barData4CopyGet, setBarData4CopyGet] = useState([])
+const [monthSelect, setMonthSelect] = useState(null);
+const [yearSelect, setYearSelect] = useState(null);
 
 //Fetch Graph1
 useEffect(() => {
     const getDataGraph = async () => {
         const dataGraphFromServer = await fetchDataGraph1()
         setBarData1Get(dataGraphFromServer)
+        setBarData1CopyGet(dataGraphFromServer)
     }
     getDataGraph()
     }, [])
@@ -32,6 +40,17 @@ useEffect(() => {
     const getDataGraph = async () => {
         const dataGraphFromServer = await fetchDataGraph3()
         setBarData3Get(dataGraphFromServer)
+        setBarData3CopyGet(dataGraphFromServer)
+    }
+    getDataGraph()
+    }, [])
+
+//Fetch Graph4
+useEffect(() => {
+    const getDataGraph = async () => {
+        const dataGraphFromServer = await fetchDataGraph4()
+        setBarData4Get(dataGraphFromServer)
+        setBarData4CopyGet(dataGraphFromServer)
     }
     getDataGraph()
     }, [])
@@ -39,6 +58,8 @@ useEffect(() => {
 
 const showDiv = () => {
     setIdGraph(document.getElementById("GraficoReq").value)
+    setMonthSelect(null)
+    setYearSelect(null)
 }
 
 const showInstrucctions = () => {
@@ -62,13 +83,71 @@ const showInstrucctions = () => {
     }
 }
 
+const newGraph = (item, data) => {
+    if(!!item && !!data){
+        if(idGraph === "1"){
+            let newList = barData1Get.filter(index => 
+                barData1CopyGet.find(key => index.dateMM === item.value && key.dateMM === item.value &&
+                                            index.dateYY === data.name && key.dateYY === data.name))
+            console.log("Lista Filtrada: " + newList)                                
+            setBarData1CopyGet(newList)
+        }
+        else if(idGraph === "2"){
+            let newList = barData3Get.filter(index => 
+                barData3CopyGet.find(key => index.dateMM === item.value && key.dateMM === item.value &&
+                                            index.dateYY === data.name && key.dateYY === data.name))
+            console.log("Lista Filtrada: " + newList)                                
+            setBarData3CopyGet(newList)
+        }
+    }
+    else{
+        setBarData1CopyGet(barData1Get)
+        setBarData3CopyGet(barData3Get)
+    }
+}
+
+const monthSelectChange = (item) => {
+    if(!!item){
+        setMonthSelect(item.selectedItem)
+        newGraph(item.selectedItem, yearSelect)
+    }
+    else{
+        setMonthSelect(null)
+        setBarData1CopyGet(barData1Get)
+        setBarData3CopyGet(barData3Get)
+    }
+}
+
+const yearSelectChange = (item) => {
+    if(!!item){
+        setYearSelect(item.selectedItem)
+        newGraph(monthSelect, item.selectedItem)
+    }
+    else{
+        setYearSelect(null)
+        setBarData1CopyGet(barData1Get)
+        setBarData3CopyGet(barData3Get)
+    }
+}
+
 const showCalendar = () => {
-    console.log(barData1Get)
     if(idGraph > 0 && idGraph !== "3")
         return (
             <div className="bx--row" style={{ marginBottom: "1.2rem" }}>
                 <div className="bx--col">
-                    <Select
+                <ComboBox
+                    onChange={(item) => {monthSelectChange(item)}}
+                    id="comboMes"
+                    light
+                    selectedItem={monthSelect}
+                    items={monthList}
+                    itemToString={(item) => (item ? item.name : "")}
+                    placeholder="Escriba mes..."
+                    titleText="Mes"
+                    shouldFilterItem={({ item: { name }, inputValue }) => 
+                    name.toLowerCase().includes(inputValue.toLowerCase())}
+                />
+                    {/* <Select
                         defaultValue="placeholder-item"
                         id="monthSelect"
                         invalidText="This is an invalid error message."
@@ -81,10 +160,22 @@ const showCalendar = () => {
                             <SelectItem key={month.id.toString()} text={month.name} value={month.value}/>
                         ))
                     }
-                    </Select>
+                    </Select> */}
                 </div>
                 <div className="bx--col">
-                    <Select
+                    <ComboBox
+                        onChange={(item) => {yearSelectChange(item)}}
+                        id="comboYear"
+                        light
+                        selectedItem={yearSelect}
+                        items={yearList}
+                        itemToString={(item) => (item ? item.name : "")}
+                        placeholder="Escriba año..."
+                        titleText="Año"
+                        shouldFilterItem={({ item: { name }, inputValue }) => 
+                        name.toLowerCase().includes(inputValue.toLowerCase())}
+                    />
+                    {/* <Select
                         defaultValue="placeholder-item"
                         id="yearSelect"
                         invalidText="This is an invalid error message."
@@ -97,7 +188,7 @@ const showCalendar = () => {
                             <SelectItem key={year.id.toString()} text={year.value.toString()} value={year.value}/>
                         ))
                     }
-                    </Select>
+                    </Select> */}
                 </div>
             </div>
         )
@@ -126,7 +217,7 @@ return(
             <div>
                 <div>
                 <GroupedBarChart
-                    data={barData1Get}
+                    data={barData1CopyGet}
                     options={barOption1}>      
                 </GroupedBarChart>
                 </div>
@@ -134,13 +225,13 @@ return(
         )}
         {(idGraph === "2") && <div>
         <PieChart
-            data={barData3Get}
+            data={barData3CopyGet}
             options={barOption3}>      
         </PieChart>
         </div>}
         {(idGraph === "3") && <div>
         <LineChart
-            data={barData4}
+            data={barData4CopyGet}
             options={barOption4}>      
         </LineChart>
         </div>}

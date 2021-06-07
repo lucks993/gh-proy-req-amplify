@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-let userEmp = 2
+let userEmp = 4
 
 const api = axios.create({
     baseURL: "https://70cd1uugng.execute-api.us-east-1.amazonaws.com/dev/"
@@ -57,6 +57,12 @@ export const sendRequestReject= async (data) => {
     return res.data
 }
 
+// Save Requirement Request Observer
+export const sendRequestObserve= async (data) => {
+    const res = await api.post('requirement/request/observe',data)
+    return res.data
+}
+
 // Fetch DataGraph1
 export const fetchDataGraph1 = async () => {
     const res = await api.get('graph/request1')
@@ -66,6 +72,12 @@ export const fetchDataGraph1 = async () => {
 // Fetch DataGraph3
 export const fetchDataGraph3 = async () => {
     const res = await api.get('graph/request3')
+    return res.data
+}
+
+// Fetch DataGraph4
+export const fetchDataGraph4 = async () => {
+    const res = await api.get('graph/request4')
     return res.data
 }
 
