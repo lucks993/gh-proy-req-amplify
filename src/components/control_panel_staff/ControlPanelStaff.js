@@ -113,6 +113,14 @@ export default function ControlPanelStaff(props) {
   const [obsValue, setObsValue] = useState("Este requerimiento no es conforme")
   const [listRequest, setListRequest] = useState([])
   const [infRequest, setInfRequest] = useState([])
+  const [cantCreado, setCantCreado] = useState(0)
+  const [cantNoAprob, setCantNoAprob] = useState(0)
+  const [cantProc, setCantProc] = useState(0)
+  const [cantObs, setCantObs] = useState(0)
+  const [cantRech, setCantRech] = useState(0)
+  const [cantAprob, setCantAprob] = useState(0)
+  const [cantEnv, setCantEnv] = useState(0)
+
   const table = useRef();
 
   // For todays date;
@@ -130,6 +138,27 @@ export default function ControlPanelStaff(props) {
     const getRequest = async () => {
       const requestFromServer = await fetchListRequest();
       setListRequest(requestFromServer);
+      setCantCreado(requestFromServer.filter(function(item){
+        return item.state.description === "Creado"
+      }).length)
+      setCantNoAprob(requestFromServer.filter(function(item){
+        return item.state.description === "No Aprobado"
+      }).length)
+      setCantProc(requestFromServer.filter(function(item){
+        return item.state.description === "En Proceso"
+      }).length)
+      setCantObs(requestFromServer.filter(function(item){
+        return item.state.description === "Observado"
+      }).length)
+      setCantRech(requestFromServer.filter(function(item){
+        return item.state.description === "Rechazado"
+      }).length)
+      setCantAprob(requestFromServer.filter(function(item){
+        return item.state.description === "Aprobado"
+      }).length)
+      setCantEnv(requestFromServer.filter(function(item){
+        return item.sendReq === 1
+      }).length)
       setInfRequest(() => {
         const dataReq = requestFromServer.map((req) => {
             return {
@@ -431,31 +460,31 @@ export default function ControlPanelStaff(props) {
       </div>
       <div className="center_titles">
         <span className="b">
-          20 <br></br> <br></br> Creados
+          {cantCreado} <br></br> <br></br> Creados
         </span>
         <span> </span>
         <span className="c">
-          10 <br></br> <br></br> No Aprobado
+          {cantNoAprob} <br></br> <br></br> No Aprobado
         </span>
         <span> </span>
         <span className="d">
-          700 <br></br> <br></br> En Proceso
+          {cantProc} <br></br> <br></br> En Proceso
         </span>
         <span> </span>
         <span className="e">
-          50 <br></br> <br></br> Observados
+          {cantObs} <br></br> <br></br> Observados
         </span>
         <span> </span>
         <span className="c">
-          200 <br></br> <br></br> Rechazados
+          {cantRech} <br></br> <br></br> Rechazados
         </span>
         <span> </span>
         <span className="g">
-          50 <br></br> <br></br> Aprobados
+          {cantAprob} <br></br> <br></br> Aprobados
         </span>
         <span> </span>
         <span className="f">
-          30 <br></br> <br></br> Enviados
+          {cantEnv} <br></br> <br></br> Enviados
         </span>
       </div>
       <div>

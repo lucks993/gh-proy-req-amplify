@@ -47,89 +47,37 @@ export let selectedRow3 = null;
 export default function ControlPanelStaffParcial(props) {
   const [checkedStatus, setCheckedStatus] = useState(false);
   const [listRequest, setListRequest] = useState([]);
-  const [infRequest, setInfRequest] = useState(() => {
-    const dataReq = [{}];
-    listRequest.forEach((req) => {
-      dataReq[req.id - 1] = {
-        id: req.id.toString(),
-        index: req.id,
-        state: req.state.description,
-        position: req.position.description,
-        typeOfVacant: req.type.description,
-        codOfVacant: req.position.codePosition,
-        replaceOf:
-          req.listReplacement.length === 0 ? (
-            ""
-          ) : (
-            <ModalStateManager
-              renderLauncher={({ setOpen }) => (
-                <Button
-                  className="custom-class"
-                  kind="tertiary d"
-                  size="default"
-                  onClick={() => setOpen(true)}
-                >
-                  Ver
-                </Button>
-              )}
-            >
-              {({ open, setOpen }) => (
-                <Modal
-                  modalHeading="Lista Reemplazo"
-                  passiveModal
-                  secondaryButtonText={null}
-                  open={open}
-                  onRequestSubmit={() => setOpen(false)}
-                  onRequestClose={() => setOpen(false)}
-                >
-                  <TextArea
-                    readOnly
-                    data-modal-primary-focus
-                    id="textListReemp_1"
-                    defaultValue={req.listReplacement.map((index) => {
-                      return (
-                        index.codigo +
-                        " " +
-                        index.apPaterno +
-                        " " +
-                        index.apMaterno +
-                        ", " +
-                        index.name +
-                        "\n" +
-                        "Puesto: " +
-                        index.position.codePosition +
-                        index.position.description +
-                        "\n" +
-                        "\n"
-                      );
-                    })}
-                  />
-                </Modal>
-              )}
-            </ModalStateManager>
-          ),
-        orgUnit: req.orgUnit.description,
-        centerOfCost: req.costCenter.description,
-        physicLocation: req.physLocation.description,
-        category: req.search.description,
-        quantity: req.quantity,
-        typeOfContract: req.contract.description,
-        timeOfContract: req.timeService,
-        justify: req.justification,
-        description: req.position.information,
-        observation: req.observation,
-        dateState: req.timeStatus,
-        status: req.flow.section,
-      };
-    });
-    return dataReq;
-  });
+  const [infRequest, setInfRequest] = useState([]);
+  const [cantCreado, setCantCreado] = useState(0)
+  const [cantNoAprob, setCantNoAprob] = useState(0)
+  const [cantProc, setCantProc] = useState(0)
+  const [cantObs, setCantObs] = useState(0)
+  const [cantRech, setCantRech] = useState(0)
+  const [cantAprob, setCantAprob] = useState(0)
 
   //Fetch Requirement Request Employee
   useEffect(() => {
     const getRequest = async () => {
       const requestFromServer = await fetchListRequest();
       setListRequest(requestFromServer);
+      setCantCreado(requestFromServer.filter(function(item){
+        return item.state.description === "Creado"
+      }).length)
+      setCantNoAprob(requestFromServer.filter(function(item){
+        return item.state.description === "No Aprobado"
+      }).length)
+      setCantProc(requestFromServer.filter(function(item){
+        return item.state.description === "En Proceso"
+      }).length)
+      setCantObs(requestFromServer.filter(function(item){
+        return item.state.description === "Observado"
+      }).length)
+      setCantRech(requestFromServer.filter(function(item){
+        return item.state.description === "Rechazado"
+      }).length)
+      setCantAprob(requestFromServer.filter(function(item){
+        return item.state.description === "Aprobado"
+      }).length)
       setInfRequest(() => {
         const dataReq = [{}];
         requestFromServer.map((req) => {
@@ -218,14 +166,6 @@ export default function ControlPanelStaffParcial(props) {
     getRequest();
   }, []);
 
-  const handleCheck = (e) => {
-    if (!checkedStatus) {
-      setCheckedStatus(true);
-    } else {
-      setCheckedStatus(false);
-    }
-  };
-
   const onClickVerReq = (index, list) => {
     console.log(index)
     console.log(list)
@@ -305,27 +245,27 @@ export default function ControlPanelStaffParcial(props) {
       </div>
       <div className="center_titles">
         <span class="b">
-          20 <br></br> <br></br> Creados
+          {cantCreado} <br></br> <br></br> Creados
         </span>
         <span> </span>
         <span class="c">
-          10 <br></br> <br></br> No Aprobado
+          {cantNoAprob} <br></br> <br></br> No Aprobado
         </span>
         <span> </span>
         <span class="d">
-          700 <br></br> <br></br> En Proceso
+          {cantProc} <br></br> <br></br> En Proceso
         </span>
         <span> </span>
         <span class="e">
-          50 <br></br> <br></br> Observados
+          {cantObs} <br></br> <br></br> Observados
         </span>
         <span> </span>
         <span class="c">
-          200 <br></br> <br></br> Rechazados
+          {cantRech} <br></br> <br></br> Rechazados
         </span>
         <span> </span>
         <span class="g">
-          50 <br></br> <br></br> Aprobados
+          {cantAprob} <br></br> <br></br> Aprobados
         </span>
         <span> </span>
       </div>
