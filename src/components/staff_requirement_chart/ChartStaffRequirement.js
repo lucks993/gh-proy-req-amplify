@@ -21,7 +21,6 @@ const [barData1CopyGet, setBarData1CopyGet] = useState([])
 const [barData3Get, setBarData3Get] = useState([])
 const [barData3CopyGet, setBarData3CopyGet] = useState([])
 const [barData4Get, setBarData4Get] = useState([])
-const [barData4CopyGet, setBarData4CopyGet] = useState([])
 const [monthSelect, setMonthSelect] = useState(null);
 const [yearSelect, setYearSelect] = useState(null);
 
@@ -50,7 +49,6 @@ useEffect(() => {
     const getDataGraph = async () => {
         const dataGraphFromServer = await fetchDataGraph4()
         setBarData4Get(dataGraphFromServer)
-        setBarData4CopyGet(dataGraphFromServer)
     }
     getDataGraph()
     }, [])
@@ -147,20 +145,6 @@ const showCalendar = () => {
                     shouldFilterItem={({ item: { name }, inputValue }) => 
                     name.toLowerCase().includes(inputValue.toLowerCase())}
                 />
-                    {/* <Select
-                        defaultValue="placeholder-item"
-                        id="monthSelect"
-                        invalidText="This is an invalid error message."
-                        labelText="MES"
-                        light                     
-                    >
-                        <SelectItem text="Seleccione mes" value="placeholder-item" hidden/>
-                    {
-                        monthList.map((month) => (
-                            <SelectItem key={month.id.toString()} text={month.name} value={month.value}/>
-                        ))
-                    }
-                    </Select> */}
                 </div>
                 <div className="bx--col">
                     <ComboBox
@@ -175,20 +159,6 @@ const showCalendar = () => {
                         shouldFilterItem={({ item: { name }, inputValue }) => 
                         name.toLowerCase().includes(inputValue.toLowerCase())}
                     />
-                    {/* <Select
-                        defaultValue="placeholder-item"
-                        id="yearSelect"
-                        invalidText="This is an invalid error message."
-                        labelText="AÑO"
-                        light                     
-                    >
-                        <SelectItem text="Seleccione año" value="placeholder-item" hidden/>
-                    {
-                        yearList.map((year) => (
-                            <SelectItem key={year.id.toString()} text={year.value.toString()} value={year.value}/>
-                        ))
-                    }
-                    </Select> */}
                 </div>
             </div>
         )
@@ -231,7 +201,7 @@ return(
         </div>}
         {(idGraph === "3") && <div>
         <LineChart
-            data={barData4CopyGet}
+            data={barData4Get}
             options={barOption4}>      
         </LineChart>
         </div>}

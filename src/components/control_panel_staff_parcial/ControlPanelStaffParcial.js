@@ -14,13 +14,12 @@ import {
   TableHeader,
   TableBody,
   TableCell,
-  Select,
-  SelectItem,
+  ComboBox,
   TextArea,
 } from "carbon-components-react";
 import { headerData, monthList, yearList } from "./sampleData";
 import "./ControlPanelStaffParcial.scss";
-import { fetchListRequest } from "../../services/api/servicies";
+import { fetchListRequest, fetchOrganizationalUnits, fetchTypeState, fetchTypeRequirements } from "../../services/api/servicies";
 
 const ModalStateManager = ({
   renderLauncher: LauncherContent,
@@ -45,15 +44,23 @@ let selectedRow = {};
 export let selectedRow3 = null;
 
 export default function ControlPanelStaffParcial(props) {
-  const [checkedStatus, setCheckedStatus] = useState(false);
   const [listRequest, setListRequest] = useState([]);
   const [infRequest, setInfRequest] = useState([]);
+  const [infCopyRequest, setInfCopyRequest] = useState([]);
   const [cantCreado, setCantCreado] = useState(0)
   const [cantNoAprob, setCantNoAprob] = useState(0)
   const [cantProc, setCantProc] = useState(0)
   const [cantObs, setCantObs] = useState(0)
   const [cantRech, setCantRech] = useState(0)
   const [cantAprob, setCantAprob] = useState(0)
+  const [monthSelect, setMonthSelect] = useState(null);
+  const [yearSelect, setYearSelect] = useState(null);
+  const [listOrgUnit, setListOrgUnit] = useState([]);
+  const [listState, setListState] = useState([]);
+  const [listTypeReq, setListTypeReq] = useState([]);
+  const [orgUnitSelect, setOrgUnitSelect] = useState(null);
+  const [stateSelect, setStateSelect] = useState(null);
+  const [typeReqSelect, seTypeReqSelect] = useState(null);
 
   //Fetch Requirement Request Employee
   useEffect(() => {
@@ -79,9 +86,8 @@ export default function ControlPanelStaffParcial(props) {
         return item.state.description === "Aprobado"
       }).length)
       setInfRequest(() => {
-        const dataReq = [{}];
-        requestFromServer.map((req) => {
-          dataReq[req.id - 1] = {
+        const dataReq = requestFromServer.map((req) => {
+          return {
             id: req.id.toString(),
             index: req.id,
             state: req.state.description,
@@ -158,12 +164,124 @@ export default function ControlPanelStaffParcial(props) {
             observation: req.observation,
             dateState: req.timeStatus,
             status: req.flow.section,
+            check: req.sendReq
+          };
+        });
+        return dataReq;
+      });
+      setInfCopyRequest(() => {
+        const dataReq = requestFromServer.map((req) => {
+          return {
+            id: req.id.toString(),
+            index: req.id,
+            state: req.state.description,
+            position: req.position.description,
+            typeOfVacant: req.type.description,
+            codOfVacant: req.position.codePosition,
+            replaceOf:
+              req.listReplacement.length === 0 ? (
+                ""
+              ) : (
+                <ModalStateManager
+                  renderLauncher={({ setOpen }) => (
+                    <Button
+                      className="custom-class"
+                      kind="tertiary d"
+                      size="default"
+                      onClick={() => setOpen(true)}
+                    >
+                      Ver
+                    </Button>
+                  )}
+                >
+                  {({ open, setOpen }) => (
+                    <Modal
+                      modalHeading="Lista Reemplazo"
+                      passiveModal
+                      secondaryButtonText={null}
+                      open={open}
+                      onRequestSubmit={() => setOpen(false)}
+                      onRequestClose={() => setOpen(false)}
+                    >
+                      <TextArea
+                        readOnly
+                        data-modal-primary-focus
+                        id="textListReemp_2"
+                        defaultValue={req.listReplacement.map((index) => {
+                          return (
+                            index.codigo +
+                            " " +
+                            index.apPaterno +
+                            " " +
+                            index.apMaterno +
+                            ", " +
+                            index.name +
+                            "\n" +
+                            "Puesto: " +
+                            index.position.codePosition +
+                            index.position.description +
+                            "\n" +
+                            "\n"
+                          );
+                        })}
+                      />
+                    </Modal>
+                  )}
+                </ModalStateManager>
+              ),
+            orgUnit: req.orgUnit.description,
+            centerOfCost: req.costCenter.description,
+            physicLocation: req.physLocation.description,
+            category: req.search.description,
+            quantity: req.quantity,
+            typeOfContract: req.contract.description,
+            timeOfContract: req.timeService,
+            justify: req.justification,
+            description: (<Button
+                          className="custom-class"
+                          kind="tertiary d"
+                          size="default"
+                          onClick={() => onClickVerReq(req, requestFromServer)}
+                        >
+                          Ver
+                        </Button>),
+            observation: req.observation,
+            dateState: req.timeStatus,
+            status: req.flow.section,
+            check: req.sendReq
           };
         });
         return dataReq;
       });
     };
     getRequest();
+  }, []);
+
+  //Fetch Organizational Unit
+  useEffect(() => {
+    const getOrganizationalUnit = async () => {
+      const orgUnitFromServer = await fetchOrganizationalUnits();
+      setListOrgUnit(orgUnitFromServer);
+    };
+    getOrganizationalUnit();
+  }, []);
+
+  //Fetch Type State
+  useEffect(() => {
+    const getTypeState = async () => {
+      const stateFromServer = await fetchTypeState();
+      setListState(stateFromServer);
+    };
+    getTypeState();
+  }, []);
+
+  //Fetch Type Requirement
+  useEffect(() => {
+    const getTypeRequest = async () => {
+      const typeRequestFromServer = await fetchTypeRequirements();
+      setListTypeReq(typeRequestFromServer);
+    };
+    getTypeRequest();
   }, []);
 
   const onClickVerReq = (index, list) => {
@@ -179,6 +297,114 @@ export default function ControlPanelStaffParcial(props) {
     console.log("selectedItem: "+selectedItem)
     if(selectedItem !== 0){
       props.history.push(`/requerimiento-personal-bandeja/${selectedItem}`);
+    }
+  }
+
+  const newTable = (item, data) => {
+    if(!!item && !!data){
+      let newList = infRequest.filter(index => 
+          infCopyRequest.find(key => index.dateState.slice(5,7) === item.value && key.dateState.slice(5,7) === item.value &&
+                                      index.dateState.slice(0,4) === data.name && key.dateState.slice(0,4) === data.name))
+      setInfCopyRequest(newList)
+    }
+    else{
+      setInfCopyRequest(infRequest)
+    }
+  }
+
+  const newTableSubState = (item) => {
+    if(!!item){
+      let newList = infRequest.filter(index => 
+          infCopyRequest.find(key => 
+            (item.description !== 'Enviado') ? (index.state === item.description && key.state === item.description)
+                                             : (index.check === 1 && key.state === 1)))
+      setInfCopyRequest(newList)
+    }
+    else{
+      setInfCopyRequest(infRequest)
+      setOrgUnitSelect(null)
+      seTypeReqSelect(null)
+    }
+  }
+
+  const newTableSubOrgUnit = (item) => {
+    if(!!item){
+      let newList = infRequest.filter(index => 
+          infCopyRequest.find(key => index.orgUnit === item.description && key.orgUnit === item.description))
+      setInfCopyRequest(newList)
+    }
+    else{
+      setInfCopyRequest(infRequest)
+      setStateSelect(null)
+      seTypeReqSelect(null)
+    }
+  }
+
+  const newTableSubTypeReq = (item) => {
+    if(!!item){
+      let newList = infRequest.filter(index => 
+          infCopyRequest.find(key => index.typeOfVacant === item.description && key.typeOfVacant === item.description))
+      setInfCopyRequest(newList)
+    }
+    else{
+      setInfCopyRequest(infRequest)
+      setStateSelect(null)
+      setOrgUnitSelect(null)
+    }
+  }
+
+  const monthSelectChange = (item) => {
+      if(!!item){
+          setMonthSelect(item.selectedItem)
+          newTable(item.selectedItem, yearSelect)
+      }
+      else{
+          setMonthSelect(null)
+          setInfCopyRequest(infRequest)
+      }
+  }
+
+  const yearSelectChange = (item) => {
+      if(!!item){
+          setYearSelect(item.selectedItem)
+          newTable(monthSelect, item.selectedItem)
+      }
+      else{
+          setYearSelect(null)
+          setInfCopyRequest(infRequest)
+      }
+  }
+
+  const stateSelectChange = (item) => {
+    if(!!item){
+        setStateSelect(item.selectedItem)
+        newTableSubState(item.selectedItem)
+    }
+    else{
+        setStateSelect(null)
+        setInfCopyRequest(infRequest)
+    }
+  }
+
+  const orgUnitSelectChange = (item) => {
+    if(!!item){
+        setOrgUnitSelect(item.selectedItem)
+        newTableSubOrgUnit(item.selectedItem)
+    }
+    else{
+        setOrgUnitSelect(null)
+        setInfCopyRequest(infRequest)
+    }
+  }
+
+  const typeReqSelectChange = (item) => {
+    if(!!item){
+        seTypeReqSelect(item.selectedItem)
+        newTableSubTypeReq(item.selectedItem)
+    }
+    else{
+        seTypeReqSelect(null)
+        setInfCopyRequest(infRequest)
     }
   }
 
@@ -203,41 +429,33 @@ export default function ControlPanelStaffParcial(props) {
       </div>
       <div className="bx--row" style={{ marginBottom: "1.2rem" }}>
         <div className="bx--col">
-          <Select
-            defaultValue="placeholder-item"
-            id="monthSelect"
-            invalidText="This is an invalid error message."
-            labelText="MES"
+          <ComboBox
+            onChange={(item) => {monthSelectChange(item)}}
+            id="comboMes"
             light
-          >
-            <SelectItem text="Seleccione mes" value="placeholder-item" hidden />
-            {monthList.map((month) => (
-              <SelectItem
-                key={month.id}
-                text={month.name}
-                value={month.value}
-              />
-            ))}
-          </Select>
+            selectedItem={monthSelect}
+            items={monthList}
+            itemToString={(item) => (item ? item.name : "")}
+            placeholder="Escriba mes..."
+            titleText="Mes"
+            shouldFilterItem={({ item: { name }, inputValue }) => 
+            name.toLowerCase().includes(inputValue.toLowerCase())}
+          />
         </div>
 
         <div className="bx--col">
-          <Select
-            defaultValue="placeholder-item"
-            id="yearSelect"
-            invalidText="This is an invalid error message."
-            labelText="AÑO"
+          <ComboBox
+            onChange={(item) => {yearSelectChange(item)}}
+            id="comboYear"
             light
-          >
-            <SelectItem text="Seleccione año" value="placeholder-item" hidden />
-            {yearList.map((year) => (
-              <SelectItem
-                key={year.id.toString()}
-                text={year.value.toString()}
-                value={year.value}
-              />
-            ))}
-          </Select>
+            selectedItem={yearSelect}
+            items={yearList}
+            itemToString={(item) => (item ? item.name : "")}
+            placeholder="Escriba año..."
+            titleText="Año"
+            shouldFilterItem={({ item: { name }, inputValue }) => 
+            name.toLowerCase().includes(inputValue.toLowerCase())}
+          />
         </div>
       </div>
       <div>
@@ -281,55 +499,51 @@ export default function ControlPanelStaffParcial(props) {
         }}
       >
         <div className="bx--col">
-          <Select
-            defaultValue="placeholder-item"
-            id="stateSelect"
-            invalidText="This is an invalid error message."
-            labelText="Estado"
+          <ComboBox
+            onChange={(item) => {stateSelectChange(item)}}
+            id="comboTipoEstado"
             light
-          >
-            <SelectItem text="Tipo de estado" value="placeholder-item" hidden />
-            <SelectItem text="Creado" value="1" />
-            <SelectItem text="En Proceso" value="2" />
-          </Select>
+            selectedItem={stateSelect}
+            items={listState}
+            itemToString={(item) => (item ? item.description : "")}
+            placeholder="Escriba tipo estado..."
+            titleText="Estado"
+            shouldFilterItem={({ item: { description }, inputValue }) => 
+            description.toLowerCase().includes(inputValue.toLowerCase())}
+          />
         </div>
 
         <div className="bx--col">
-          <Select
-            defaultValue="placeholder-item"
-            id="unitySelect"
-            invalidText="This is an invalid error message."
-            labelText="Unidad Organizativa"
+          <ComboBox
+            onChange={(item) => {orgUnitSelectChange(item)}}
+            id="comboOrgUnit"
             light
-          >
-            <SelectItem
-              text="Seleccione Unidad"
-              value="placeholder-item"
-              hidden
-            />
-            <SelectItem text="Opción 1" value="1" />
-          </Select>
+            selectedItem={orgUnitSelect}
+            items={listOrgUnit}
+            itemToString={(item) => (item ? item.description : "")}
+            placeholder="Escriba Unidad..."
+            titleText="Unidad Organizacional"
+            shouldFilterItem={({ item: { description }, inputValue }) => 
+            description.toLowerCase().includes(inputValue.toLowerCase())}
+          />
         </div>
 
         <div className="bx--col">
-          <Select
-            defaultValue="placeholder-item"
-            id="vacantSelect"
-            invalidText="This is an invalid error message."
-            labelText="Vacante"
+          <ComboBox
+            onChange={(item) => {typeReqSelectChange(item)}}
+            id="comboTipoReq"
             light
-          >
-            <SelectItem
-              text="Tipo de vacante"
-              value="placeholder-item"
-              hidden
-            />
-            <SelectItem text="Nuevo" value="1" />
-            <SelectItem text="Reemplazo" value="2" />
-          </Select>
+            selectedItem={typeReqSelect}
+            items={listTypeReq}
+            itemToString={(item) => (item ? item.description : "")}
+            placeholder="Escriba tipo vacante..."
+            titleText="Vacante"
+            shouldFilterItem={({ item: { description }, inputValue }) => 
+            description.toLowerCase().includes(inputValue.toLowerCase())}
+          />
         </div>
       </div>
-      <DataTable rows={infRequest} headers={headerData}>
+      <DataTable rows={infCopyRequest} headers={headerData}>
         {({ rows, headers, getHeaderProps, getTableProps, getRowProps }) => (
           <TableContainer title="">
             <Table {...getTableProps()} size="compact">

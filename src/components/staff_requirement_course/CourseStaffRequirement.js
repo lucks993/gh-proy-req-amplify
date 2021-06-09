@@ -214,13 +214,13 @@ const ModalStateManager = ({
 export let selectedItem = 0;
 export let selectedRow = null;
 let userReq = {
-  id: 4,
-  position: 4,
+  id: 2,
+  position: 2,
   name: "",
   apPaterno: "",
   apMaterno: "",
   codeSuperior: "0",
-  approverRole: 4
+  approverRole: 5
 }
 // const [listRow, setListRow] = useState([])
 export default function CourseStaffRequirement(props) {
@@ -334,16 +334,6 @@ export default function CourseStaffRequirement(props) {
     };
     getRequest();
   }, []);
-
-  // const mostrarReq = (index) => {
-  //   selectedItem = index;
-  //   selectedRow = listRequest.filter((item) => {
-  //     return item.id === selectedItem;
-  //   });
-  //   console.log(selectedItem);
-  //   console.log(selectedRow);
-  //   // console.log(selectedRow[0].type.id);
-  // };
 
   const goToRequirement = (item) => {
     selectedItem = item;

@@ -17,12 +17,12 @@ import {
   TableSelectAll,
   TableSelectRow,
   TextArea,
-  Select,
-  SelectItem
+  ComboBox
 } from "carbon-components-react";
 import { headerData, monthList, yearList } from "./sampleData";
 import "./ControlPanelStaff.scss";
-import { fetchListRequest, sendRequestApprover } from "../../services/api/servicies";
+import { fetchListRequest, sendRequestApprover, 
+  fetchSocieties, fetchOrganizationalUnits, fetchTypeState, fetchTypeRequirements } from "../../services/api/servicies";
 
 const ContentTable = forwardRef(({ goToRequirement, aprobarReq, rechazarReq, obsValue, ...props}, ref)=> {
   const {
@@ -109,10 +109,10 @@ let userReq = {
   approverRole: 4
 }
 export default function ControlPanelStaff(props) {
-  const [checkedStatus, setCheckedStatus] = useState(false);
   const [obsValue, setObsValue] = useState("Este requerimiento no es conforme")
   const [listRequest, setListRequest] = useState([])
   const [infRequest, setInfRequest] = useState([])
+  const [infCopyRequest, setInfCopyRequest] = useState([]);
   const [cantCreado, setCantCreado] = useState(0)
   const [cantNoAprob, setCantNoAprob] = useState(0)
   const [cantProc, setCantProc] = useState(0)
@@ -120,6 +120,16 @@ export default function ControlPanelStaff(props) {
   const [cantRech, setCantRech] = useState(0)
   const [cantAprob, setCantAprob] = useState(0)
   const [cantEnv, setCantEnv] = useState(0)
+  const [monthSelect, setMonthSelect] = useState(null);
+  const [yearSelect, setYearSelect] = useState(null);
+  const [listSocieties, setListSocieties] = useState([]);
+  const [listOrgUnit, setListOrgUnit] = useState([]);
+  const [listState, setListState] = useState([]);
+  const [listTypeReq, setListTypeReq] = useState([]);
+  const [societySelect, setSocietySelect] = useState(null);
+  const [orgUnitSelect, setOrgUnitSelect] = useState(null);
+  const [stateSelect, setStateSelect] = useState(null);
+  const [typeReqSelect, seTypeReqSelect] = useState(null);
 
   const table = useRef();
 
@@ -226,7 +236,83 @@ export default function ControlPanelStaff(props) {
               check: <input
                         type="checkbox"
                         style={{ height: "25px", width: "100px" }}
-                      >
+                        value={req.sendReq}
+                        disabled={req.sendReq === 1}
+                      >                     
+                      </input>}
+        });
+        return dataReq;
+      })
+      setInfCopyRequest(() => {
+        const dataReq = requestFromServer.map((req) => {
+            return {
+              id: req.id, 
+              index: req.id, 
+              state: req.state.description,
+              _original: req,
+              society: req.society.description, 
+              position: req.position.description,
+              typeOfVacant: req.type.description,
+              codOfVacant: req.position.codePosition,
+              replaceOf: (req.listReplacement.length === 0) ? "" :
+                        (<ModalStateManager
+                          renderLauncher={({ setOpen }) => (
+                            <Button
+                              className="custom-class"
+                              kind="tertiary d"
+                              size="default"
+                              onClick={() => setOpen(true)}
+                            >
+                              Ver
+                            </Button>
+                          )}
+                        >
+                          {({ open, setOpen }) => (
+                            <Modal
+                              modalHeading="Lista Reemplazo"
+                              passiveModal
+                              secondaryButtonText={null}
+                              open={open}
+                              onRequestSubmit={() =>  setOpen(false)}
+                              onRequestClose={() => setOpen(false)}
+                            >
+                              <TextArea
+                                readOnly
+                                data-modal-primary-focus
+                                id="textListReemp_2"
+                                defaultValue={req.listReplacement.map(index => {
+                                  return (index.codigo + " " + index.apPaterno + " " + index.apMaterno + ", " + index.name + "\n" +
+                                          "Puesto: " + index.position.codePosition + " " + index.position.description + "\n" + "\n")
+                                  })}
+                              />
+                            </Modal>
+                          )}
+                        </ModalStateManager>),
+              orgUnit: req.orgUnit.description,
+              centerOfCost: req.costCenter.description,
+              physicLocation: req.physLocation.description,
+              category: req.search.description,
+              quantity: req.quantity,
+              typeOfContract: req.contract.description,
+              timeOfContract: req.timeService,
+              justify: req.justification,
+              description: (<Button
+                            className="custom-class"
+                            kind="tertiary d"
+                            size="default"
+                            onClick={() => onClickVerReq(req, requestFromServer)}
+                          >
+                            Ver
+                          </Button>),
+              observation: req.observation,
+              dateState: req.timeStatus,
+              status: req.flow.section,
+              check: <input
+                        type="checkbox"
+                        style={{ height: "25px", width: "100px" }}
+                        value={req.sendReq}
+                        disabled={req.sendReq === 1}
+                      >                     
                       </input>}
         });
         return dataReq;
@@ -235,17 +321,41 @@ export default function ControlPanelStaff(props) {
     getRequest();
   }, []);
 
-  const handleCheck = (e) => {
-    if (!this.state.checkedStatus) {
-      this.setState({
-        checkedStatus: true,
-      });
-    } else {
-      this.setState({
-        checkedStatus: false,
-      });
-    }
-  };
+  //Fetch Societies
+  useEffect(() => {
+    const getSocieties = async () => {
+      const societiesFromServer = await fetchSocieties();
+      setListSocieties(societiesFromServer);
+    };
+    getSocieties();
+  }, []);
+
+  //Fetch Organizational Unit
+  useEffect(() => {
+    const getOrganizationalUnit = async () => {
+      const orgUnitFromServer = await fetchOrganizationalUnits();
+      setListOrgUnit(orgUnitFromServer);
+    };
+    getOrganizationalUnit();
+  }, []);
+
+  //Fetch Type State
+  useEffect(() => {
+    const getTypeState = async () => {
+      const stateFromServer = await fetchTypeState();
+      setListState(stateFromServer);
+    };
+    getTypeState();
+  }, []);
+
+  //Fetch Type Requirement
+  useEffect(() => {
+    const getTypeRequest = async () => {
+      const typeRequestFromServer = await fetchTypeRequirements();
+      setListTypeReq(typeRequestFromServer);
+    };
+    getTypeRequest();
+  }, []);
 
   const goToRequirement = () => {
     const selectedRows = table.current.getSelectedRows();
@@ -408,6 +518,142 @@ export default function ControlPanelStaff(props) {
     // console.log(selectedRow)
   }
 
+  const newTable = (item, data) => {
+    if(!!item && !!data){
+      let newList = infRequest.filter(index => 
+          infCopyRequest.find(key => index.dateState.slice(5,7) === item.value && key.dateState.slice(5,7) === item.value &&
+                                      index.dateState.slice(0,4) === data.name && key.dateState.slice(0,4) === data.name))
+      setInfCopyRequest(newList)
+    }
+    else{
+      setInfCopyRequest(infRequest)
+    }
+  }
+
+  const newTableSubSociety = (item) => {
+    if(!!item){
+      let newList = infRequest.filter(index => 
+          infCopyRequest.find(key => index.society === item.description && key.society === item.description))
+      setInfCopyRequest(newList)
+    }
+    else{
+      setInfCopyRequest(infRequest)
+      setStateSelect(null)
+      setOrgUnitSelect(null)
+      seTypeReqSelect(null)
+    }
+  }
+
+  const newTableSubState = (item) => {
+    if(!!item){
+      let newList = infRequest.filter(index => 
+          infCopyRequest.find(key => 
+            (item.description !== 'Enviado') ? (index.state === item.description && key.state === item.description)
+                                             : (index.check === 1 && key.state === 1)))
+      setInfCopyRequest(newList)
+    }
+    else{
+      setInfCopyRequest(infRequest)
+      setSocietySelect(null)
+      setOrgUnitSelect(null)
+      seTypeReqSelect(null)
+    }
+  }
+
+  const newTableSubOrgUnit = (item) => {
+    if(!!item){
+      let newList = infRequest.filter(index => 
+          infCopyRequest.find(key => index.orgUnit === item.description && key.orgUnit === item.description))
+      setInfCopyRequest(newList)
+    }
+    else{
+      setInfCopyRequest(infRequest)
+      setSocietySelect(null)
+      setStateSelect(null)
+      seTypeReqSelect(null)
+    }
+  }
+
+  const newTableSubTypeReq = (item) => {
+    if(!!item){
+      let newList = infRequest.filter(index => 
+          infCopyRequest.find(key => index.typeOfVacant === item.description && key.typeOfVacant === item.description))
+      setInfCopyRequest(newList)
+    }
+    else{
+      setInfCopyRequest(infRequest)
+      setSocietySelect(null)
+      setStateSelect(null)
+      setOrgUnitSelect(null)
+    }
+  }
+
+  const monthSelectChange = (item) => {
+      if(!!item){
+          setMonthSelect(item.selectedItem)
+          newTable(item.selectedItem, yearSelect)
+      }
+      else{
+          setMonthSelect(null)
+          setInfCopyRequest(infRequest)
+      }
+  }
+
+  const yearSelectChange = (item) => {
+      if(!!item){
+          setYearSelect(item.selectedItem)
+          newTable(monthSelect, item.selectedItem)
+      }
+      else{
+          setYearSelect(null)
+          setInfCopyRequest(infRequest)
+      }
+  }
+
+  const societySelectChange = (item) => {
+    if(!!item){
+        setSocietySelect(item.selectedItem)
+        newTableSubSociety(item.selectedItem)
+    }
+    else{
+        setSocietySelect(null)
+        setInfCopyRequest(infRequest)
+    }
+  }
+
+  const stateSelectChange = (item) => {
+    if(!!item){
+        setStateSelect(item.selectedItem)
+        newTableSubState(item.selectedItem)
+    }
+    else{
+        setStateSelect(null)
+        setInfCopyRequest(infRequest)
+    }
+  }
+
+  const orgUnitSelectChange = (item) => {
+    if(!!item){
+        setOrgUnitSelect(item.selectedItem)
+        newTableSubOrgUnit(item.selectedItem)
+    }
+    else{
+        setOrgUnitSelect(null)
+        setInfCopyRequest(infRequest)
+    }
+  }
+
+  const typeReqSelectChange = (item) => {
+    if(!!item){
+        seTypeReqSelect(item.selectedItem)
+        newTableSubTypeReq(item.selectedItem)
+    }
+    else{
+        seTypeReqSelect(null)
+        setInfCopyRequest(infRequest)
+    }
+  }
+
   return (
     <div className="bg--grid">
       <h2 className="center_titles">
@@ -418,41 +664,33 @@ export default function ControlPanelStaff(props) {
       </div>
       <div className="bx--row" style={{ marginBottom: "1.2rem" }}>
         <div className="bx--col">
-          <Select
-            defaultValue="placeholder-item"
-            id="monthSelect"
-            invalidText="This is an invalid error message."
-            labelText="MES"
+          <ComboBox
+            onChange={(item) => {monthSelectChange(item)}}
+            id="comboMes"
             light
-          >
-            <SelectItem text="Seleccione mes" value="placeholder-item" hidden />
-            {monthList.map((month) => (
-              <SelectItem
-                key={month.id}
-                text={month.name}
-                value={month.value}
-              />
-            ))}
-          </Select>
+            selectedItem={monthSelect}
+            items={monthList}
+            itemToString={(item) => (item ? item.name : "")}
+            placeholder="Escriba mes..."
+            titleText="Mes"
+            shouldFilterItem={({ item: { name }, inputValue }) => 
+            name.toLowerCase().includes(inputValue.toLowerCase())}
+          />
         </div>
 
         <div className="bx--col">
-          <Select
-            defaultValue="placeholder-item"
-            id="yearSelect"
-            invalidText="This is an invalid error message."
-            labelText="AÑO"
+          <ComboBox
+            onChange={(item) => {yearSelectChange(item)}}
+            id="comboYear"
             light
-          >
-            <SelectItem text="Seleccione año" value="placeholder-item" hidden />
-            {yearList.map((year) => (
-              <SelectItem
-                key={year.id.toString()}
-                text={year.value.toString()}
-                value={year.value}
-              />
-            ))}
-          </Select>
+            selectedItem={yearSelect}
+            items={yearList}
+            itemToString={(item) => (item ? item.name : "")}
+            placeholder="Escriba año..."
+            titleText="Año"
+            shouldFilterItem={({ item: { name }, inputValue }) => 
+            name.toLowerCase().includes(inputValue.toLowerCase())}
+          />
         </div>
       </div>
       <div>
@@ -499,72 +737,66 @@ export default function ControlPanelStaff(props) {
         }}
       >
         <div className="bx--col">
-          <Select
-            defaultValue="placeholder-item"
-            id="societySelect"
-            invalidText="This is an invalid error message."
-            labelText="Sociedad"
+          <ComboBox
+            onChange={(item) => {societySelectChange(item)}}
+            id="comboSociety"
             light
-          >
-            <SelectItem
-              text="Seleccione Sociedad"
-              value="placeholder-item"
-              hidden
-            />
-            <SelectItem text="Centro" value="1" />
-          </Select>
+            selectedItem={societySelect}
+            items={listSocieties}
+            itemToString={(item) => (item ? item.description : "")}
+            placeholder="Escriba Sociedad..."
+            titleText="Sociedad"
+            shouldFilterItem={({ item: { description }, inputValue }) => 
+            description.toLowerCase().includes(inputValue.toLowerCase())}
+          />
         </div>
 
         <div className="bx--col">
-          <Select
-            defaultValue="placeholder-item"
-            id="stateSelect"
-            invalidText="This is an invalid error message."
-            labelText="Estado"
+          <ComboBox
+            onChange={(item) => {stateSelectChange(item)}}
+            id="comboTipoEstado"
             light
-          >
-            <SelectItem text="Tipo de estado" value="placeholder-item" hidden />
-            <SelectItem text="Creado" value="1" />
-            <SelectItem text="En Proceso" value="2" />
-          </Select>
+            selectedItem={stateSelect}
+            items={listState}
+            itemToString={(item) => (item ? item.description : "")}
+            placeholder="Escriba tipo estado..."
+            titleText="Estado"
+            shouldFilterItem={({ item: { description }, inputValue }) => 
+            description.toLowerCase().includes(inputValue.toLowerCase())}
+          />
         </div>
 
         <div className="bx--col">
-          <Select
-            defaultValue="placeholder-item"
-            id="unitySelect"
-            invalidText="This is an invalid error message."
-            labelText="Unidad Organizativa"
+          <ComboBox
+            onChange={(item) => {orgUnitSelectChange(item)}}
+            id="comboOrgUnit"
             light
-          >
-            <SelectItem
-              text="Seleccione Unidad"
-              value="placeholder-item"
-              hidden
-            />
-            <SelectItem text="Opción 1" value="1" />
-          </Select>
+            selectedItem={orgUnitSelect}
+            items={listOrgUnit}
+            itemToString={(item) => (item ? item.description : "")}
+            placeholder="Escriba Unidad..."
+            titleText="Unidad Organizacional"
+            shouldFilterItem={({ item: { description }, inputValue }) => 
+            description.toLowerCase().includes(inputValue.toLowerCase())}
+          />
         </div>
 
         <div className="bx--col">
-          <Select
-            defaultValue="placeholder-item"
-            id="vacantSelect"
-            invalidText="This is an invalid error message."
-            labelText="Vacante"
+          <ComboBox
+            onChange={(item) => {typeReqSelectChange(item)}}
+            id="comboTipoReq"
             light
-          >
-            <SelectItem
-              text="Tipo de vacante"
-              value="placeholder-item"
-              hidden
-            />
-            <SelectItem text="Nuevo" value="1" />
-            <SelectItem text="Reemplazo" value="2" />
-          </Select>
+            selectedItem={typeReqSelect}
+            items={listTypeReq}
+            itemToString={(item) => (item ? item.description : "")}
+            placeholder="Escriba tipo vacante..."
+            titleText="Vacante"
+            shouldFilterItem={({ item: { description }, inputValue }) => 
+            description.toLowerCase().includes(inputValue.toLowerCase())}
+          />
         </div>
       </div>
-      <DataTable rows={infRequest} headers={headerData}>
+      <DataTable rows={infCopyRequest} headers={headerData}>
         {renderContentTable}
       </DataTable>
 

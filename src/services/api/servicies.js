@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-let userEmp = 4
+let userEmp = 3
 
 const api = axios.create({
     baseURL: "https://70cd1uugng.execute-api.us-east-1.amazonaws.com/dev/"
@@ -92,6 +92,24 @@ export const fetchSocieties = async () => {
 export const sendSocieties = async (data) => {
     const res = await api.post('settings/societies',data)
     // const res = await api.post('https://dfi9frerlj.execute-api.us-east-2.amazonaws.com/default/gh-proy-req-config-post-society-test',data)
+    return res.data
+}
+
+// Fetch Organizational Units
+export const fetchOrganizationalUnits = async () => {
+    const res = await api.get('requirement/orgUnit')
+    return res.data
+}
+
+// Fetch Type States
+export const fetchTypeState = async () => {
+    const res = await api.get('requirement/typeState')
+    return res.data
+}
+
+// Fetch Type Requirements
+export const fetchTypeRequirements = async () => {
+    const res = await api.get('requirement/typeRequest')
     return res.data
 }
  

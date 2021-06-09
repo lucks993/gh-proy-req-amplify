@@ -23,25 +23,11 @@ export default function SelectOrg ({
                 itemToString={(item) => (item ? item.description : "")}
                 invalid={orgSelect === null}
                 placeholder={"Escriba "+orgType+" ..."}
+                titleText={orgType}
                 shouldFilterItem={({ item: { description }, inputValue }) => 
                 description.toLowerCase().includes(inputValue?.toLowerCase())
                 }
             ></ComboBox>
-            {/* <Select 
-              id={"select-" + orgType}
-              labelText={orgType} 
-              light   
-              onChange={(item) => {selectOnChange(item.currentTarget.value)}}       
-            >
-                {orgList.map(org => {
-                    return(
-                        <SelectItem 
-                          key={org.id.toString()}
-                          text={org.description}
-                          value={org.id}/>
-                    )
-                })}
-            </Select> */}
         </div>
     )
 }
