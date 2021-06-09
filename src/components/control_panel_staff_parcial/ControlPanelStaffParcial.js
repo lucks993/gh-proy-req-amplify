@@ -317,7 +317,7 @@ export default function ControlPanelStaffParcial(props) {
       let newList = infRequest.filter(index => 
           infCopyRequest.find(key => 
             (item.description !== 'Enviado') ? (index.state === item.description && key.state === item.description)
-                                             : (index.check === 1 && key.state === 1)))
+                                             : (index.check === 1 && key.check === 1)))
       setInfCopyRequest(newList)
     }
     else{

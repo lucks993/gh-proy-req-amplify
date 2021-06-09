@@ -236,10 +236,11 @@ export default function ControlPanelStaff(props) {
               check: <input
                         type="checkbox"
                         style={{ height: "25px", width: "100px" }}
-                        value={req.sendReq}
+                        checked={req.sendReq}
                         disabled={req.sendReq === 1}
                       >                     
-                      </input>}
+                      </input>,
+              checkValue: req.sendReq}
         });
         return dataReq;
       })
@@ -310,10 +311,11 @@ export default function ControlPanelStaff(props) {
               check: <input
                         type="checkbox"
                         style={{ height: "25px", width: "100px" }}
-                        value={req.sendReq}
+                        checked={req.sendReq}
                         disabled={req.sendReq === 1}
                       >                     
-                      </input>}
+                      </input>,
+              checkValue: req.sendReq}
         });
         return dataReq;
       })
@@ -549,7 +551,7 @@ export default function ControlPanelStaff(props) {
       let newList = infRequest.filter(index => 
           infCopyRequest.find(key => 
             (item.description !== 'Enviado') ? (index.state === item.description && key.state === item.description)
-                                             : (index.check === 1 && key.state === 1)))
+                                             : (index.checkValue === 1 && key.checkValue === 1)))
       setInfCopyRequest(newList)
     }
     else{
