@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-let userEmp = 3
+let userEmp = 6
 
 const api = axios.create({
     baseURL: "https://70cd1uugng.execute-api.us-east-1.amazonaws.com/dev/"
@@ -60,6 +60,12 @@ export const sendRequestReject= async (data) => {
 // Save Requirement Request Observer
 export const sendRequestObserve= async (data) => {
     const res = await api.post('requirement/request/observe',data)
+    return res.data
+}
+
+// Save Requirement Request Sender
+export const sendRequestMail= async (data) => {
+    const res = await api.post('requirement/request/sendReq',data)
     return res.data
 }
 

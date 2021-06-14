@@ -17,7 +17,7 @@ import {
   ComboBox,
   TextArea,
 } from "carbon-components-react";
-import { headerData, monthList, yearList } from "./sampleData";
+import { headerData, monthList } from "./sampleData";
 import "./ControlPanelStaffParcial.scss";
 import { fetchListRequest, fetchOrganizationalUnits, fetchTypeState, fetchTypeRequirements } from "../../services/api/servicies";
 
@@ -43,6 +43,21 @@ export let selectedItem = 0;
 let selectedRow = {};
 export let selectedRow3 = null;
 
+const showListYear = () => {
+  let actualDate = new Date
+  let actualYear = actualDate.getFullYear()
+  let yearListTemp = []
+  var i
+  for(i = 1; i <= 11; i++){
+      yearListTemp.push({
+          id: i,
+          name: String(actualYear -6 + i),
+          value: (actualYear -6 + i)
+      })
+  }
+  return yearListTemp
+}
+
 export default function ControlPanelStaffParcial(props) {
   const [listRequest, setListRequest] = useState([]);
   const [infRequest, setInfRequest] = useState([]);
@@ -53,6 +68,7 @@ export default function ControlPanelStaffParcial(props) {
   const [cantObs, setCantObs] = useState(0)
   const [cantRech, setCantRech] = useState(0)
   const [cantAprob, setCantAprob] = useState(0)
+  const [yearList] = useState(() => showListYear())
   const [monthSelect, setMonthSelect] = useState(null);
   const [yearSelect, setYearSelect] = useState(null);
   const [listOrgUnit, setListOrgUnit] = useState([]);
@@ -61,6 +77,11 @@ export default function ControlPanelStaffParcial(props) {
   const [orgUnitSelect, setOrgUnitSelect] = useState(null);
   const [stateSelect, setStateSelect] = useState(null);
   const [typeReqSelect, seTypeReqSelect] = useState(null);
+  var filterList = {
+    state: "",
+    orgUnit: "",
+    typeOfVacant: ""
+  }
 
   //Fetch Requirement Request Employee
   useEffect(() => {
@@ -119,7 +140,8 @@ export default function ControlPanelStaffParcial(props) {
                       onRequestSubmit={() => setOpen(false)}
                       onRequestClose={() => setOpen(false)}
                     >
-                      <TextArea
+                      {listDataText(req.listReplacement)}
+                      {/* <TextArea
                         readOnly
                         data-modal-primary-focus
                         id="textListReemp_2"
@@ -140,7 +162,7 @@ export default function ControlPanelStaffParcial(props) {
                             "\n"
                           );
                         })}
-                      />
+                      /> */}
                     </Modal>
                   )}
                 </ModalStateManager>
@@ -203,7 +225,8 @@ export default function ControlPanelStaffParcial(props) {
                       onRequestSubmit={() => setOpen(false)}
                       onRequestClose={() => setOpen(false)}
                     >
-                      <TextArea
+                      {listDataText(req.listReplacement)}
+                      {/* <TextArea
                         readOnly
                         data-modal-primary-focus
                         id="textListReemp_2"
@@ -217,14 +240,15 @@ export default function ControlPanelStaffParcial(props) {
                             ", " +
                             index.name +
                             "\n" +
-                            "Puesto: " +
+                            <strong>Puesto:</strong>  +
                             index.position.codePosition +
+                            " " +
                             index.position.description +
                             "\n" +
                             "\n"
                           );
                         })}
-                      />
+                      /> */}
                     </Modal>
                   )}
                 </ModalStateManager>
@@ -284,6 +308,20 @@ export default function ControlPanelStaffParcial(props) {
     getTypeRequest();
   }, []);
 
+  const listDataText = (list) => {
+      return (   
+        <div style={{background: "white", height:"200px",  width:"400px", borderRadius:"10px", overflow:"auto", border: "3px solid black"}}>
+          {list.map(index => 
+            <React.Fragment>
+              <p> <strong>Persona: </strong> {index.codigo} {index.apPaterno} {index.apMaterno}, {index.name}</p>
+              <p><strong>Puesto: </strong> {index.position.codePosition} {index.position.description} <br></br> <br></br></p>
+            </React.Fragment>
+          )
+          }
+        </div>
+      )
+  }
+
   const onClickVerReq = (index, list) => {
     console.log(index)
     console.log(list)
@@ -303,53 +341,99 @@ export default function ControlPanelStaffParcial(props) {
   const newTable = (item, data) => {
     if(!!item && !!data){
       let newList = infRequest.filter(index => 
-          infCopyRequest.find(key => index.dateState.slice(5,7) === item.value && key.dateState.slice(5,7) === item.value &&
+          infRequest.find(key => index.dateState.slice(5,7) === item.value && key.dateState.slice(5,7) === item.value &&
                                       index.dateState.slice(0,4) === data.name && key.dateState.slice(0,4) === data.name))
       setInfCopyRequest(newList)
+      setCantCreado(newList.filter(function(item){
+        return item.state === "Creado"
+      }).length)
+      setCantNoAprob(newList.filter(function(item){
+        return item.state === "No Aprobado"
+      }).length)
+      setCantProc(newList.filter(function(item){
+        return item.state === "En Proceso"
+      }).length)
+      setCantObs(newList.filter(function(item){
+        return item.state === "Observado"
+      }).length)
+      setCantRech(newList.filter(function(item){
+        return item.state === "Rechazado"
+      }).length)
+      setCantAprob(newList.filter(function(item){
+        return item.state === "Aprobado"
+      }).length)
     }
     else{
       setInfCopyRequest(infRequest)
+      setCantCreado(infRequest.filter(function(item){
+        return item.state === "Creado"
+      }).length)
+      setCantNoAprob(infRequest.filter(function(item){
+        return item.state === "No Aprobado"
+      }).length)
+      setCantProc(infRequest.filter(function(item){
+        return item.state === "En Proceso"
+      }).length)
+      setCantObs(infRequest.filter(function(item){
+        return item.state === "Observado"
+      }).length)
+      setCantRech(infRequest.filter(function(item){
+        return item.state === "Rechazado"
+      }).length)
+      setCantAprob(infRequest.filter(function(item){
+        return item.state === "Aprobado"
+      }).length)
     }
   }
 
-  const newTableSubState = (item) => {
-    if(!!item){
-      let newList = infRequest.filter(index => 
-          infCopyRequest.find(key => 
-            (item.description !== 'Enviado') ? (index.state === item.description && key.state === item.description)
-                                             : (index.check === 1 && key.check === 1)))
+  const newTableSubNewTable = (itemState, itemOrg, itemType) => {
+    let cant = 0
+    let newList = infCopyRequest
+    if(!!itemState){
+      filterList.state = itemState.description
+      newList = newList.filter(index => 
+        newList.find(key => 
+        (filterList.state != "")  ?
+                                  ((filterList.state !== 'Enviado') ? (index.state === filterList.state && key.state === filterList.state)
+                                                                    : (index.check === 1 && key.check === 1))
+                                  : newList
+                            ))
+    }
+    else{
+      filterList.state = "";
+      cant++
+    }
+    if(!!itemOrg){
+      filterList.orgUnit = itemOrg.description
+      newList = newList.filter(index => 
+        newList.find(key => 
+          (filterList.orgUnit != "")  ?
+                                         (index.orgUnit === filterList.orgUnit && key.orgUnit === filterList.orgUnit) 
+                                      :  newList
+                            ))
+    }
+    else{
+      filterList.orgUnit = "";
+      cant++
+    }
+    if(!!itemType){
+      filterList.typeOfVacant = itemType.description
+      newList = newList.filter(index => 
+        newList.find(key => 
+          (filterList.typeOfVacant != "") ?
+                                            (index.typeOfVacant === filterList.typeOfVacant && key.typeOfVacant === filterList.typeOfVacant)
+                                          : newList
+                            ))
+    }
+    else{
+      filterList.typeOfVacant = "";
+      cant++
+    }
+    if(cant < 3){
       setInfCopyRequest(newList)
     }
     else{
-      setInfCopyRequest(infRequest)
-      setOrgUnitSelect(null)
-      seTypeReqSelect(null)
-    }
-  }
-
-  const newTableSubOrgUnit = (item) => {
-    if(!!item){
-      let newList = infRequest.filter(index => 
-          infCopyRequest.find(key => index.orgUnit === item.description && key.orgUnit === item.description))
-      setInfCopyRequest(newList)
-    }
-    else{
-      setInfCopyRequest(infRequest)
-      setStateSelect(null)
-      seTypeReqSelect(null)
-    }
-  }
-
-  const newTableSubTypeReq = (item) => {
-    if(!!item){
-      let newList = infRequest.filter(index => 
-          infCopyRequest.find(key => index.typeOfVacant === item.description && key.typeOfVacant === item.description))
-      setInfCopyRequest(newList)
-    }
-    else{
-      setInfCopyRequest(infRequest)
-      setStateSelect(null)
-      setOrgUnitSelect(null)
+      newTable(monthSelect, yearSelect)
     }
   }
 
@@ -378,9 +462,10 @@ export default function ControlPanelStaffParcial(props) {
   const stateSelectChange = (item) => {
     if(!!item){
         setStateSelect(item.selectedItem)
-        newTableSubState(item.selectedItem)
+        newTableSubNewTable(item.selectedItem, orgUnitSelect, typeReqSelect)
+
     }
-    else{
+    else{      
         setStateSelect(null)
         setInfCopyRequest(infRequest)
     }
@@ -389,9 +474,11 @@ export default function ControlPanelStaffParcial(props) {
   const orgUnitSelectChange = (item) => {
     if(!!item){
         setOrgUnitSelect(item.selectedItem)
-        newTableSubOrgUnit(item.selectedItem)
+        newTableSubNewTable(stateSelect, item.selectedItem, typeReqSelect)
+
     }
     else{
+        filterList.orgUnit = "";
         setOrgUnitSelect(null)
         setInfCopyRequest(infRequest)
     }
@@ -400,9 +487,11 @@ export default function ControlPanelStaffParcial(props) {
   const typeReqSelectChange = (item) => {
     if(!!item){
         seTypeReqSelect(item.selectedItem)
-        newTableSubTypeReq(item.selectedItem)
+        newTableSubNewTable(stateSelect, orgUnitSelect, item.selectedItem)
+              
     }
     else{
+        filterList.typeOfVacant = "";
         seTypeReqSelect(null)
         setInfCopyRequest(infRequest)
     }

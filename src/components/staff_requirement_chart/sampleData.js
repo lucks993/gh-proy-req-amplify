@@ -61,7 +61,7 @@ export const monthList = [
     }
 ]
 
-export const yearList = [
+export const yearListProto = [
     {
         id: 1,
         name: '2021',
@@ -387,6 +387,26 @@ export const barData4 = [
         "group": "2021",
         "date": "Apr",
         "value": 45
+    },
+    {
+        "group": "2022",
+        "date": "Jan",
+        "value": 40
+    },
+    {
+        "group": "2022",
+        "date": "Feb",
+        "value": 20
+    },
+    {
+        "group": "2022",
+        "date": "Mar",
+        "value": 30
+    },
+    {
+        "group": "2022",
+        "date": "Apr",
+        "value": 100
     }
 ]
 

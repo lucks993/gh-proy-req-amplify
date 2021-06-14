@@ -121,18 +121,26 @@ export default function NewStaffRequirementForm(props) {
 
     data.request = {
       id: rowExport[0].id,
-      flow: (rowExport[0].flow.id === 1 && userReq.codeSuperior !== "0") ? 1 :
-            (rowExport[0].approvedLevel === 0 && rowExport[0].flow.id === 2) ? 4 :
-            (rowExport[0].flow.id < 6 ? (rowExport[0].flow.id + 1) : (rowExport[0].flow.id === 6 ? rowExport[0].flow.id :
-                                          (rowExport[0].flow.id < 10 ? (rowExport[0].flow.id + 1) : rowExport[0].flow.id))), //Flow siguiente
-      state: (rowExport[0].approvedLevel === 0 && rowExport[0].flow.id === 2) ? 3 :
-             (rowExport[0].flow.id < 6 ? 2 : (rowExport[0].flow.id === 6 ? 3 :
-                                          (rowExport[0].flow.id < 10 ? 2 : 3))),
-      approver: userReq.approverRole, //id del usuario
+      flowID: rowExport[0].flow.id,
+      flowType: rowExport[0].flow.type,
+      flowSeq: rowExport[0].flow.sequence,
+      // state: item.state.id,
+      reqConf: rowExport[0].approvedLevel,
+      // flow: (rowExport[0].flow.id === 1 && userReq.codeSuperior !== "0") ? 1 :
+      //       (rowExport[0].approvedLevel === 0 && rowExport[0].flow.id === 2) ? 4 :
+      //       (rowExport[0].flow.id < 6 ? (rowExport[0].flow.id + 1) : (rowExport[0].flow.id === 6 ? rowExport[0].flow.id :
+      //                                     (rowExport[0].flow.id < 10 ? (rowExport[0].flow.id + 1) : rowExport[0].flow.id))), //Flow siguiente
+      // state: (rowExport[0].approvedLevel === 0 && rowExport[0].flow.id === 2) ? 3 :
+      //        (rowExport[0].flow.id < 6 ? 2 : (rowExport[0].flow.id === 6 ? 3 :
+      //                                     (rowExport[0].flow.id < 10 ? 2 : 3))),
+      userCodeSup: userReq.codeSuperior,  //Cod Sup
+      approverID: userReq.id,             //ID del usuario
+      approverRole: userReq.approverRole, //Rol del usuario
       dateApproved: new Date().today() + " T " + new Date().timeNow(),
     }
     console.log(JSON.stringify(data))
     const requestSend = await sendRequestApprover(data)
+    alert("Solicitud aprobada")
     props.history.goBack()
   }
 
@@ -144,12 +152,13 @@ export default function NewStaffRequirementForm(props) {
       id: rowExport[0].id,
       observation: textArea.current.value,
       flow: rowExport[0].flow.id,    
-      state: 4,
+      // state: 4,
       dateApproved: new Date().today() + " T " + new Date().timeNow(),
     }
     data.request = [req]
     // console.log(JSON.stringify(data))
     const requestSend = await sendRequestReject(data)
+    alert("Solicitud rechazada")
     props.history.goBack()
   }
 
@@ -161,12 +170,13 @@ export default function NewStaffRequirementForm(props) {
       id: rowExport[0].id,
       observation: textArea.current.value,
       flow: rowExport[0].flow.id,    
-      state: 5,
+      // state: 5,
       dateApproved: new Date().today() + " T " + new Date().timeNow(),
     }
     data.request = [req]
     // console.log(JSON.stringify(data))
     const requestSend = await sendRequestObserve(data)
+    alert("Solicitud observada")
     props.history.goBack()
   }
 
@@ -337,7 +347,7 @@ export default function NewStaffRequirementForm(props) {
             <div style={{ marginBottom: "1.2rem", backgroundColor: "#dadee9" }}>
               <TextInput
                 id="txtCodPuesto"
-                labelText="Código de Posición a Reemplazar"
+                labelText="Código de Posición/Puesto"
                 value={rowExport[0].position.codePosition}
                 light
                 readOnly

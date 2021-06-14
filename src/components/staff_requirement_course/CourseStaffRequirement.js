@@ -214,13 +214,13 @@ const ModalStateManager = ({
 export let selectedItem = 0;
 export let selectedRow = null;
 let userReq = {
-  id: 2,
-  position: 2,
+  id: 6,
+  position: 6,
   name: "",
   apPaterno: "",
   apMaterno: "",
   codeSuperior: "0",
-  approverRole: 5
+  approverRole: 6
 }
 // const [listRow, setListRow] = useState([])
 export default function CourseStaffRequirement(props) {
@@ -276,14 +276,15 @@ export default function CourseStaffRequirement(props) {
                   onRequestSubmit={() =>  setOpen(false)}
                   onRequestClose={() => setOpen(false)}
                 >
-                  <TextArea
+                  {listDataText(req.listReplacement)}
+                  {/* <TextArea
                     readOnly
                     data-modal-primary-focus
                     id="textListReemp_2"
                     defaultValue={req.listReplacement.map(index => {
                       return ("Trabajador: " + index.codigo + " " + index.apPaterno + " " + index.apMaterno + ", " + index.name + "\n" + "\n")
                     })}
-                  />
+                  /> */}
                 </Modal>
               )}
             </ModalStateManager>),
@@ -314,7 +315,8 @@ export default function CourseStaffRequirement(props) {
                   onRequestSubmit={() =>  setOpen(false)}
                   onRequestClose={() => setOpen(false)}
                 >
-                  <TextArea
+                  {listDataTextApprover(req.listApprovers)}
+                  {/* <TextArea
                     readOnly
                     data-modal-primary-focus
                     id="textListApprov_2"
@@ -323,7 +325,7 @@ export default function CourseStaffRequirement(props) {
                                   " " + index.approver.person.apMaterno + ", " + index.approver.person.name + "\n" +
                               "Fecha: " + index.approbalDate + "\n" + "\n")
                     })}
-                  />
+                  /> */}
                 </Modal>
               )}
             </ModalStateManager>),
@@ -334,6 +336,34 @@ export default function CourseStaffRequirement(props) {
     };
     getRequest();
   }, []);
+
+  const listDataText = (list) => {
+    return (   
+      <div style={{background: "white", height:"200px",  width:"400px", borderRadius:"10px", overflow:"auto", border: "3px solid black"}}>
+        {list.map(index => 
+          <React.Fragment>
+            <p> <strong>Persona: </strong> {index.codigo} {index.apPaterno} {index.apMaterno}, {index.name}</p>
+            <p><strong>Puesto: </strong> {index.position.codePosition} {index.position.description} <br></br> <br></br></p>
+          </React.Fragment>
+        )
+        }
+      </div>
+    )
+  }
+  const listDataTextApprover = (list) => {
+    return (   
+      <div style={{background: "white", height:"200px",  width:"400px", borderRadius:"10px", overflow:"auto", border: "3px solid black"}}>
+        {list.map(index => 
+          <React.Fragment>
+            <p> <strong>Aprobador: </strong> {index.approver.person.codigo} {index.approver.person.apPaterno} {index.approver.person.apMaterno},
+               {index.approver.person.name}</p>
+              <p><strong>Fecha: </strong> {index.approbalDate}<br></br> <br></br></p>
+          </React.Fragment>
+        )
+        }
+      </div>
+    )
+  }
 
   const goToRequirement = (item) => {
     selectedItem = item;
@@ -358,7 +388,7 @@ export default function CourseStaffRequirement(props) {
       flowID: selectedRow[0].flow.id,
       flowType: selectedRow[0].flow.type,
       flowSeq: selectedRow[0].flow.sequence,
-      state: selectedRow[0].state.id,
+      // state: selectedRow[0].state.id,
       reqConf: selectedRow[0].approvedLevel,
       // flow: (selectedRow[0].flow.id === 1 && userReq.codeSuperior !== "0") ? 1 :
       //       (selectedRow[0].flow.id < 6 ? (selectedRow[0].flow.id + 1) : (selectedRow[0].flow.id === 6 ? selectedRow[0].flow.id :
@@ -375,6 +405,7 @@ export default function CourseStaffRequirement(props) {
     data.request = [req]
     console.log(JSON.stringify(data))
     const requestSend = await sendRequestApprover(data)
+    alert("Solicitud aprobada")
     props.history.go(0)
   }
 
@@ -390,11 +421,12 @@ export default function CourseStaffRequirement(props) {
       id: selectedRow[0].id,
       observation: textAreaValue,
       flow: selectedRow[0].flow.id,
-      state: 4,
+      // state: 4,
       dateApproved: new Date().today() + " T " + new Date().timeNow(),
     }
     data.request = [req]
     console.log(JSON.stringify(data))
+    alert("Solicitud rechazada")
     const requestSend = await sendRequestReject(data)
     props.history.go(0)
   }
@@ -411,12 +443,13 @@ export default function CourseStaffRequirement(props) {
       id: selectedRow[0].id,
       observation: textAreaValue,
       flow: selectedRow[0].flow.id,
-      state: 5,
+      // state: 5,
       dateApproved: new Date().today() + " T " + new Date().timeNow(),
     }
     data.request = [req]
     console.log(JSON.stringify(data))
     const requestSend = await sendRequestObserve(data)
+    alert("Solicitud observada")
     props.history.go(0)
   }
 
@@ -462,7 +495,7 @@ export default function CourseStaffRequirement(props) {
         flowID: item.flow.id,
         flowType: item.flow.type,
         flowSeq: item.flow.sequence,
-        state: item.state.id,
+        // state: item.state.id,
         reqConf: item.approvedLevel,
         // flow: (item.flow.id === 1 && userReq.codeSuperior !== "0") ? 1 :
         //       (item.flow.id < 6 ? (item.flow.id + 1) : (item.flow.id === 6 ? item.flow.id :
@@ -480,6 +513,7 @@ export default function CourseStaffRequirement(props) {
     console.log(JSON.stringify(data))
     if(data.request.length > 0){
       const requestSend = await sendRequestApprover(data)
+      alert("Solicitud aprobada")
       props.history.go(0)
     }
     // console.log(selectedRows);
@@ -498,7 +532,7 @@ export default function CourseStaffRequirement(props) {
         id: item.id,
         observation: textArea2.current.value,
         flow: item.flow.id,
-        state: 4,
+        // state: 4,
         dateApproved: new Date().today() + " T " + new Date().timeNow(),
     
     }))
@@ -507,6 +541,7 @@ export default function CourseStaffRequirement(props) {
     // console.log(textArea2.current.value)
     if(data.request.length > 0){
       const requestSend = await sendRequestReject(data)
+      alert("Solicitud rechazada")
       props.history.go(0)
     }
   }
@@ -523,7 +558,7 @@ export default function CourseStaffRequirement(props) {
         id: item.id,
         observation: textArea2.current.value,
         flow: item.flow.id,
-        state: 5,
+        // state: 5,
         dateApproved: new Date().today() + " T " + new Date().timeNow(),
     
     }))
@@ -531,6 +566,7 @@ export default function CourseStaffRequirement(props) {
     console.log(JSON.stringify(data))
     if(data.request.length > 0){
       const requestSend = await sendRequestObserve(data)
+      alert("Solicitud observada")
       props.history.go(0)
     }
   }

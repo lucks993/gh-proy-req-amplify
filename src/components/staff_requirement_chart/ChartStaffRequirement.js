@@ -9,10 +9,25 @@ import {
     TextArea
   } from "carbon-components-react";
 import { barOption1, barOption3, barOption4,
-        monthList, yearList } from "./sampleData";
+        monthList } from "./sampleData";
 import "@carbon/charts/styles.css";
 import "./ChartStaffRequirement.scss";
 import { fetchDataGraph1, fetchDataGraph3, fetchDataGraph4 } from "../../services/api/servicies";
+
+const showListYear = () => {
+    let actualDate = new Date
+    let actualYear = actualDate.getFullYear()
+    let yearListTemp = []
+    var i
+    for(i = 1; i <= 11; i++){
+        yearListTemp.push({
+            id: i,
+            name: String(actualYear -6 + i),
+            value: (actualYear -6 + i)
+        })
+    }
+    return yearListTemp
+}
 
 export default function ChartStaffRequirement () {
 const [idGraph, setIdGraph] = useState(0)
@@ -21,6 +36,7 @@ const [barData1CopyGet, setBarData1CopyGet] = useState([])
 const [barData3Get, setBarData3Get] = useState([])
 const [barData3CopyGet, setBarData3CopyGet] = useState([])
 const [barData4Get, setBarData4Get] = useState([])
+const [yearList] = useState(() => showListYear())
 const [monthSelect, setMonthSelect] = useState(null);
 const [yearSelect, setYearSelect] = useState(null);
 
@@ -146,7 +162,7 @@ const showCalendar = () => {
                     name.toLowerCase().includes(inputValue.toLowerCase())}
                 />
                 </div>
-                <div className="bx--col">
+                <div className="bx--col">                
                     <ComboBox
                         onChange={(item) => {yearSelectChange(item)}}
                         id="comboYear"

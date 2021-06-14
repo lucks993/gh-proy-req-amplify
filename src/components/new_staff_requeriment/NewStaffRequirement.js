@@ -49,14 +49,16 @@ export default function NewStaffRequirement(props) {
   const [puestoSexoSelect, setPuestoSexoSelect] = useState(null)                //Sexo
   const [listTrabajador, setListTrabajador] = useState([])                      //Lista Trabajador
   const [listPersonaSelect, setListPersonaSelect] = useState([])
+  //Max Date
+  var maxDate=new Date()
+  maxDate.setDate(maxDate.getDate() + 15)
+
+  //Min Date
+  var minDate=new Date()
+  minDate.setDate(minDate.getDate() - 15)
   let listPersonCopy = listTrabajador.map(item => ({
     ...item, datos: item.codigo + " " + item.apPaterno + " " +
                     item.apMaterno + ", " + item.name
-  }))
-  let listPersonCopyRole4 = listTrabajador.map(item => ({
-    ...item, datos: item.codigo + " " + item.apPaterno + " " +
-                    item.apMaterno + ", " + item.name + " // " +
-                    item.position.codePosition + " " + item.position.description
   }))
 
   const [personaSelect, setPersonaSelect] = useState(null)  //Persona Select
@@ -130,13 +132,11 @@ export default function NewStaffRequirement(props) {
   }, [])
 
   const verificarCant = (item) => {
-    // if (document.getElementById("cantidad").value > 1) {
     if (item.imaginaryTarget.value > 1){
       setCheckCount(true);
     } else {
       setCheckCount(false);
     }
-    // setCantReq(document.getElementById("cantidad").value)
     setCantReq(item.imaginaryTarget.value)
   };
 
@@ -149,21 +149,6 @@ export default function NewStaffRequirement(props) {
     if(item.selectedItem == null){
       setSocietySelect(null)
     }
-    // if(!!index){     
-    //   // let orgIndex = []
-    //   let orgList = []
-    //   orgList = listOrgAsign.listSociety
-    //   // socIndex = socList.filter(item => {return item.id == index})
-    //   setSocietySelect(orgList.filter(item => {return item.id == index}))
-    //   // console.log(orgIndex)
-    //   // console.log(societySelect)
-    //   // console.log("orgIndex.id: "+orgIndex[0].id)
-    //   // console.log("orgIndex.desc: "+orgIndex[0].description)
-    //   // console.log("orgIndex.level: "+orgIndex[0].levelAproved)
-    //   // console.log("societySelect.id: "+societySelect[0].id)
-    //   // console.log("societySelect.desc: "+societySelect[0].description)
-    //   // console.log("societySelect.level: "+societySelect[0].levelAproved)
-    // }
   };
 
   const divisionSelectOnChange = (item) => {
@@ -171,11 +156,6 @@ export default function NewStaffRequirement(props) {
     if(item.selectedItem == null){
       setDivisionSelect(null)
     }
-    // if(!!index){
-    //   let orgList = []
-    //   orgList = listOrgAsign.listDivision
-    //   setDivisionSelect(orgList.filter(item => {return item.id == index}))
-    // }
   };
 
   const physicalSelectOnChange = (item) => {
@@ -183,11 +163,6 @@ export default function NewStaffRequirement(props) {
     if(item.selectedItem == null){
       setPhysicalSelect(null)
     }
-    // if(!!index){
-    //   let orgList = []
-    //   orgList = listOrgAsign.listPhysicial
-    //   setPhysicalSelect(orgList.filter(item => {return item.id == index}))
-    // }
   };
 
   const vpSelectOnChange = (item) => {
@@ -195,11 +170,6 @@ export default function NewStaffRequirement(props) {
     if(item.selectedItem == null){
       setVPSelect(null)
     }
-    // if(!!index){
-    //   let orgList = []
-    //   orgList = listOrgAsign.listVP
-    //   setVPSelect(orgList.filter(item => {return item.id == index}))
-    // }
   };
 
   const unitSelectOnChange = (item) => {
@@ -207,11 +177,6 @@ export default function NewStaffRequirement(props) {
     if(item.selectedItem == null){
       setUnitSelect(null)
     }
-    // if(!!index){
-    //   let orgList = []
-    //   orgList = listOrgAsign.listUnit
-    //   setUnitSelect(orgList.filter(item => {return item.id == index}))
-    // }
   };
 
   const centerSelectOnChange = (item) => {
@@ -219,11 +184,6 @@ export default function NewStaffRequirement(props) {
     if(item.selectedItem == null){
       setCenterSelect(null)
     }
-    // if(!!index){
-    //   let orgList = []
-    //   orgList = listOrgAsign.listCenter
-    //   setCenterSelect(orgList.filter(item => {return item.id == index}))
-    // }
   };
 
   const assignPersonDesc = (item) => {
@@ -245,7 +205,10 @@ export default function NewStaffRequirement(props) {
                                                     datos: item.selectedItem.codigo + " " +
                                                     item.selectedItem.apPaterno + " " + item.selectedItem.apMaterno +
                                                     ", " + item.selectedItem.name}])
-          }
+        }
+        else{
+          setListPersonaSelect(listPersonaSelect.filter(key => key.id != item.selectedItem.id))
+        }
       }
     }
     console.log(listPersonaSelect)
@@ -256,7 +219,6 @@ export default function NewStaffRequirement(props) {
     if(!!item){
       setPersonaSelect(item.selectedItem)
       if(item.selectedItem != null){
-        // setPersonaSelect(item.selectedItem)
         setListPersonaSelect([...listPersonaSelect, {id: item.selectedItem.id,
           datos: item.selectedItem.codigo + " " +
           item.selectedItem.apPaterno + " " + item.selectedItem.apMaterno +
@@ -326,32 +288,26 @@ export default function NewStaffRequirement(props) {
       const data = {}    
       let listCharac = [] 
       if(!!reqGroupFunc.current){
-        // listCharac = [...listCharac, ...reqGroupFunc.current.getDataContent()]
         listCharac = [...listCharac, ...reqGroupFunc.current.getDataContent().map( item => (
           {...item, charac: {id: 1, description: "Describir las funciones o actividades especificas"} }) )]
       }
       if(!!reqGroupCon.current){
-        // listCharac = [...listCharac, ...reqGroupCon.current.getDataContent()].
         listCharac = [...listCharac, ...reqGroupCon.current.getDataContent().map( item => (
           {...item, charac: {id: 2, description: "Conocimiento Requerido"} }) )]
       }
       if(!!reqGroupHab.current){
-        // listCharac = [...listCharac, ...reqGroupHab.current.getDataContent()]
         listCharac = [...listCharac, ...reqGroupHab.current.getDataContent().map( item => (
           {...item, charac: {id: 3, description: "Habilidades Requeridas"} }) )]
       }
       if(!!reqGroupAcad.current){
-        // listCharac = [...listCharac, ...reqGroupAcad.current.getDataContent()]
         listCharac = [...listCharac, ...reqGroupAcad.current.getDataContent().map( item => (
           {...item, charac: {id: 4, description: "Formación Académica"} }) )]
       }
       if(!!reqGroupEst.current){
-        // listCharac = [...listCharac, ...reqGroupEst.current.getDataContent()]
         listCharac = [...listCharac, ...reqGroupEst.current.getDataContent().map( item => (
           {...item, charac: {id: 5, description: "Centro de Estudios (no determinante)"} }) )]
       }
       if(!!reqGroupIdi.current){
-        // listCharac = [...listCharac, ...reqGroupIdi.current.getDataContent()]
         listCharac = [...listCharac, ...reqGroupIdi.current.getDataContent().map( item => (
           {...item, charac: {id: 6, description: "Idiomas"} }) )]
       }
@@ -392,15 +348,12 @@ export default function NewStaffRequirement(props) {
           fileDesc: ""
         }
       };
-      // console.log(JSON.stringify(data))
       const requestSend = await sendRequest(data);
+      alert("Solicitud Creada")
       props.history.go(0)
-      // if(!!reqGroupFunc.current){
-      //   const resRef = reqGroupFunc.current.getDataContent()
-      //   console.log(resRef)
-      // }
     }
     else{
+      alert("Fata llenar datos, revise que ningún campo obligatorio esté vacío")
       console.log("Falta llenar")
     }
     console.log(societySelect)
@@ -519,7 +472,6 @@ export default function NewStaffRequirement(props) {
                 id="comboTipoBusq"
                 light
                 invalid={busqTipo === 0}
-                // invalidText={"Seleccione un tipo"}
                 items={["Interna","Externa"]}
                 placeholder="Seleccione tipo..."
                 titleText="Tipo de Busqueda"
@@ -533,10 +485,8 @@ export default function NewStaffRequirement(props) {
               <div style={{ backgroundColor: "#dadee9" }}>
                 <TextInput
                   id="txtNombreSol"
-                  // invalidText="Invalid error message."
                   labelText="Nombre"
                   value={userReq.apPaterno + " " + userReq.apMaterno + ", " + userReq.name}
-                  // placeholder="Placeholder text"
                   light
                 />
               </div>
@@ -581,10 +531,8 @@ export default function NewStaffRequirement(props) {
               <div style={{ backgroundColor: "#dadee9" }}>
                 <TextInput
                   id="txtCargoSol"
-                  // invalidText="Invalid error message."
                   labelText="Cargo"
                   value={userReq.position}
-                  // placeholder="Placeholder text"
                   light
                 />
               </div>
@@ -608,7 +556,7 @@ export default function NewStaffRequirement(props) {
                 items={listPuestos}
                 itemToString={(item) => (item ? item.codePosition : "")}
                 placeholder="Escriba código..."
-                titleText="Código de Posición a Reemplazar"
+                titleText="Código de Posición/Puesto"
                 selectedItem={puestoSelect}
                 shouldFilterItem={({ item: { codePosition }, inputValue }) => 
                 codePosition.toLowerCase().includes(inputValue.toLowerCase())
@@ -656,7 +604,9 @@ export default function NewStaffRequirement(props) {
                 datePickerType="single"
                 light
                 value={estimDate}                
-                style={{ backgroundColor: "#dadee9" }}                
+                style={{ backgroundColor: "#dadee9" }}     
+                maxDate={maxDate}
+                minDate={minDate}           
                 onChange={(item) => {
                   if(item !== ""){
                     setEstimDate(item)
@@ -857,18 +807,6 @@ export default function NewStaffRequirement(props) {
                 placeholder="Escriba tiempo..."
                 titleText="Tiempo de Experiencia"
               ></ComboBox>
-              {/* <Select
-                defaultValue="placeholder-item"
-                id="selectTiempoExp"
-                invalidText="This is an invalid error message."
-                labelText="Tiempo de Experiencia"
-                light
-              >
-                <SelectItem text="Más de 1 año" value="Más de 1 año" />
-                <SelectItem text="Más de 2 años" value="Más de 2 años" />
-                <SelectItem text="Más de 3 años" value="Más de 3 años" />
-                <SelectItem text="Más de 4 años" value="Más de 4 años" />
-              </Select> */}
             </div>
           </div>
           <div className="bx--col">
@@ -882,16 +820,6 @@ export default function NewStaffRequirement(props) {
                 placeholder="Escriba rango edad..."
                 titleText="Rango de Edad"
               ></ComboBox>
-              {/* <Select
-                defaultValue="placeholder-item"
-                id="selectRangoEdad"
-                invalidText="This is an invalid error message."
-                labelText="Rango de Edad"
-                light
-              >
-                <SelectItem text="Más de 20 años" value="Más de 20 años" />
-                <SelectItem text="Más de 30 años" value="Más de 30 años" />
-              </Select> */}
             </div>
           </div>
           <div className="bx--col">
@@ -905,17 +833,6 @@ export default function NewStaffRequirement(props) {
                 placeholder="Escriba género..."
                 titleText="Sexo"
               ></ComboBox>
-              {/* <Select
-                defaultValue="placeholder-item"
-                id="selectSexo"
-                invalidText="This is an invalid error message."
-                labelText="Sexo"
-                light
-              >
-                <SelectItem text="Femenino" value="Femenino" />
-                <SelectItem text="Masculino" value="Masculino" />
-                <SelectItem text="Indistinto" value="Indistinto" />
-              </Select> */}
             </div>
           </div>
         </div>
@@ -932,19 +849,6 @@ export default function NewStaffRequirement(props) {
                 placeholder="Escriba estado civil..."
                 titleText="Estado Civil"
               ></ComboBox>
-              {/* <Select
-                defaultValue="placeholder-item"
-                id="selectEstadoCivil"
-                invalidText="This is an invalid error message."
-                labelText="Estado Civil"
-                light
-              >
-                <SelectItem text="Soltero" value="Soltero" />
-                <SelectItem text="Casado" value="Casado" />
-                <SelectItem text="Viudo" value="Viudo" />
-                <SelectItem text="Divorciado" value="Divorciado" />
-                <SelectItem text="Indistinto" value="Indistinto" />
-              </Select> */}
             </div>
           </div>
           <div className="bx--col"></div>
@@ -960,39 +864,6 @@ export default function NewStaffRequirement(props) {
             type="2"
           />
         </div>
-        {/* <div>
-          <Checkbox 
-            labelText="¿Existen Candidatos Sugeridos?" 
-            id="checked"
-            checked={checkSuggested}
-            onChange = {() => {setCheckSuggested(!checkSuggested)
-                               setCountUnique(1)}}
-          />
-        </div>
-        {checkSuggested && <div>
-          <RequirementGroup
-            countFunc={setCountUnique}
-            name="Candidatos Sugeridos"
-            firstLabel="Nombre y Apellidos"
-            secondLabel="Posición"
-            type="3"
-            checkUniqueValue={checkUnique}  
-          />
-          {(countUnique < 2) ? (
-              <Checkbox
-                labelText="Candidato Único"
-                id="checked-2"
-                checked={checkUnique}
-                onChange = {() => setCheckUnique(!checkUnique)}/>
-              ) : (
-              <Checkbox
-                labelText="Candidato Único"
-                id="checked-2"
-                checked={checkUnique}
-                onChange = {() => setCheckUnique(!checkUnique)}
-                disabled/>
-              )}
-        </div>} */}
         <div className="bx--row">
           <FileUploader
             className="custom-class"
