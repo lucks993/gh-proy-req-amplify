@@ -23,6 +23,7 @@ import { headerData, monthList } from "./sampleData";
 import "./ControlPanelStaff.scss";
 import { fetchListRequest, sendRequestApprover, 
   fetchSocieties, fetchOrganizationalUnits, fetchTypeState, fetchTypeRequirements, sendRequestMail } from "../../services/api/servicies";
+import ReactLoading from "react-loading";
 
 const ContentTable = forwardRef(({ goToRequirement, aprobarReq, rechazarReq, obsValue, ...props}, ref)=> {
   const {
@@ -106,7 +107,7 @@ let userReq = {
   apPaterno: "",
   apMaterno: "",
   codeSuperior: "0",
-  approverRole: 6
+  approverRole: 4
 }
 
 const showListYear = () => {
@@ -125,6 +126,12 @@ const showListYear = () => {
 }
 
 export default function ControlPanelStaff(props) {
+  const [doneV1, setDoneV1] = useState(undefined);
+  const [doneV2, setDoneV2] = useState(undefined);
+  const [doneV3, setDoneV3] = useState(undefined);
+  const [doneV4, setDoneV4] = useState(undefined);
+  const [doneV5, setDoneV5] = useState(undefined);
+
   const [obsValue, setObsValue] = useState("Este requerimiento no es conforme")
   const [listRequest, setListRequest] = useState([])
   const [infRequest, setInfRequest] = useState([])
@@ -168,220 +175,235 @@ export default function ControlPanelStaff(props) {
 
   //Fetch Requirement Request Employee
   useEffect(() => {
-    const getRequest = async () => {
-      const requestFromServer = await fetchListRequest();
-      setListRequest(requestFromServer);
-      setCantCreado(requestFromServer.filter(function(item){
-        return item.state.description === "Creado"
-      }).length)
-      setCantNoAprob(requestFromServer.filter(function(item){
-        return item.state.description === "No Aprobado"
-      }).length)
-      setCantProc(requestFromServer.filter(function(item){
-        return item.state.description === "En Proceso"
-      }).length)
-      setCantObs(requestFromServer.filter(function(item){
-        return item.state.description === "Observado"
-      }).length)
-      setCantRech(requestFromServer.filter(function(item){
-        return item.state.description === "Rechazado"
-      }).length)
-      setCantAprob(requestFromServer.filter(function(item){
-        return item.state.description === "Aprobado"
-      }).length)
-      setCantEnv(requestFromServer.filter(function(item){
-        return item.sendReq === 1
-      }).length)
-      setInfRequest(() => {
-        const dataReq = requestFromServer.map((req) => {
-            return {
-              id: req.id, 
-              index: req.id, 
-              state: req.state.description,
-              _original: req,
-              society: req.society.description, 
-              position: req.position.description,
-              typeOfVacant: req.type.description,
-              codOfVacant: req.position.codePosition,
-              replaceOf: (req.listReplacement.length === 0) ? "" :
-                        (<ModalStateManager
-                          renderLauncher={({ setOpen }) => (
-                            <Button
+    setTimeout(() => {
+      const getRequest = async () => {
+        const requestFromServer = await fetchListRequest();
+        setListRequest(requestFromServer);
+        setCantCreado(requestFromServer.filter(function(item){
+          return item.state.description === "Creado"
+        }).length)
+        setCantNoAprob(requestFromServer.filter(function(item){
+          return item.state.description === "No Aprobado"
+        }).length)
+        setCantProc(requestFromServer.filter(function(item){
+          return item.state.description === "En Proceso"
+        }).length)
+        setCantObs(requestFromServer.filter(function(item){
+          return item.state.description === "Observado"
+        }).length)
+        setCantRech(requestFromServer.filter(function(item){
+          return item.state.description === "Rechazado"
+        }).length)
+        setCantAprob(requestFromServer.filter(function(item){
+          return item.state.description === "Aprobado"
+        }).length)
+        setCantEnv(requestFromServer.filter(function(item){
+          return item.sendReq === 1
+        }).length)
+        setInfRequest(() => {
+          const dataReq = requestFromServer.map((req) => {
+              return {
+                id: req.id, 
+                index: req.id, 
+                state: req.state.description,
+                _original: req,
+                society: req.society.description, 
+                position: req.position.description,
+                typeOfVacant: req.type.description,
+                codOfVacant: req.position.codePosition,
+                replaceOf: (req.listReplacement.length === 0) ? "" :
+                          (<ModalStateManager
+                            renderLauncher={({ setOpen }) => (
+                              <Button
+                                className="custom-class"
+                                kind="tertiary d"
+                                size="default"
+                                onClick={() => setOpen(true)}
+                              >
+                                Ver
+                              </Button>
+                            )}
+                          >
+                            {({ open, setOpen }) => (
+                              <Modal
+                                modalHeading="Lista Reemplazo"
+                                passiveModal
+                                secondaryButtonText={null}
+                                open={open}
+                                onRequestSubmit={() =>  setOpen(false)}
+                                onRequestClose={() => setOpen(false)}
+                              >
+                                {listDataText(req.listReplacement)}
+                                {/* <TextArea
+                                  readOnly
+                                  data-modal-primary-focus
+                                  id="textListReemp_2"
+                                  defaultValue={req.listReplacement.map(index => {
+                                    return (index.codigo + " " + index.apPaterno + " " + index.apMaterno + ", " + index.name + "\n" +
+                                            "Puesto: " + index.position.codePosition + " " + index.position.description + "\n" + "\n")
+                                    })}
+                                /> */}
+                              </Modal>
+                            )}
+                          </ModalStateManager>),
+                orgUnit: req.orgUnit.description,
+                centerOfCost: req.costCenter.description,
+                physicLocation: req.physLocation.description,
+                category: req.search.description,
+                quantity: req.quantity,
+                typeOfContract: req.contract.description,
+                timeOfContract: req.timeService,
+                justify: req.justification,
+                description: (<Button
                               className="custom-class"
                               kind="tertiary d"
                               size="default"
-                              onClick={() => setOpen(true)}
+                              onClick={() => onClickVerReq(req, requestFromServer)}
                             >
                               Ver
-                            </Button>
-                          )}
-                        >
-                          {({ open, setOpen }) => (
-                            <Modal
-                              modalHeading="Lista Reemplazo"
-                              passiveModal
-                              secondaryButtonText={null}
-                              open={open}
-                              onRequestSubmit={() =>  setOpen(false)}
-                              onRequestClose={() => setOpen(false)}
-                            >
-                              {listDataText(req.listReplacement)}
-                              {/* <TextArea
-                                readOnly
-                                data-modal-primary-focus
-                                id="textListReemp_2"
-                                defaultValue={req.listReplacement.map(index => {
-                                  return (index.codigo + " " + index.apPaterno + " " + index.apMaterno + ", " + index.name + "\n" +
-                                          "Puesto: " + index.position.codePosition + " " + index.position.description + "\n" + "\n")
-                                  })}
-                              /> */}
-                            </Modal>
-                          )}
-                        </ModalStateManager>),
-              orgUnit: req.orgUnit.description,
-              centerOfCost: req.costCenter.description,
-              physicLocation: req.physLocation.description,
-              category: req.search.description,
-              quantity: req.quantity,
-              typeOfContract: req.contract.description,
-              timeOfContract: req.timeService,
-              justify: req.justification,
-              description: (<Button
-                            className="custom-class"
-                            kind="tertiary d"
-                            size="default"
-                            onClick={() => onClickVerReq(req, requestFromServer)}
+                            </Button>),
+                observation: req.observation,
+                dateState: req.timeStatus,
+                status: req.flow.section,
+                check: <input
+                          type="checkbox"
+                          style={{ height: "25px", width: "100px" }}
+                          checked={req.sendReq}
+                          disabled={req.sendReq === 1}
+                        >                     
+                        </input>,
+                checkValue: req.sendReq}
+          });
+          return dataReq;
+        })
+        setInfCopyRequest(() => {
+          const dataReq = requestFromServer.map((req) => {
+              return {
+                id: req.id, 
+                index: req.id, 
+                state: req.state.description,
+                _original: req,
+                society: req.society.description, 
+                position: req.position.description,
+                typeOfVacant: req.type.description,
+                codOfVacant: req.position.codePosition,
+                replaceOf: (req.listReplacement.length === 0) ? "" :
+                          (<ModalStateManager
+                            renderLauncher={({ setOpen }) => (
+                              <Button
+                                className="custom-class"
+                                kind="tertiary d"
+                                size="default"
+                                onClick={() => setOpen(true)}
+                              >
+                                Ver
+                              </Button>
+                            )}
                           >
-                            Ver
-                          </Button>),
-              observation: req.observation,
-              dateState: req.timeStatus,
-              status: req.flow.section,
-              check: <input
-                        type="checkbox"
-                        style={{ height: "25px", width: "100px" }}
-                        checked={req.sendReq}
-                        disabled={req.sendReq === 1}
-                      >                     
-                      </input>,
-              checkValue: req.sendReq}
-        });
-        return dataReq;
-      })
-      setInfCopyRequest(() => {
-        const dataReq = requestFromServer.map((req) => {
-            return {
-              id: req.id, 
-              index: req.id, 
-              state: req.state.description,
-              _original: req,
-              society: req.society.description, 
-              position: req.position.description,
-              typeOfVacant: req.type.description,
-              codOfVacant: req.position.codePosition,
-              replaceOf: (req.listReplacement.length === 0) ? "" :
-                        (<ModalStateManager
-                          renderLauncher={({ setOpen }) => (
-                            <Button
+                            {({ open, setOpen }) => (
+                              <Modal
+                                modalHeading="Lista Reemplazo"
+                                passiveModal
+                                secondaryButtonText={null}
+                                open={open}
+                                onRequestSubmit={() =>  setOpen(false)}
+                                onRequestClose={() => setOpen(false)}
+                              >
+                                {listDataText(req.listReplacement)}
+                                {/* <TextArea
+                                  readOnly
+                                  data-modal-primary-focus
+                                  id="textListReemp_2"
+                                  defaultValue={req.listReplacement.map(index => {
+                                    return (index.codigo + " " + index.apPaterno + " " + index.apMaterno + ", " + index.name + "\n" +
+                                            "Puesto: " + index.position.codePosition + " " + index.position.description + "\n" + "\n")
+                                    })}
+                                /> */}
+                              </Modal>
+                            )}
+                          </ModalStateManager>),
+                orgUnit: req.orgUnit.description,
+                centerOfCost: req.costCenter.description,
+                physicLocation: req.physLocation.description,
+                category: req.search.description,
+                quantity: req.quantity,
+                typeOfContract: req.contract.description,
+                timeOfContract: req.timeService,
+                justify: req.justification,
+                description: (<Button
                               className="custom-class"
                               kind="tertiary d"
                               size="default"
-                              onClick={() => setOpen(true)}
+                              onClick={() => onClickVerReq(req, requestFromServer)}
                             >
                               Ver
-                            </Button>
-                          )}
-                        >
-                          {({ open, setOpen }) => (
-                            <Modal
-                              modalHeading="Lista Reemplazo"
-                              passiveModal
-                              secondaryButtonText={null}
-                              open={open}
-                              onRequestSubmit={() =>  setOpen(false)}
-                              onRequestClose={() => setOpen(false)}
-                            >
-                              {listDataText(req.listReplacement)}
-                              {/* <TextArea
-                                readOnly
-                                data-modal-primary-focus
-                                id="textListReemp_2"
-                                defaultValue={req.listReplacement.map(index => {
-                                  return (index.codigo + " " + index.apPaterno + " " + index.apMaterno + ", " + index.name + "\n" +
-                                          "Puesto: " + index.position.codePosition + " " + index.position.description + "\n" + "\n")
-                                  })}
-                              /> */}
-                            </Modal>
-                          )}
-                        </ModalStateManager>),
-              orgUnit: req.orgUnit.description,
-              centerOfCost: req.costCenter.description,
-              physicLocation: req.physLocation.description,
-              category: req.search.description,
-              quantity: req.quantity,
-              typeOfContract: req.contract.description,
-              timeOfContract: req.timeService,
-              justify: req.justification,
-              description: (<Button
-                            className="custom-class"
-                            kind="tertiary d"
-                            size="default"
-                            onClick={() => onClickVerReq(req, requestFromServer)}
-                          >
-                            Ver
-                          </Button>),
-              observation: req.observation,
-              dateState: req.timeStatus,
-              status: req.flow.section,
-              check: <input
-                        type="checkbox"
-                        style={{ height: "25px", width: "100px" }}
-                        checked={req.sendReq}
-                        disabled={req.sendReq === 1}
-                      >                     
-                      </input>,
-              checkValue: req.sendReq}
-        });
-        return dataReq;
-      })
-    };
-    getRequest();
+                            </Button>),
+                observation: req.observation,
+                dateState: req.timeStatus,
+                status: req.flow.section,
+                check: <input
+                          type="checkbox"
+                          style={{ height: "25px", width: "100px" }}
+                          checked={req.sendReq}
+                          disabled={req.sendReq === 1}
+                        >                     
+                        </input>,
+                checkValue: req.sendReq}
+          });
+          return dataReq;
+        })
+        setDoneV1(true)  
+      };
+      getRequest();
+    }, 4000);
   }, []);
 
   //Fetch Societies
   useEffect(() => {
-    const getSocieties = async () => {
-      const societiesFromServer = await fetchSocieties();
-      setListSocieties(societiesFromServer);
-    };
-    getSocieties();
+    setTimeout(() => {
+      const getSocieties = async () => {
+        const societiesFromServer = await fetchSocieties();
+        setListSocieties(societiesFromServer);
+        setDoneV2(true)
+      };
+      getSocieties();
+    }, 4000);
   }, []);
 
   //Fetch Organizational Unit
   useEffect(() => {
-    const getOrganizationalUnit = async () => {
-      const orgUnitFromServer = await fetchOrganizationalUnits();
-      setListOrgUnit(orgUnitFromServer);
-    };
-    getOrganizationalUnit();
+    setTimeout(() => {
+      const getOrganizationalUnit = async () => {
+        const orgUnitFromServer = await fetchOrganizationalUnits();
+        setListOrgUnit(orgUnitFromServer);
+        setDoneV3(true)
+      };
+      getOrganizationalUnit();
+    }, 4000);
   }, []);
 
   //Fetch Type State
   useEffect(() => {
-    const getTypeState = async () => {
-      const stateFromServer = await fetchTypeState();
-      setListState(stateFromServer);
-    };
-    getTypeState();
+    setTimeout(() => {
+      const getTypeState = async () => {
+        const stateFromServer = await fetchTypeState();
+        setListState(stateFromServer);
+        setDoneV4(true)
+      };
+      getTypeState();
+    }, 4000);
   }, []);
 
   //Fetch Type Requirement
   useEffect(() => {
-    const getTypeRequest = async () => {
-      const typeRequestFromServer = await fetchTypeRequirements();
-      setListTypeReq(typeRequestFromServer);
-    };
-    getTypeRequest();
+    setTimeout(() => {
+      const getTypeRequest = async () => {
+        const typeRequestFromServer = await fetchTypeRequirements();
+        setListTypeReq(typeRequestFromServer);
+        setDoneV5(true)
+      };
+      getTypeRequest();
+    }, 4000);
   }, []);
 
   const listDataText = (list) => {
@@ -817,206 +839,217 @@ export default function ControlPanelStaff(props) {
   }
 
   return (
-    <div className="bg--grid">
-      <h2 className="center_titles">
-        Tablero de Control de Requerimiento de Personal
-      </h2>
-      <div>
-        <br></br> <br></br>
-      </div>
-      <div className="bx--row" style={{ marginBottom: "1.2rem" }}>
-        <div className="bx--col">
-          <ComboBox
-            onChange={(item) => {monthSelectChange(item)}}
-            id="comboMes"
-            light
-            selectedItem={monthSelect}
-            items={monthList}
-            itemToString={(item) => (item ? item.name : "")}
-            placeholder="Escriba mes..."
-            titleText="Mes"
-            shouldFilterItem={({ item: { name }, inputValue }) => 
-            name.toLowerCase().includes(inputValue.toLowerCase())}
+    <>
+      {(!doneV1 && !doneV2 && !doneV3 && !doneV4 && !doneV5) ? (
+          <ReactLoading
+            type={"spin"}
+            color={"#002060"}
+            height={200}
+            width={200}
           />
+        ) : (
+      <div className="bg--grid">
+        <h2 className="center_titles">
+          Tablero de Control de Requerimiento de Personal
+        </h2>
+        <div>
+          <br></br> <br></br>
         </div>
-
-        <div className="bx--col">
-          <ComboBox
-            onChange={(item) => {yearSelectChange(item)}}
-            id="comboYear"
-            light
-            selectedItem={yearSelect}
-            items={yearList}
-            itemToString={(item) => (item ? item.name : "")}
-            placeholder="Escriba año..."
-            titleText="Año"
-            shouldFilterItem={({ item: { name }, inputValue }) => 
-            name.toLowerCase().includes(inputValue.toLowerCase())}
-          />
-        </div>
-      </div>
-      <div>
-        <br></br>
-      </div>
-      <div className="center_titles">
-        <span className="b">
-          {cantCreado} <br></br> <br></br> Creados
-        </span>
-        <span> </span>
-        <span className="c">
-          {cantNoAprob} <br></br> <br></br> No Aprobado
-        </span>
-        <span> </span>
-        <span className="d">
-          {cantProc} <br></br> <br></br> En Proceso
-        </span>
-        <span> </span>
-        <span className="e">
-          {cantObs} <br></br> <br></br> Observados
-        </span>
-        <span> </span>
-        <span className="c">
-          {cantRech} <br></br> <br></br> Rechazados
-        </span>
-        <span> </span>
-        <span className="g">
-          {cantAprob} <br></br> <br></br> Aprobados
-        </span>
-        <span> </span>
-        <span className="f">
-          {cantEnv} <br></br> <br></br> Enviados
-        </span>
-      </div>
-      <div>
-        <br></br>
-      </div>
-      <div
-        className="bx--row"
-        style={{
-          border: "4px solid #7a8db3",
-          marginBottom: "1.2rem",
-          borderRadius: "6px",
-        }}
-      >
-        <div className="bx--col">
-          <ComboBox
-            onChange={(item) => {societySelectChange(item)}}
-            id="comboSociety"
-            light
-            selectedItem={societySelect}
-            items={listSocieties}
-            itemToString={(item) => (item ? item.description : "")}
-            placeholder="Escriba Sociedad..."
-            titleText="Sociedad"
-            shouldFilterItem={({ item: { description }, inputValue }) => 
-            description.toLowerCase().includes(inputValue.toLowerCase())}
-          />
-        </div>
-
-        <div className="bx--col">
-          <ComboBox
-            onChange={(item) => {stateSelectChange(item)}}
-            id="comboTipoEstado"
-            light
-            selectedItem={stateSelect}
-            items={listState}
-            itemToString={(item) => (item ? item.description : "")}
-            placeholder="Escriba tipo estado..."
-            titleText="Estado"
-            shouldFilterItem={({ item: { description }, inputValue }) => 
-            description.toLowerCase().includes(inputValue.toLowerCase())}
-          />
-        </div>
-
-        <div className="bx--col">
-          <ComboBox
-            onChange={(item) => {orgUnitSelectChange(item)}}
-            id="comboOrgUnit"
-            light
-            selectedItem={orgUnitSelect}
-            items={listOrgUnit}
-            itemToString={(item) => (item ? item.description : "")}
-            placeholder="Escriba Unidad..."
-            titleText="Unidad Organizacional"
-            shouldFilterItem={({ item: { description }, inputValue }) => 
-            description.toLowerCase().includes(inputValue.toLowerCase())}
-          />
-        </div>
-
-        <div className="bx--col">
-          <ComboBox
-            onChange={(item) => {typeReqSelectChange(item)}}
-            id="comboTipoReq"
-            light
-            selectedItem={typeReqSelect}
-            items={listTypeReq}
-            itemToString={(item) => (item ? item.description : "")}
-            placeholder="Escriba tipo vacante..."
-            titleText="Vacante"
-            shouldFilterItem={({ item: { description }, inputValue }) => 
-            description.toLowerCase().includes(inputValue.toLowerCase())}
-          />
-        </div>
-      </div>
-      <DataTable rows={infCopyRequest} headers={headerData}>
-        {renderContentTable}
-      </DataTable>
-
-      <div className="bx--row">
-        <div className="row-action">
-          <div className="bx--row" />
+        <div className="bx--row" style={{ marginBottom: "1.2rem" }}>
           <div className="bx--col">
-            <Button
-              className="custom-class"
-              kind="tertiary f"
-              renderIcon={DocumentDownload32}
-              size="default"
-              onClick={() => exportReportToExcel(this)}
-            >
-              Excel
-            </Button>
+            <ComboBox
+              onChange={(item) => {monthSelectChange(item)}}
+              id="comboMes"
+              light
+              selectedItem={monthSelect}
+              items={monthList}
+              itemToString={(item) => (item ? item.name : "")}
+              placeholder="Escriba mes..."
+              titleText="Mes"
+              shouldFilterItem={({ item: { name }, inputValue }) => 
+              name.toLowerCase().includes(inputValue.toLowerCase())}
+            />
           </div>
-          {(userReq.approverRole === 4) && (<div className="bx--col">
-            <Button
-              className="custom-class"
-              kind="tertiary a_1"
-              size="default"
-              onClick={onClickAprobar}
-            >
-              Aprobar
-            </Button>
-          </div>)}
+
+          <div className="bx--col">
+            <ComboBox
+              onChange={(item) => {yearSelectChange(item)}}
+              id="comboYear"
+              light
+              selectedItem={yearSelect}
+              items={yearList}
+              itemToString={(item) => (item ? item.name : "")}
+              placeholder="Escriba año..."
+              titleText="Año"
+              shouldFilterItem={({ item: { name }, inputValue }) => 
+              name.toLowerCase().includes(inputValue.toLowerCase())}
+            />
+          </div>
+        </div>
+        <div>
+          <br></br>
+        </div>
+        <div className="center_titles">
+          <span className="b">
+            {cantCreado} <br></br> <br></br> Creados
+          </span>
+          <span> </span>
+          <span className="c">
+            {cantNoAprob} <br></br> <br></br> No Aprobado
+          </span>
+          <span> </span>
+          <span className="d">
+            {cantProc} <br></br> <br></br> En Proceso
+          </span>
+          <span> </span>
+          <span className="e">
+            {cantObs} <br></br> <br></br> Observados
+          </span>
+          <span> </span>
+          <span className="c">
+            {cantRech} <br></br> <br></br> Rechazados
+          </span>
+          <span> </span>
+          <span className="g">
+            {cantAprob} <br></br> <br></br> Aprobados
+          </span>
+          <span> </span>
+          <span className="f">
+            {cantEnv} <br></br> <br></br> Enviados
+          </span>
+        </div>
+        <div>
+          <br></br>
+        </div>
+        <div
+          className="bx--row"
+          style={{
+            border: "4px solid #7a8db3",
+            marginBottom: "1.2rem",
+            borderRadius: "6px",
+          }}
+        >
+          <div className="bx--col">
+            <ComboBox
+              onChange={(item) => {societySelectChange(item)}}
+              id="comboSociety"
+              light
+              selectedItem={societySelect}
+              items={listSocieties}
+              itemToString={(item) => (item ? item.description : "")}
+              placeholder="Escriba Sociedad..."
+              titleText="Sociedad"
+              shouldFilterItem={({ item: { description }, inputValue }) => 
+              description.toLowerCase().includes(inputValue.toLowerCase())}
+            />
+          </div>
+
+          <div className="bx--col">
+            <ComboBox
+              onChange={(item) => {stateSelectChange(item)}}
+              id="comboTipoEstado"
+              light
+              selectedItem={stateSelect}
+              items={listState}
+              itemToString={(item) => (item ? item.description : "")}
+              placeholder="Escriba tipo estado..."
+              titleText="Estado"
+              shouldFilterItem={({ item: { description }, inputValue }) => 
+              description.toLowerCase().includes(inputValue.toLowerCase())}
+            />
+          </div>
+
+          <div className="bx--col">
+            <ComboBox
+              onChange={(item) => {orgUnitSelectChange(item)}}
+              id="comboOrgUnit"
+              light
+              selectedItem={orgUnitSelect}
+              items={listOrgUnit}
+              itemToString={(item) => (item ? item.description : "")}
+              placeholder="Escriba Unidad..."
+              titleText="Unidad Organizacional"
+              shouldFilterItem={({ item: { description }, inputValue }) => 
+              description.toLowerCase().includes(inputValue.toLowerCase())}
+            />
+          </div>
+
+          <div className="bx--col">
+            <ComboBox
+              onChange={(item) => {typeReqSelectChange(item)}}
+              id="comboTipoReq"
+              light
+              selectedItem={typeReqSelect}
+              items={listTypeReq}
+              itemToString={(item) => (item ? item.description : "")}
+              placeholder="Escriba tipo vacante..."
+              titleText="Vacante"
+              shouldFilterItem={({ item: { description }, inputValue }) => 
+              description.toLowerCase().includes(inputValue.toLowerCase())}
+            />
+          </div>
+        </div>
+        <DataTable rows={infCopyRequest} headers={headerData}>
+          {renderContentTable}
+        </DataTable>
+
+        <div className="bx--row">
+          <div className="row-action">
+            <div className="bx--row" />
+            <div className="bx--col">
+              <Button
+                className="custom-class"
+                kind="tertiary f"
+                renderIcon={DocumentDownload32}
+                size="default"
+                onClick={() => exportReportToExcel(this)}
+              >
+                Excel
+              </Button>
+            </div>
+            {(userReq.approverRole === 4) && (<div className="bx--col">
+              <Button
+                className="custom-class"
+                kind="tertiary a_1"
+                size="default"
+                onClick={onClickAprobar}
+              >
+                Aprobar
+              </Button>
+            </div>)}
+          </div>
+        </div>
+        <div className="bx--col">
+          <Button
+            className="custom-class"
+            kind="tertiary a"
+            renderIcon={Email32}
+            size="default"
+            onClick={onClickEnviarAprob}
+          >
+            Aprobados
+          </Button>
+          <Button
+            className="custom-class"
+            kind="tertiary b"
+            renderIcon={Email32}
+            size="default"
+            onClick={onClickEnviarRech}
+          >
+            Rechazados
+          </Button>
+          <Button
+            className="custom-class"
+            kind="tertiary c"
+            renderIcon={Email32}
+            size="default"
+            onClick={onClickEnviarObs}
+          >
+            Observados
+          </Button>
         </div>
       </div>
-      <div className="bx--col">
-        <Button
-          className="custom-class"
-          kind="tertiary a"
-          renderIcon={Email32}
-          size="default"
-          onClick={onClickEnviarAprob}
-        >
-          Aprobados
-        </Button>
-        <Button
-          className="custom-class"
-          kind="tertiary b"
-          renderIcon={Email32}
-          size="default"
-          onClick={onClickEnviarRech}
-        >
-          Rechazados
-        </Button>
-        <Button
-          className="custom-class"
-          kind="tertiary c"
-          renderIcon={Email32}
-          size="default"
-          onClick={onClickEnviarObs}
-        >
-          Observados
-        </Button>
-      </div>
-    </div>
+      )}
+    </>
   );
 }

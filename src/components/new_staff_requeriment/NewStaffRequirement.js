@@ -16,9 +16,14 @@ import {
 } from "carbon-components-react";
 import RequirementGroup from "./RequirementGroup";
 import SelectOrg from "./SelectOrg";
-import { fetchOrgAsignation, fetchPosition, fetchPerson, sendRequest } from "../../services/api/servicies";
+import { fetchOrgAsignation, fetchPosition, fetchPerson, fetchUser, sendRequest } from "../../services/api/servicies";
+import ReactLoading from "react-loading";
 
 export default function NewStaffRequirement(props) {
+  const [doneV1, setDoneV1] = useState(undefined);
+  const [doneV2, setDoneV2] = useState(undefined);
+  const [doneV3, setDoneV3] = useState(undefined);
+  const [doneV4, setDoneV4] = useState(undefined);
   //Listas
   const [listOrgAsign, setListOrgAsign] = useState({
     listSociety: [],
@@ -64,15 +69,15 @@ export default function NewStaffRequirement(props) {
   const [personaSelect, setPersonaSelect] = useState(null)  //Persona Select
   //Usuario
   const [userReq, setUserReq] = useState({
-    position: "",
+    position: 0,
     name: "",
     apPaterno: "",
     apMaterno: "",
-    codeSuperior: "0",
-    approverRole: 1, 
-    id: 1
+    codeSuperior: 0,
+    id: 0,
+    profile: 0,
+    approverRole: 0
   })
-  const [maxDoc, setMaxDoc] = useState(0);
   const minReq = 1;                                     //Cant min
   const maxReq = 200;                                   //Cant max
   const [checkCount, setCheckCount] = useState(false);  //Verificar Cant
@@ -98,37 +103,64 @@ export default function NewStaffRequirement(props) {
 
   //Fetch Organization
   useEffect(() => {
-    const getOrganization = async () => {
-        const organizationFromServer = await fetchOrgAsignation()
-        setListOrgAsign(organizationFromServer)
-    }
-    getOrganization()
-    }, [])
+    setTimeout(() => {
+      const getOrganization = async () => {
+          const organizationFromServer = await fetchOrgAsignation()
+          setListOrgAsign(organizationFromServer)
+          setDoneV1(true)
+      }
+      getOrganization()
+    }, 4000);
+  }, [])
 
   //Fetch Position
   useEffect(() => {
-    const getPosition = async () => {
-        const positionFromServer = await fetchPosition()
-        setListPuestos(positionFromServer)
-    }
-    getPosition()
-    }, [])
+    setTimeout(() => {
+      const getPosition = async () => {
+          const positionFromServer = await fetchPosition()
+          setListPuestos(positionFromServer)
+          setDoneV2(true)
+      }
+      getPosition()
+    }, 4000);
+  }, [])
 
   //Fetch Person
+  useEffect(() => {  
+    setTimeout(() => {
+      const getPerson = async () => {
+          const personFromServer = await fetchPerson()
+          setListTrabajador(personFromServer)
+          setDoneV3(true)
+      }
+      getPerson()
+    }, 4000);
+  }, [])
+
+  //Fetch User
   useEffect(() => {
-    const getPerson = async () => {
-        const personFromServer = await fetchPerson()
-        setListTrabajador(personFromServer)
-        setUserReq({position: personFromServer[0].position.description,
-                    name: personFromServer[0].name,
-                    apPaterno: personFromServer[0].apPaterno,
-                    apMaterno: personFromServer[0].apMaterno,
-                    codeSuperior: personFromServer[0].codeSuperior,
-                    id: personFromServer[0].id,
-                    approverRole: 1
-                  })
-    }
-    getPerson()
+    setTimeout(() => {
+      const getUser = async () => {
+          const userFromServer = await fetchUser()
+          setUserReq({position: userFromServer.person.position.description,
+                      name: userFromServer.person.name,
+                      apPaterno: userFromServer.person.apPaterno,
+                      apMaterno: userFromServer.person.apMaterno,
+                      codeSuperior: userFromServer.person.codeSuperior,
+                      id: userFromServer.userId,
+                      profile: userFromServer.profile.tipo,
+                      approverRole: userFromServer.rol.tipo,
+                      userSoc: userFromServer.society.id,
+                      userUnit: userFromServer.organizationalUnit.id,
+                      userPhys: userFromServer.physicalLocation.id,
+                      userComp: userFromServer.companyDivision.id,
+                      userCost: userFromServer.costCenter.id,
+                      userVP: userFromServer.vPManagement.id,
+                    })
+          setDoneV4(true)  
+      }
+      getUser()
+    }, 4000);
   }, [])
 
   const verificarCant = (item) => {
@@ -348,6 +380,7 @@ export default function NewStaffRequirement(props) {
           fileDesc: ""
         }
       };
+      // console.log(JSON.stringify(data))
       const requestSend = await sendRequest(data);
       alert("Solicitud Creada")
       props.history.go(0)
@@ -356,11 +389,20 @@ export default function NewStaffRequirement(props) {
       alert("Fata llenar datos, revise que ningún campo obligatorio esté vacío")
       console.log("Falta llenar")
     }
-    console.log(societySelect)
   };
 
   return (
-    <Form>
+    <>
+    {/* <Form> */}
+      {(!doneV1 && !doneV2 && !doneV3 && !doneV4) ? (
+        <ReactLoading
+          type={"spin"}
+          color={"#002060"}
+          height={200}
+          width={200}
+        />
+      ) : (
+      <Form>
       <div className="bg--grid">
         <h2>Requerimiento de Personal</h2>
         <p
@@ -466,13 +508,16 @@ export default function NewStaffRequirement(props) {
                   else if(item.selectedItem === "Externa"){
                     setBusqTipo(2)
                   }
+                  else if(item.selectedItem === "Ambas"){
+                    setBusqTipo(3)
+                  }
                   else{
                     setBusqTipo(0)
                   }}}
                 id="comboTipoBusq"
                 light
                 invalid={busqTipo === 0}
-                items={["Interna","Externa"]}
+                items={["Interna","Externa","Ambas"]}
                 placeholder="Seleccione tipo..."
                 titleText="Tipo de Busqueda"
               ></ComboBox>
@@ -803,7 +848,7 @@ export default function NewStaffRequirement(props) {
                 id="comboTiempoExp"
                 light
                 selectedItem={puestoTiempoExpSelect}
-                items={["Más de 1 año","Más de 2 años","Más de 3 años","Más de 4 años"]}
+                items={["Menos de 1 año","1 - 3 años","3 - 5 años","5 - 10 años", "Más de 10 años"]}
                 placeholder="Escriba tiempo..."
                 titleText="Tiempo de Experiencia"
               ></ComboBox>
@@ -816,7 +861,7 @@ export default function NewStaffRequirement(props) {
                 id="comboRangoEdad"
                 light
                 selectedItem={puestoRangoEdadSelect}
-                items={["Más de 20 años","Más de 30 años","Más de 40 años"]}
+                items={["Hasta 25 años","Hasta 35 años","Hasta 45 años","Indiferente"]}
                 placeholder="Escriba rango edad..."
                 titleText="Rango de Edad"
               ></ComboBox>
@@ -867,7 +912,6 @@ export default function NewStaffRequirement(props) {
         <div className="bx--row">
           <FileUploader
             className="custom-class"
-            multiple
             accept={[
               ".docx",
               ".docm",
@@ -882,7 +926,7 @@ export default function NewStaffRequirement(props) {
             filenameStatus="edit"
             iconDescription="Clear file"
             labelDescription="Solo archivos de tipo Word, PowerPoint, Excel o PDF"
-            labelTitle="Adjunta Organigrama y Descriptivo de Puesto"
+            labelTitle="Adjunta Organigrama o Descriptivo de Puesto"
           />
         </div>
         <div className="row-action">
@@ -896,6 +940,9 @@ export default function NewStaffRequirement(props) {
           </Button>
         </div>
       </div>
+      {/* )} */}
     </Form>
+    )}
+  </>
   );
 }

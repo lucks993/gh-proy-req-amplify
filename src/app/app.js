@@ -36,10 +36,14 @@ import SalaryAdjusmentActionBolivian from "../components/salary_adjusment_action
 import ControlPanelStaffParcial from "../components/control_panel_staff_parcial/ControlPanelStaffParcial";
 import ChartStaffRequirement from "../components/staff_requirement_chart/ChartStaffRequirement";
 import ConfigRequirement from "../components/config_requirement/ConfigRequirement";
+import { fetchUser } from "../services/api/servicies";
+import ReactLoading from "react-loading";
 //import SearchStatusStaffRequirement from "../components/search/SearchStatusStaffRequirement/SearchStatusStaffRequirement";
 
 
 function App() {
+  const [doneV1, setDoneV1] = useState(undefined);
+
   const dispatch = useDispatch();
   const isAunthenticated = useSelector((state) => state.auth.isAuthenticated);
   const [sideNav, setSideNav] = useState();
@@ -69,8 +73,49 @@ function App() {
     //eslint-disable-next-line
   }, []);
 
+  // const [userReq, setUserReq] = useState({
+  //   position: 0,
+  //   name: "",
+  //   apPaterno: "",
+  //   apMaterno: "",
+  //   codeSuperior: 0,
+  //   id: 0,
+  //   profile: 0,
+  //   approverRole: 0
+  // })
+  const [userReq, setUserReq] = useState()
+
+  //Fetch User
+  useEffect(() => {
+    setTimeout(() => {
+      const getUser = async () => {
+          const userFromServer = await fetchUser()
+          setUserReq({position: userFromServer.person.position.description,
+                      name: userFromServer.person.name,
+                      apPaterno: userFromServer.person.apPaterno,
+                      apMaterno: userFromServer.person.apMaterno,
+                      codeSuperior: userFromServer.person.codeSuperior,
+                      id: userFromServer.userId,
+                      profile: userFromServer.profile.tipo,
+                      approverRole: userFromServer.rol.tipo
+                    })
+          setDoneV1(true)
+      }
+      getUser()
+  }, 1000);
+  }, [])
+
   if (/*isAunthenticated*/ true) {
     return (
+      <>
+      {(!doneV1) ? (
+          <ReactLoading
+            type={"spin"}
+            color={"#002060"}
+            height={200}
+            width={200}
+          />
+        ) : (
       <Fragment>
         <Router>
 
@@ -98,21 +143,21 @@ function App() {
                 <SideNavMenuItem href="/requerimiento-personal-bandeja">
                   Solicitudes en Curso
                 </SideNavMenuItem>
-                <SideNavMenuItem href="/tablero-control-persona">
+               {(userReq.profile === 1) && (<SideNavMenuItem href="/tablero-control-persona">
                   Tablero de Control
-                </SideNavMenuItem>
-                <SideNavMenuItem href="/tablero-control-persona-parcial">
+                </SideNavMenuItem>)}
+                {(userReq.profile === 3) && (<SideNavMenuItem href="/tablero-control-persona-parcial">
                   Tablero de Control Parcial - RP
-                </SideNavMenuItem>
-                <SideNavMenuItem href="/grafico-persona">
+                </SideNavMenuItem>)}
+                {(userReq.profile === 1) && (<SideNavMenuItem href="/grafico-persona">
                   Gráficos - RP
-                </SideNavMenuItem>
-                <SideNavMenuItem href="/configuracion_requerimiento">
+                </SideNavMenuItem>)}
+                {(userReq.profile === 1) && (<SideNavMenuItem href="/configuracion_requerimiento">
                   Configuración
-                </SideNavMenuItem>
+                </SideNavMenuItem>)}
               </SideNavMenu>
 
-              <SideNavMenu title="Solicitudes de Revision Salarial y Cambios Organizacionales">
+              {(userReq.profile === 4) && (<SideNavMenu title="Solicitudes de Revision Salarial y Cambios Organizacionales">
                 <SideNavMenuItem href="/ajuste-salarial">
                   Revisión Ajuste Salarial
                 </SideNavMenuItem>
@@ -140,7 +185,7 @@ function App() {
 
 
 
-              </SideNavMenu>
+              </SideNavMenu>)}
             </SideNavItems>
           </SideNav>
           <Content>
@@ -214,6 +259,8 @@ function App() {
           </Content>
         </Router>
       </Fragment>
+      )}
+      </>
     );
   } else {
     return null;

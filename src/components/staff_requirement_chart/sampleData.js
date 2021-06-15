@@ -209,8 +209,9 @@ export const barOption1 =
         },   
         color: {
             scale: {
-                Nuevo: "#002060",
-                Reemplazo: "#8faae6"
+                "Nuevo Planificado": "#002060",
+                "Nuevo No Planificado": "#8faae6",
+                Reemplazo: "#c00000"
             }
         },
         height: "400px"
@@ -330,11 +331,15 @@ export const barOption3 =
         color: {
             scale: {
                 GLORIA: "#002060",
+                DEPRODECA: "#0070c0",
+                AGP: "#025022",
+                PANIFICADORA: "#bf8f00",
                 YURA: "#7f7f7f ",
-                SUPERAMIX: "#2f6948",
+                SUPERMIX: "#2f6948",
+                INGEMIN: "#993300",
                 CALCESUR: "#7030a0",
-                RACIEMSA: "#c00000",
                 TRUPAL: "#ed7c31",
+                RACIEMSA: "#c00000",            
                 CENTRO: "#14a0ba"
                 //ILLAPU: "#B80808"
             }

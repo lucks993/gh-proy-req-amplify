@@ -20,6 +20,7 @@ import {
 import { headerData, monthList } from "./sampleData";
 import "./ControlPanelStaffParcial.scss";
 import { fetchListRequest, fetchOrganizationalUnits, fetchTypeState, fetchTypeRequirements } from "../../services/api/servicies";
+import ReactLoading from "react-loading";
 
 const ModalStateManager = ({
   renderLauncher: LauncherContent,
@@ -59,6 +60,11 @@ const showListYear = () => {
 }
 
 export default function ControlPanelStaffParcial(props) {
+  const [doneV1, setDoneV1] = useState(undefined);
+  const [doneV2, setDoneV2] = useState(undefined);
+  const [doneV3, setDoneV3] = useState(undefined);
+  const [doneV4, setDoneV4] = useState(undefined);
+
   const [listRequest, setListRequest] = useState([]);
   const [infRequest, setInfRequest] = useState([]);
   const [infCopyRequest, setInfCopyRequest] = useState([]);
@@ -277,35 +283,45 @@ export default function ControlPanelStaffParcial(props) {
         });
         return dataReq;
       });
+      setDoneV1(true)
     };
     getRequest();
   }, []);
 
   //Fetch Organizational Unit
   useEffect(() => {
-    const getOrganizationalUnit = async () => {
-      const orgUnitFromServer = await fetchOrganizationalUnits();
-      setListOrgUnit(orgUnitFromServer);
-    };
-    getOrganizationalUnit();
+    setTimeout(() => {
+      const getOrganizationalUnit = async () => {
+        const orgUnitFromServer = await fetchOrganizationalUnits();
+        setListOrgUnit(orgUnitFromServer);
+        setDoneV2(true)
+      };
+      getOrganizationalUnit();
+    }, 6000);   
   }, []);
 
   //Fetch Type State
   useEffect(() => {
-    const getTypeState = async () => {
-      const stateFromServer = await fetchTypeState();
-      setListState(stateFromServer);
-    };
-    getTypeState();
+    setTimeout(() => {
+      const getTypeState = async () => {
+        const stateFromServer = await fetchTypeState();
+        setListState(stateFromServer);
+        setDoneV3(true)
+      };
+      getTypeState();
+    }, 2000);
   }, []);
 
   //Fetch Type Requirement
   useEffect(() => {
-    const getTypeRequest = async () => {
-      const typeRequestFromServer = await fetchTypeRequirements();
-      setListTypeReq(typeRequestFromServer);
-    };
-    getTypeRequest();
+    setTimeout(() => {
+      const getTypeRequest = async () => {
+        const typeRequestFromServer = await fetchTypeRequirements();
+        setListTypeReq(typeRequestFromServer);
+        setDoneV4(true)
+      };
+      getTypeRequest();
+    }, 2000);
   }, []);
 
   const listDataText = (list) => {
@@ -509,174 +525,185 @@ export default function ControlPanelStaffParcial(props) {
   };
 
   return (
-    <div className="bg--grid">
-      <h2 className="center_titles">
-        Tablero de Control de Requerimiento de Personal
-      </h2>
-      <div>
-        <br></br> <br></br>
-      </div>
-      <div className="bx--row" style={{ marginBottom: "1.2rem" }}>
-        <div className="bx--col">
-          <ComboBox
-            onChange={(item) => {monthSelectChange(item)}}
-            id="comboMes"
-            light
-            selectedItem={monthSelect}
-            items={monthList}
-            itemToString={(item) => (item ? item.name : "")}
-            placeholder="Escriba mes..."
-            titleText="Mes"
-            shouldFilterItem={({ item: { name }, inputValue }) => 
-            name.toLowerCase().includes(inputValue.toLowerCase())}
+    <>
+      {(!doneV1 && !doneV2 && !doneV3 && !doneV4) ? (
+          <ReactLoading
+            type={"spin"}
+            color={"#002060"}
+            height={200}
+            width={200}
           />
+        ) : (
+      <div className="bg--grid">
+        <h2 className="center_titles">
+          Tablero de Control de Requerimiento de Personal
+        </h2>
+        <div>
+          <br></br> <br></br>
         </div>
-
-        <div className="bx--col">
-          <ComboBox
-            onChange={(item) => {yearSelectChange(item)}}
-            id="comboYear"
-            light
-            selectedItem={yearSelect}
-            items={yearList}
-            itemToString={(item) => (item ? item.name : "")}
-            placeholder="Escriba año..."
-            titleText="Año"
-            shouldFilterItem={({ item: { name }, inputValue }) => 
-            name.toLowerCase().includes(inputValue.toLowerCase())}
-          />
-        </div>
-      </div>
-      <div>
-        <br></br>
-      </div>
-      <div className="center_titles">
-        <span class="b">
-          {cantCreado} <br></br> <br></br> Creados
-        </span>
-        <span> </span>
-        <span class="c">
-          {cantNoAprob} <br></br> <br></br> No Aprobado
-        </span>
-        <span> </span>
-        <span class="d">
-          {cantProc} <br></br> <br></br> En Proceso
-        </span>
-        <span> </span>
-        <span class="e">
-          {cantObs} <br></br> <br></br> Observados
-        </span>
-        <span> </span>
-        <span class="c">
-          {cantRech} <br></br> <br></br> Rechazados
-        </span>
-        <span> </span>
-        <span class="g">
-          {cantAprob} <br></br> <br></br> Aprobados
-        </span>
-        <span> </span>
-      </div>
-      <div>
-        <br></br>
-      </div>
-      <div
-        className="bx--row"
-        style={{
-          border: "4px solid #7a8db3",
-          marginBottom: "1.2rem",
-          borderRadius: "6px",
-        }}
-      >
-        <div className="bx--col">
-          <ComboBox
-            onChange={(item) => {stateSelectChange(item)}}
-            id="comboTipoEstado"
-            light
-            selectedItem={stateSelect}
-            items={listState}
-            itemToString={(item) => (item ? item.description : "")}
-            placeholder="Escriba tipo estado..."
-            titleText="Estado"
-            shouldFilterItem={({ item: { description }, inputValue }) => 
-            description.toLowerCase().includes(inputValue.toLowerCase())}
-          />
-        </div>
-
-        <div className="bx--col">
-          <ComboBox
-            onChange={(item) => {orgUnitSelectChange(item)}}
-            id="comboOrgUnit"
-            light
-            selectedItem={orgUnitSelect}
-            items={listOrgUnit}
-            itemToString={(item) => (item ? item.description : "")}
-            placeholder="Escriba Unidad..."
-            titleText="Unidad Organizacional"
-            shouldFilterItem={({ item: { description }, inputValue }) => 
-            description.toLowerCase().includes(inputValue.toLowerCase())}
-          />
-        </div>
-
-        <div className="bx--col">
-          <ComboBox
-            onChange={(item) => {typeReqSelectChange(item)}}
-            id="comboTipoReq"
-            light
-            selectedItem={typeReqSelect}
-            items={listTypeReq}
-            itemToString={(item) => (item ? item.description : "")}
-            placeholder="Escriba tipo vacante..."
-            titleText="Vacante"
-            shouldFilterItem={({ item: { description }, inputValue }) => 
-            description.toLowerCase().includes(inputValue.toLowerCase())}
-          />
-        </div>
-      </div>
-      <DataTable rows={infCopyRequest} headers={headerData}>
-        {({ rows, headers, getHeaderProps, getTableProps, getRowProps }) => (
-          <TableContainer title="">
-            <Table {...getTableProps()} size="compact">
-              <TableHead>
-                <TableRow>
-                  {headers.map((header) => (
-                    <TableHeader {...getHeaderProps({ header })}>
-                      {header.header}
-                    </TableHeader>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {rows.map((row) => (
-                  <React.Fragment key={row.id}>
-                    <TableRow {...getRowProps({ row })}>
-                      {row.cells.map((cell) => (
-                        <TableCell key={cell.id}>{cell.value}</TableCell>
-                      ))}
-                    </TableRow>
-                  </React.Fragment>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
-      </DataTable>
-
-      <div className="bx--row">
-        <div className="row-action">
-          <div className="bx--row" />
+        <div className="bx--row" style={{ marginBottom: "1.2rem" }}>
           <div className="bx--col">
-            <Button
-              className="custom-class"
-              kind="tertiary f"
-              renderIcon={DocumentDownload32}
-              size="default"
-              onClick={() => exportReportToExcel(this)}
-            >
-              Excel
-            </Button>
+            <ComboBox
+              onChange={(item) => {monthSelectChange(item)}}
+              id="comboMes"
+              light
+              selectedItem={monthSelect}
+              items={monthList}
+              itemToString={(item) => (item ? item.name : "")}
+              placeholder="Escriba mes..."
+              titleText="Mes"
+              shouldFilterItem={({ item: { name }, inputValue }) => 
+              name.toLowerCase().includes(inputValue.toLowerCase())}
+            />
+          </div>
+
+          <div className="bx--col">
+            <ComboBox
+              onChange={(item) => {yearSelectChange(item)}}
+              id="comboYear"
+              light
+              selectedItem={yearSelect}
+              items={yearList}
+              itemToString={(item) => (item ? item.name : "")}
+              placeholder="Escriba año..."
+              titleText="Año"
+              shouldFilterItem={({ item: { name }, inputValue }) => 
+              name.toLowerCase().includes(inputValue.toLowerCase())}
+            />
+          </div>
+        </div>
+        <div>
+          <br></br>
+        </div>
+        <div className="center_titles">
+          <span class="b">
+            {cantCreado} <br></br> <br></br> Creados
+          </span>
+          <span> </span>
+          <span class="c">
+            {cantNoAprob} <br></br> <br></br> No Aprobado
+          </span>
+          <span> </span>
+          <span class="d">
+            {cantProc} <br></br> <br></br> En Proceso
+          </span>
+          <span> </span>
+          <span class="e">
+            {cantObs} <br></br> <br></br> Observados
+          </span>
+          <span> </span>
+          <span class="c">
+            {cantRech} <br></br> <br></br> Rechazados
+          </span>
+          <span> </span>
+          <span class="g">
+            {cantAprob} <br></br> <br></br> Aprobados
+          </span>
+          <span> </span>
+        </div>
+        <div>
+          <br></br>
+        </div>
+        <div
+          className="bx--row"
+          style={{
+            border: "4px solid #7a8db3",
+            marginBottom: "1.2rem",
+            borderRadius: "6px",
+          }}
+        >
+          <div className="bx--col">
+            <ComboBox
+              onChange={(item) => {stateSelectChange(item)}}
+              id="comboTipoEstado"
+              light
+              selectedItem={stateSelect}
+              items={listState}
+              itemToString={(item) => (item ? item.description : "")}
+              placeholder="Escriba tipo estado..."
+              titleText="Estado"
+              shouldFilterItem={({ item: { description }, inputValue }) => 
+              description.toLowerCase().includes(inputValue.toLowerCase())}
+            />
+          </div>
+
+          <div className="bx--col">
+            <ComboBox
+              onChange={(item) => {orgUnitSelectChange(item)}}
+              id="comboOrgUnit"
+              light
+              selectedItem={orgUnitSelect}
+              items={listOrgUnit}
+              itemToString={(item) => (item ? item.description : "")}
+              placeholder="Escriba Unidad..."
+              titleText="Unidad Organizacional"
+              shouldFilterItem={({ item: { description }, inputValue }) => 
+              description.toLowerCase().includes(inputValue.toLowerCase())}
+            />
+          </div>
+
+          <div className="bx--col">
+            <ComboBox
+              onChange={(item) => {typeReqSelectChange(item)}}
+              id="comboTipoReq"
+              light
+              selectedItem={typeReqSelect}
+              items={listTypeReq}
+              itemToString={(item) => (item ? item.description : "")}
+              placeholder="Escriba tipo vacante..."
+              titleText="Vacante"
+              shouldFilterItem={({ item: { description }, inputValue }) => 
+              description.toLowerCase().includes(inputValue.toLowerCase())}
+            />
+          </div>
+        </div>
+        <DataTable rows={infCopyRequest} headers={headerData}>
+          {({ rows, headers, getHeaderProps, getTableProps, getRowProps }) => (
+            <TableContainer title="">
+              <Table {...getTableProps()} size="compact">
+                <TableHead>
+                  <TableRow>
+                    {headers.map((header) => (
+                      <TableHeader {...getHeaderProps({ header })}>
+                        {header.header}
+                      </TableHeader>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {rows.map((row) => (
+                    <React.Fragment key={row.id}>
+                      <TableRow {...getRowProps({ row })}>
+                        {row.cells.map((cell) => (
+                          <TableCell key={cell.id}>{cell.value}</TableCell>
+                        ))}
+                      </TableRow>
+                    </React.Fragment>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </DataTable>
+
+        <div className="bx--row">
+          <div className="row-action">
+            <div className="bx--row" />
+            <div className="bx--col">
+              <Button
+                className="custom-class"
+                kind="tertiary f"
+                renderIcon={DocumentDownload32}
+                size="default"
+                onClick={() => exportReportToExcel(this)}
+              >
+                Excel
+              </Button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+      )}
+    </>
   );
 }

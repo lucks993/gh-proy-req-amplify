@@ -4,8 +4,11 @@ import { Button, TextArea } from "carbon-components-react";
 import "./ConfigRequirement.scss";
 import ConfigRequirementSociety from "./ConfigRequirementSociety";
 import { fetchSocieties, sendSocieties } from "../../services/api/servicies";
+import ReactLoading from "react-loading";
 
 export default function ConfigRequirement(props) {
+  const [doneV1, setDoneV1] = useState(undefined);
+
   const [listSocieties, setListSocieties] = useState([]);
   const [checkSocieties, setCheckSocieties] = useState(() => {
     const statusCheck = {};
@@ -17,18 +20,21 @@ export default function ConfigRequirement(props) {
 
   //Fetch Societies
   useEffect(() => {
-    const getSocieties = async () => {
-      const societiesFromServer = await fetchSocieties();
-      setListSocieties(societiesFromServer);
-      setCheckSocieties(() => {
-        const statusCheck = {};
-        societiesFromServer.forEach((society) => {
-          statusCheck[society.id] = society.levelAproved;
+    setTimeout(() => {
+      const getSocieties = async () => {
+        const societiesFromServer = await fetchSocieties();
+        setListSocieties(societiesFromServer);
+        setCheckSocieties(() => {
+          const statusCheck = {};
+          societiesFromServer.forEach((society) => {
+            statusCheck[society.id] = society.levelAproved;
+          });
+          return statusCheck;
         });
-        return statusCheck;
-      });
-    };
-    getSocieties();
+        setDoneV1(true)
+      };
+      getSocieties();
+    }, 4000);
   }, []);
 
   const societyOnChange = (id, newLevel) => {
@@ -43,11 +49,21 @@ export default function ConfigRequirement(props) {
     }));
     // console.log(JSON.stringify(data))
     const societiesSend = await sendSocieties(data);
+    alert("Actualizado correctamente")
     props.history.go(0)
     // console.log("response: " + JSON.stringify(societiesSend))
   };
 
   return (
+    <>
+      {(!doneV1) ? (
+          <ReactLoading
+            type={"spin"}
+            color={"#002060"}
+            height={200}
+            width={200}
+          />
+        ) : (
     <div>
       <h2>Configuración</h2>
       <div style={{ marginBottom: "2rem" }}>
@@ -86,5 +102,7 @@ export default function ConfigRequirement(props) {
         </Button>
       </div>
     </div>
+    )}
+    </>
   );
 }

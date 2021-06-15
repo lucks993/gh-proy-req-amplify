@@ -22,6 +22,7 @@ import {
 import { headerData } from "./sampleData";
 import "./CourseStaffRequirement.scss";
 import { fetchRequest, sendRequestApprover, sendRequestReject, sendRequestObserve } from "../../services/api/servicies";
+import ReactLoading from "react-loading";
 
 const ModalRechazo = ({rechazarReq, row })=> {
   
@@ -224,6 +225,8 @@ let userReq = {
 }
 // const [listRow, setListRow] = useState([])
 export default function CourseStaffRequirement(props) {
+  const [doneV1, setDoneV1] = useState(undefined);
+
   const [listRequest, setListRequest] = useState([]);
   const [obsValue, setObsValue] = useState("Este requerimiento no es conforme")
   const [infRequest, setInfRequest] = useState([]);
@@ -242,6 +245,7 @@ export default function CourseStaffRequirement(props) {
 
   //Fetch Requirement Request Employee
   useEffect(() => {
+    setTimeout(() => {
     const getRequest = async () => {
       const requestFromServer = await fetchRequest();
       setListRequest(requestFromServer);
@@ -333,8 +337,10 @@ export default function CourseStaffRequirement(props) {
         });
         return dataReq;
       });
+      setDoneV1(true)
     };
     getRequest();
+  }, 4000);
   }, []);
 
   const listDataText = (list) => {
@@ -572,6 +578,15 @@ export default function CourseStaffRequirement(props) {
   }
 
   return (
+    <>
+      {(!doneV1) ? (
+          <ReactLoading
+            type={"spin"}
+            color={"#002060"}
+            height={200}
+            width={200}
+          />
+        ) : (
     <div className="bg--grid">
       <h2 className="center_titles">
         Mis Solicitudes en Curso - Requerimientos de Personal
@@ -669,13 +684,8 @@ export default function CourseStaffRequirement(props) {
         </ModalStateManager>)}
       </div>
     </div>
+    )}
+    </>
   );
 }
 // export default CourseStaffRequirement;
-/*{rows.map((row) => (
-                    <TableRow key={row.id}>
-                      {row.cells.map((cell) => (
-                        <TableCell key={cell.id}>{cell.value}</TableCell>
-                      ))}
-                    </TableRow>
-                  ))}*/
