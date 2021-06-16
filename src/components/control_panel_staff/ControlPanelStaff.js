@@ -107,7 +107,7 @@ let userReq = {
   apPaterno: "",
   apMaterno: "",
   codeSuperior: "0",
-  approverRole: 4
+  approverRole: 5
 }
 
 const showListYear = () => {
@@ -591,7 +591,7 @@ export default function ControlPanelStaff(props) {
     console.log(JSON.stringify(data))
     if(data.request.length > 0){
       const requestSend = await sendRequestMail(data)
-      alert("Solicitud aprobada")
+      alert("Solicitud enviada")
       props.history.go(0)
     }
   }
@@ -615,7 +615,7 @@ export default function ControlPanelStaff(props) {
     console.log(JSON.stringify(data))
     if(data.request.length > 0){
       const requestSend = await sendRequestMail(data)
-      alert("Solicitud aprobada")
+      alert("Solicitud enviada")
       props.history.go(0)
     }
   }

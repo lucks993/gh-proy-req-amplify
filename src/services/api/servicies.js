@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-let userEmp = 1
+let userEmp = 6
 
 const api = axios.create({
     baseURL: "https://70cd1uugng.execute-api.us-east-1.amazonaws.com/dev/"
@@ -40,7 +40,8 @@ export const fetchRequest= async () => {
 
 // Fetch Requirement List Request Employee
 export const fetchListRequest= async () => {
-    const res = await api.get('requirement/request')
+    // const res = await api.get('requirement/request')
+    const res = await api.get('https://rtjha24l80.execute-api.us-east-2.amazonaws.com/default/gh-proy-req-get-listRequest')
     return res.data
 }
 
@@ -103,6 +104,7 @@ export const fetchSocieties = async () => {
 // Save new Config Societies
 export const sendSocieties = async (data) => {
     const res = await api.post('settings/societies',data)
+    // const res = await api.post('https://rtjha24l80.execute-api.us-east-2.amazonaws.com/default/req-rrhh-postSocieties',data)
     // const res = await api.post('https://dfi9frerlj.execute-api.us-east-2.amazonaws.com/default/gh-proy-req-config-post-society-test',data)
     return res.data
 }

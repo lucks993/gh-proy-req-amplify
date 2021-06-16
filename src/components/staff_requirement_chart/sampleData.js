@@ -211,7 +211,7 @@ export const barOption1 =
             scale: {
                 "Nuevo Planificado": "#002060",
                 "Nuevo No Planificado": "#8faae6",
-                Reemplazo: "#c00000"
+                Reemplazo: "#7f7f7f"
             }
         },
         height: "400px"
@@ -334,7 +334,7 @@ export const barOption3 =
                 DEPRODECA: "#0070c0",
                 AGP: "#025022",
                 PANIFICADORA: "#bf8f00",
-                YURA: "#7f7f7f ",
+                YURA: "#7f7f7f",
                 SUPERMIX: "#2f6948",
                 INGEMIN: "#993300",
                 CALCESUR: "#7030a0",
